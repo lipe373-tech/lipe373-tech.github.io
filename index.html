@@ -195,6 +195,22 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .samplebar{background:var(--amber-bg);color:var(--amber);border-radius:12px;padding:10px 18px;font-size:13.5px;display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .samplebar button{border:none;background:var(--amber);color:#fff;border-radius:99px;padding:5px 14px;font-size:12.5px}
 
+/* ---------- CARTÕES DE CLIENTE ---------- */
+.clientgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.clientcard{background:var(--cream);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.clientcard .cc-top{display:flex;align-items:flex-start;gap:8px}
+.clientcard .cc-nome{font-family:'Playfair Display',serif;font-size:19px;color:var(--terra-deep);flex:1;line-height:1.25}
+.clientcard .cc-acoes{display:flex;gap:2px;flex:none}
+.clientcard .cc-serv{font-size:13.5px;color:var(--ink-soft);margin-top:4px;line-height:1.45}
+.clientcard .cc-valor{font-family:'Playfair Display',serif;font-size:26px;color:var(--terra);margin-top:14px}
+.clientcard .cc-valor span{font-family:'Jost';font-size:13px;color:var(--ink-soft);margin-left:2px}
+.clientcard .cc-status{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.clientcard .cc-dia{font-size:12.5px;color:var(--ink-soft)}
+.clientcard .cc-foot{display:flex;gap:14px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rose-soft)}
+.clientcard .cc-foot div{flex:1}
+.clientcard .cc-foot span{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft)}
+.clientcard .cc-foot b{font-size:15px;color:var(--terra-deep);font-weight:600}
+
 .nav .mobileonly{display:none!important}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
@@ -250,6 +266,9 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
   .duelist .dueitem .amt{margin-left:auto}
   .chartbox{height:230px!important}
   .report-grid{gap:14px}
+  .clientgrid{grid-template-columns:1fr;gap:12px}
+  .clientcard{padding:16px 18px}
+  .clientcard .cc-valor{font-size:23px}
   .samplebar{font-size:12.5px;padding:10px 14px}
 }
 </style>
@@ -682,10 +701,10 @@ async function exportExcel(){
   const wb=XLSX.utils.book_new();
   const add=(nome,rows)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Aviso:'Sem registros'}]),nome);
   add('Entradas',state.entradas.map(e=>({Data:fdate(e.data),'Descrição':e.descricao,Cliente:cliName(e.clienteId),Categoria:e.categoria,'Valor (R$)':e.valor,Status:e.status==='recebido'?'Recebido':'A receber','Forma':e.formaPgto||'','Prevista para':e.prevista?fdate(e.prevista):'','Nota fiscal':e.semNota?'Não':'Sim'})));
-  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Cliente:s.clienteId?cliName(s.clienteId):'',Categoria:s.categoria,'Valor (R$)':s.valor})));
+  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor})));
   add('Contas a pagar',state.contas.map(c=>({Vencimento:fdate(c.vencimento),Fornecedor:fornName(c.fornecedorId),'Descrição':c.descricao,'Valor (R$)':c.valor,Status:contaStatus(c)==='pago'?'Paga':contaStatus(c)==='atrasado'?'Atrasada':'Pendente','Paga em':c.pagoEm?fdate(c.pagoEm):''})));
   add('Fornecedores',state.fornecedores.map(f=>({Nome:f.nome,'Serviço':f.servico,Contato:f.contato})));
-  add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviço':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Nota fiscal':c.semNota?'Não':'Sim'})));
+  add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Nota fiscal':c.semNota?'Não':'Sim'})));
   add('Contratos',state.contratos.map(c=>({Cliente:cliName(c.clienteId),'Contrato':c.titulo,'Valor (R$)':c.valor,Tipo:c.periodicidade==='projeto'?'Projeto único':'Mensal','Início':fdate(c.inicio),'Término':c.fim?fdate(c.fim):'','Status':c.status,'Obs':c.obs||''})));
   add('Propostas',state.propostas.map(p=>{const t=propTotais(p);return {Data:fdate(p.data),Cliente:p.nome,'Serviços':p.itens.map(i=>i.nome).join(', '),'Mensal (R$)':t.mensal||'','Único (R$)':t.unico||'','Desconto (R$)':p.desconto||'','Válida até':p.validade?fdate(p.validade):'',Status:p.status};}));
   XLSX.writeFile(wb,'backup-financeiro-'+today()+'.xlsx');
@@ -825,12 +844,11 @@ function viewMov(kind){
     <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${c}</option>`).join('')}</select>
   </div>
   <div class="panel">${list.length?`<table><thead><tr>
-    <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th>${!isIn?'<th>Cliente</th>':''}<th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
+    <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th><th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
     <tbody>${list.map(x=>`<tr>
       <td>${fdate(x.data)}</td>
       <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}</td>
       <td>${isIn?esc(cliName(x.clienteId)):esc(fornName(x.fornecedorId))}</td>
-      ${!isIn?`<td>${x.clienteId?esc(cliName(x.clienteId)):'—'}</td>`:''}
       <td>${esc(x.categoria)}</td>
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
       ${isIn?`<td>${esc(x.formaPgto||'—')}</td><td>${x.status==='recebido'?'<span class="pill ok">Recebido</span>':`${x.prevista&&x.prevista<today()?'<span class="pill bad">Atrasada</span>':'<span class="pill warn">A receber</span>'} <button class="rowbtn" title="Marcar como recebido" onclick="receber('${x.id}')">✓</button>${x.prevista?`<div class="desc-sub">prev. ${fdate(x.prevista)}</div>`:''}`}</td>`:''}
@@ -893,23 +911,40 @@ function viewFornecedores(){
     </tr>`).join('')}</tbody></table>`:`<div class="empty">Nenhum fornecedor cadastrado.</div>`}</div>`;
 }
 function viewClientes(){
-  const rec={};state.entradas.filter(e=>e.clienteId&&e.status==='recebido').forEach(e=>{rec[e.clienteId]=(rec[e.clienteId]||0)+e.valor;});
-  const gastoCli={};state.saidas.filter(s=>s.clienteId).forEach(s=>{gastoCli[s.clienteId]=(gastoCli[s.clienteId]||0)+s.valor;});
+  const ano=new Date().getFullYear()+'';
+  const y=thisYM();
   const mrr=state.clientes.reduce((a,b)=>a+(b.valorMensal||0),0);
+  const noAno={},desde={};
+  state.entradas.filter(e=>e.clienteId).forEach(e=>{
+    if(e.status==='recebido'&&e.data.slice(0,4)===ano)noAno[e.clienteId]=(noAno[e.clienteId]||0)+e.valor;
+    if(!desde[e.clienteId]||e.data<desde[e.clienteId])desde[e.clienteId]=e.data;
+  });
+  const statusMes=c=>{
+    const ents=state.entradas.filter(e=>e.clienteId===c.id&&ym(e.data)===y);
+    if(!ents.length)return c.valorMensal?{t:'Sem lançamento no mês',cls:'warn'}:null;
+    if(ents.every(e=>e.status==='recebido'))return {t:'Recebido este mês',cls:'ok'};
+    const atrasada=ents.some(e=>e.status==='a_receber'&&e.prevista&&e.prevista<today());
+    return atrasada?{t:'Pagamento atrasado',cls:'bad'}:{t:'A receber este mês',cls:'warn'};
+  };
+  const lista=state.clientes.slice().sort((a,b)=>(b.valorMensal||0)-(a.valorMensal||0));
   return `
-  <div class="topbar"><div><h1>Clientes</h1><div class="sub">${state.clientes.length} cliente(s) · ${fmt(mrr)}/mês em contratos</div></div>
+  <div class="topbar"><div><h1>Clientes</h1><div class="sub">${state.clientes.length} cliente(s) · ${fmt(mrr)}/mês recorrente</div></div>
     <button class="btn btn-primary" onclick="openForm('cliente')">+ Novo cliente</button></div>
-  <div class="panel">${state.clientes.length?`<table><thead><tr>
-    <th>Nome</th><th>Serviço contratado</th><th>Valor mensal</th><th>Dia de cobrança</th><th>Receita total</th><th>Custos</th><th>Lucro</th><th></th></tr></thead>
-    <tbody>${state.clientes.map(c=>{const custo=gastoCli[c.id]||0;const lucro=(rec[c.id]||0)-custo;return `<tr>
-      <td><b>${esc(c.nome)}</b>${c.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}</td><td>${esc(c.servico)}</td>
-      <td class="money">${c.valorMensal?fmt(c.valorMensal):'—'}</td>
-      <td>${c.valorMensal?'dia '+(c.diaCobranca||5):'—'}</td>
-      <td class="money">${fmt(rec[c.id]||0)}</td>
-      <td class="money" style="color:${custo?'var(--red)':'var(--ink-soft)'}">${custo?'− '+fmt(custo):'—'}</td>
-      <td class="money" style="color:${lucro>=0?'var(--green)':'var(--red)'}">${fmt(lucro)}</td>
-      <td><button class="rowbtn" onclick="openForm('cliente','${c.id}')">✎</button><button class="rowbtn" onclick="del('clientes','${c.id}')">🗑</button></td>
-    </tr>`;}).join('')}</tbody></table>`:`<div class="empty">Nenhum cliente cadastrado.</div>`}</div>`;
+  ${lista.length?`<div class="clientgrid">${lista.map(c=>{
+    const st=statusMes(c);
+    return `<div class="clientcard">
+      <div class="cc-top">
+        <div class="cc-nome">${esc(c.nome)}${c.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:10.5px">s/ nota</span>':''}</div>
+        <div class="cc-acoes"><button class="rowbtn" onclick="openForm('cliente','${c.id}')">✎</button><button class="rowbtn" onclick="del('clientes','${c.id}')">🗑</button></div>
+      </div>
+      ${c.servico?`<div class="cc-serv">${esc(c.servico)}</div>`:''}
+      <div class="cc-valor">${c.valorMensal?fmt(c.valorMensal)+'<span>/mês</span>':'<span style="font-size:14px;color:var(--ink-soft)">sem mensalidade fixa</span>'}</div>
+      ${st?`<div class="cc-status"><span class="pill ${st.cls}">${st.t}</span>${c.valorMensal?`<span class="cc-dia">vence dia ${c.diaCobranca||5}</span>`:''}</div>`:''}
+      <div class="cc-foot">
+        <div><span>Recebido em ${ano}</span><b>${fmt(noAno[c.id]||0)}</b></div>
+        <div><span>Cliente desde</span><b>${desde[c.id]?fdate(desde[c.id]):'—'}</b></div>
+      </div>
+    </div>`;}).join('')}</div>`:`<div class="panel"><div class="empty">Nenhum cliente cadastrado. Clique em "+ Novo cliente".</div></div>`}`;
 }
 
 /* ---------- CONTRATOS ---------- */
@@ -1522,7 +1557,6 @@ function openForm(type,id){
     </div>
     <div class="field"><label>Descrição</label><input id="f_desc" value="${s?esc(s.descricao):''}" placeholder="Ex.: Assinatura Canva, artes do mês..."></div>
     <div class="field"><label>Fornecedor</label><select id="f_forn">${opt(state.fornecedores,s?s.fornecedorId:null,'— Sem fornecedor —')}</select></div>
-    <div class="field"><label>Cliente (custo deste cliente — opcional)</label><select id="f_scli">${opt(state.clientes,s?s.clienteId:null,'— Custo geral da agência —')}</select></div>
     <div class="field"><label>Categoria</label><select id="f_cat">${cats(CAT_OUT,s?s.categoria:null)}</select></div>`;
   }
   if(type==='conta'){
@@ -1596,7 +1630,7 @@ function submitForm(type,id){
     if(id){Object.assign(state.entradas.find(x=>x.id===id),obj);}else{state.entradas.push({id:uid(),...obj});}
   }
   if(type==='saida'){
-    const obj={data:gv('f_data')||today(),descricao:gv('f_desc'),fornecedorId:gv('f_forn')||null,clienteId:gv('f_scli')||null,categoria:gv('f_cat'),valor:num(gv('f_valor'))};
+    const obj={data:gv('f_data')||today(),descricao:gv('f_desc'),fornecedorId:gv('f_forn')||null,categoria:gv('f_cat'),valor:num(gv('f_valor'))};
     if(id){Object.assign(state.saidas.find(x=>x.id===id),obj);}else{state.saidas.push({id:uid(),...obj});}
   }
   if(type==='conta'){
