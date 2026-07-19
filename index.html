@@ -210,6 +210,8 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .clientcard .cc-foot div{flex:1}
 .clientcard .cc-foot span{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft)}
 .clientcard .cc-foot b{font-size:15px;color:var(--terra-deep);font-weight:600}
+.clientcard.inativo{opacity:.72;background:var(--bg)}
+.clientcard.inativo .cc-valor{color:var(--ink-soft)}
 
 .nav .mobileonly{display:none!important}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
@@ -372,7 +374,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -459,7 +461,7 @@ function gerarRecorrentes(){
   if(state.config.lastGen===y)return false;
   let n=0;
   // mensalidades dos clientes com valor mensal
-  state.clientes.filter(c=>c.valorMensal>0).forEach(c=>{
+  state.clientes.filter(c=>c.valorMensal>0&&c.status!=='inativo').forEach(c=>{
     const ja=state.entradas.some(e=>e.clienteId===c.id&&ym(e.data)===y&&e.descricao==='Mensalidade');
     if(!ja){
       const dia=Math.min(c.diaCobranca||5,28);
@@ -704,7 +706,7 @@ async function exportExcel(){
   add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor})));
   add('Contas a pagar',state.contas.map(c=>({Vencimento:fdate(c.vencimento),Fornecedor:fornName(c.fornecedorId),'Descrição':c.descricao,'Valor (R$)':c.valor,Status:contaStatus(c)==='pago'?'Paga':contaStatus(c)==='atrasado'?'Atrasada':'Pendente','Paga em':c.pagoEm?fdate(c.pagoEm):''})));
   add('Fornecedores',state.fornecedores.map(f=>({Nome:f.nome,'Serviço':f.servico,Contato:f.contato})));
-  add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Nota fiscal':c.semNota?'Não':'Sim'})));
+  add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Situação':c.status==='inativo'?'Inativo':'Ativo','Cliente desde':c.desde?fdate(c.desde):'','Saiu em':c.saidaEm?fdate(c.saidaEm):'','Nota fiscal':c.semNota?'Não':'Sim'})));
   add('Contratos',state.contratos.map(c=>({Cliente:cliName(c.clienteId),'Contrato':c.titulo,'Valor (R$)':c.valor,Tipo:c.periodicidade==='projeto'?'Projeto único':'Mensal','Início':fdate(c.inicio),'Término':c.fim?fdate(c.fim):'','Status':c.status,'Obs':c.obs||''})));
   add('Propostas',state.propostas.map(p=>{const t=propTotais(p);return {Data:fdate(p.data),Cliente:p.nome,'Serviços':p.itens.map(i=>i.nome).join(', '),'Mensal (R$)':t.mensal||'','Único (R$)':t.unico||'','Desconto (R$)':p.desconto||'','Válida até':p.validade?fdate(p.validade):'',Status:p.status};}));
   XLSX.writeFile(wb,'backup-financeiro-'+today()+'.xlsx');
@@ -910,6 +912,8 @@ function viewFornecedores(){
       <td><button class="rowbtn" onclick="openForm('fornecedor','${f.id}')">✎</button><button class="rowbtn" onclick="del('fornecedores','${f.id}')">🗑</button></td>
     </tr>`).join('')}</tbody></table>`:`<div class="empty">Nenhum fornecedor cadastrado.</div>`}</div>`;
 }
+let cliFiltro='ativos';
+function setCliFiltro(v){cliFiltro=v;render();}
 function viewClientes(){
   const ano=new Date().getFullYear()+'';
   const y=thisYM();
@@ -926,15 +930,40 @@ function viewClientes(){
     const atrasada=ents.some(e=>e.status==='a_receber'&&e.prevista&&e.prevista<today());
     return atrasada?{t:'Pagamento atrasado',cls:'bad'}:{t:'A receber este mês',cls:'warn'};
   };
-  const lista=state.clientes.slice().sort((a,b)=>(b.valorMensal||0)-(a.valorMensal||0));
+  const ativo=c=>c.status!=='inativo';
+  const ativos=state.clientes.filter(ativo);
+  const inativos=state.clientes.filter(c=>!ativo(c));
+  // atendidos no ano: teve lançamento no ano, ou entrou/saiu dentro do ano, ou está ativo
+  const noAnoAtendidos=state.clientes.filter(c=>
+    (noAno[c.id]>0)||ativo(c)||(c.saidaEm&&c.saidaEm.slice(0,4)===ano)||(c.desde&&c.desde.slice(0,4)===ano)
+  ).length;
+  const entraram=state.clientes.filter(c=>c.desde&&c.desde.slice(0,4)===ano).length;
+  const sairam=state.clientes.filter(c=>c.saidaEm&&c.saidaEm.slice(0,4)===ano).length;
+  let lista=state.clientes.slice();
+  if(cliFiltro==='ativos')lista=lista.filter(ativo);
+  if(cliFiltro==='inativos')lista=lista.filter(c=>!ativo(c));
+  lista.sort((a,b)=>(ativo(b)-ativo(a))||((b.valorMensal||0)-(a.valorMensal||0)));
   return `
-  <div class="topbar"><div><h1>Clientes</h1><div class="sub">${state.clientes.length} cliente(s) · ${fmt(mrr)}/mês recorrente</div></div>
+  <div class="topbar"><div><h1>Clientes</h1><div class="sub">${ativos.length} ativo(s) · ${fmt(mrr)}/mês recorrente</div></div>
     <button class="btn btn-primary" onclick="openForm('cliente')">+ Novo cliente</button></div>
+  <div class="cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+    <div class="card"><div class="lbl">Clientes ativos</div><div class="val pos">${ativos.length}</div></div>
+    <div class="card"><div class="lbl">Atendidos em ${ano}</div><div class="val">${noAnoAtendidos}</div><div class="note">no ano todo</div></div>
+    <div class="card"><div class="lbl">Entraram em ${ano}</div><div class="val" style="color:var(--terra)">${entraram}</div></div>
+    <div class="card"><div class="lbl">Sairam em ${ano}</div><div class="val ${sairam?'neg':''}">${sairam}</div></div>
+  </div>
+  <div class="filters">
+    <select onchange="setCliFiltro(this.value)">
+      <option value="ativos" ${cliFiltro==='ativos'?'selected':''}>Somente ativos (${ativos.length})</option>
+      <option value="inativos" ${cliFiltro==='inativos'?'selected':''}>Somente inativos (${inativos.length})</option>
+      <option value="todos" ${cliFiltro==='todos'?'selected':''}>Todos (${state.clientes.length})</option>
+    </select>
+  </div>
   ${lista.length?`<div class="clientgrid">${lista.map(c=>{
-    const st=statusMes(c);
-    return `<div class="clientcard">
+    const st=ativo(c)?statusMes(c):null;
+    return `<div class="clientcard${ativo(c)?'':' inativo'}">
       <div class="cc-top">
-        <div class="cc-nome">${esc(c.nome)}${c.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:10.5px">s/ nota</span>':''}</div>
+        <div class="cc-nome">${esc(c.nome)}${ativo(c)?'':' <span class="pill bad" style="font-size:10.5px">inativo</span>'}${c.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:10.5px">s/ nota</span>':''}</div>
         <div class="cc-acoes"><button class="rowbtn" onclick="openForm('cliente','${c.id}')">✎</button><button class="rowbtn" onclick="del('clientes','${c.id}')">🗑</button></div>
       </div>
       ${c.servico?`<div class="cc-serv">${esc(c.servico)}</div>`:''}
@@ -942,7 +971,7 @@ function viewClientes(){
       ${st?`<div class="cc-status"><span class="pill ${st.cls}">${st.t}</span>${c.valorMensal?`<span class="cc-dia">vence dia ${c.diaCobranca||5}</span>`:''}</div>`:''}
       <div class="cc-foot">
         <div><span>Recebido em ${ano}</span><b>${fmt(noAno[c.id]||0)}</b></div>
-        <div><span>Cliente desde</span><b>${desde[c.id]?fdate(desde[c.id]):'—'}</b></div>
+        <div><span>${ativo(c)?'Cliente desde':'Período'}</span><b>${c.desde?fdate(c.desde):(desde[c.id]?fdate(desde[c.id]):'—')}${ativo(c)?'':(c.saidaEm?' → '+fdate(c.saidaEm):'')}</b></div>
       </div>
     </div>`;}).join('')}</div>`:`<div class="panel"><div class="empty">Nenhum cliente cadastrado. Clique em "+ Novo cliente".</div></div>`}`;
 }
@@ -1609,6 +1638,14 @@ function openForm(type,id){
       <div class="field"><label>Dia de cobrança</label><input type="number" min="1" max="28" id="f_dia" value="${c&&c.diaCobranca?c.diaCobranca:5}"></div>
     </div>
     <div class="field"><label>Categoria da mensalidade</label><select id="f_ccat">${cats(CAT_IN,c?c.categoria:'Gestão de redes')}</select></div>
+    <div class="fieldrow">
+      <div class="field"><label>Situação</label><select id="f_cst" onchange="document.getElementById('boxSaida').style.display=this.value==='inativo'?'block':'none'">
+        <option value="ativo" ${!c||c.status!=='inativo'?'selected':''}>Ativo</option>
+        <option value="inativo" ${c&&c.status==='inativo'?'selected':''}>Inativo (encerrou)</option>
+      </select></div>
+      <div class="field"><label>Cliente desde</label><input type="date" id="f_cini" value="${c&&c.desde?c.desde:''}"></div>
+    </div>
+    <div class="field" id="boxSaida" style="display:${c&&c.status==='inativo'?'block':'none'}"><label>Data de saída</label><input type="date" id="f_cfim" value="${c&&c.saidaEm?c.saidaEm:''}"></div>
     <div class="field"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f_csn" style="width:auto" ${c&&c.semNota?'checked':''}> Não emito nota fiscal para este cliente</label></div>
     <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px">Com o valor mensal preenchido, a mensalidade é lançada automaticamente todo mês como "a receber" — é só marcar ✓ quando cair o pagamento.</p>`;
   }
@@ -1649,7 +1686,8 @@ function submitForm(type,id){
     const marcados=[...document.querySelectorAll('#f_svcbox input:checked')].map(x=>x.value);
     const extras=gv('f_servx').split(',').map(s=>s.trim()).filter(Boolean);
     const servicos=[...marcados,...extras];
-    const obj={nome:gv('f_nome'),servicos,servico:servicos.join(', '),valorMensal:num(gv('f_vm')),diaCobranca:Math.min(Math.max(parseInt(gv('f_dia'))||5,1),28),categoria:gv('f_ccat')||'Gestão de redes',semNota:document.getElementById('f_csn').checked};
+    const st=gv('f_cst')||'ativo';
+    const obj={nome:gv('f_nome'),servicos,servico:servicos.join(', '),valorMensal:num(gv('f_vm')),diaCobranca:Math.min(Math.max(parseInt(gv('f_dia'))||5,1),28),categoria:gv('f_ccat')||'Gestão de redes',semNota:document.getElementById('f_csn').checked,status:st,desde:gv('f_cini')||null,saidaEm:st==='inativo'?(gv('f_cfim')||today()):null};
     if(id){Object.assign(state.clientes.find(x=>x.id===id),obj);}else{state.clientes.push({id:uid(),...obj});}
   }
   save();closeModal();render();
