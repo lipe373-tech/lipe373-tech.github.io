@@ -7,7 +7,9 @@
 <meta name="theme-color" content="#8A4B41">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="AP Financeiro">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,19 +212,63 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
   .cards{grid-template-columns:1fr 1fr;gap:10px}
   .card{padding:14px 16px}
   .card .val{font-size:20px}
-  .panel{padding:16px;overflow-x:auto}
-  table{font-size:12.5px;min-width:520px}
-  th,td{padding:8px 6px}
-  .modal{padding:24px 18px;width:94vw!important;max-height:86vh}
+  .panel{padding:16px 14px;overflow:visible}
+
+  /* Tabelas viram cartões empilhados */
+  table{min-width:0;font-size:14px}
+  thead{display:none}
+  tbody,tr,td{display:block;width:100%}
+  tr{background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+  tr:hover td{background:transparent}
+  td{border:none;padding:5px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right}
+  td:before{content:attr(data-label);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft);text-align:left;flex:none;max-width:45%}
+  td:empty{display:none}
+  td:first-child{font-size:15.5px;padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid var(--rose)}
+  td .desc-sub{text-align:right}
+
+  .modal{padding:22px 18px 26px;width:100%!important;max-width:100%;max-height:92vh;border-radius:22px 22px 0 0;position:fixed;bottom:0;left:0;right:0}
+  .overlay{align-items:flex-end}
   .fieldrow{grid-template-columns:1fr}
+  .field input,.field select,.field textarea{font-size:16px;padding:13px 14px}
+  .btn{padding:13px 22px}
+  .btn-sm{padding:9px 16px}
+  .rowbtn{font-size:18px;padding:7px 10px}
+  .modalbtns{gap:8px}
+  .modalbtns .btn{flex:1;text-align:center}
   .chips{gap:5px}
-  .chip{font-size:11.5px;padding:5px 10px}
+  .chip{font-size:11.5px;padding:6px 11px}
+  .chipchk{font-size:12px;padding:7px 12px}
+  .prop-item{background:var(--bg);border-radius:12px;padding:10px}
   .prop-item .pi-nome{min-width:100%}
   .prop-item .pi-valor,.prop-item .pi-tipo{flex:1;width:auto}
+  .filters{gap:8px}
+  .filters select,.filters input{flex:1;min-width:140px;font-size:15px}
+  .duelist .dueitem{flex-wrap:wrap}
+  .duelist .dueitem .amt{margin-left:auto}
+  .chartbox{height:230px!important}
+  .report-grid{gap:14px}
+  .samplebar{font-size:12.5px;padding:10px 14px}
 }
 </style>
 </head>
 <body>
+
+<!-- ============ CARREGANDO (evita tela branca) ============ -->
+<div id="bootScreen" style="position:fixed;inset:0;background:#8A4B41;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;color:#EDCFC6;font-family:'Jost',sans-serif">
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:76px;letter-spacing:-14px;line-height:1">AP</div>
+  <div style="font-size:11px;letter-spacing:5px;margin-top:6px">AMANDA PINHEIRO</div>
+  <div id="bootMsg" style="font-size:13px;letter-spacing:1px;margin-top:26px;opacity:.75">carregando…</div>
+  <button id="bootBtn" onclick="location.reload()" style="display:none;margin-top:18px;border:1px solid rgba(237,207,198,.5);background:transparent;color:#EDCFC6;border-radius:99px;padding:10px 22px;font-family:'Jost';font-size:14px">Tentar de novo</button>
+</div>
+<script>
+setTimeout(function(){
+  var b=document.getElementById('bootScreen');
+  if(b&&b.style.display!=='none'&&!window.__apReady){
+    document.getElementById('bootMsg').textContent='Demorando mais que o normal…';
+    document.getElementById('bootBtn').style.display='inline-block';
+  }
+},7000);
+</script>
 
 <!-- ============ TELA DE LOGIN ============ -->
 <div class="loginwrap" id="loginScreen">
@@ -268,6 +314,7 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 window.addEventListener('error',function(ev){
   if(window.__apReady)return;
   var el=document.getElementById('loginErr');
+  var b=document.getElementById('bootScreen');if(b)b.style.display='none';
   if(el){
     var msg=ev.message||('Falha ao baixar um componente ('+((ev.target&&(ev.target.src||ev.target.href))||'rede')+')');
     el.textContent='Erro ao carregar o sistema: '+msg+' — verifique a internet, desative bloqueadores para este site e recarregue a página.';
@@ -467,6 +514,7 @@ function sair(){
 
 /* ================= INICIALIZAÇÃO ================= */
 if(!configOk){
+  const _b=document.getElementById('bootScreen');if(_b)_b.style.display='none';
   document.getElementById('loginBody').outerHTML=`<div class="setupbox">
     <h2>Falta configurar o Firebase</h2>
     <p>Abra este arquivo num editor de texto e cole o bloco <code>firebaseConfig</code> do seu projeto
@@ -479,10 +527,12 @@ if(!configOk){
     auth=getAuth(fbApp);
     db=getFirestore(fbApp);
   }catch(e){
+    const _b2=document.getElementById('bootScreen');if(_b2)_b2.style.display='none';
     loginError('Erro ao iniciar o sistema: '+e.message+'. Recarregue a página.');
     throw e;
   }
   onAuthStateChanged(auth,async user=>{
+    const boot=document.getElementById('bootScreen');if(boot)boot.style.display='none';
     if(user){
       currentUser=user;
       document.getElementById('loginScreen').style.display='none';
@@ -575,6 +625,20 @@ function render(){
   if(page==='relatorio')drawRelCharts();
   if(page==='precificacao')calcPrec();
   if(page==='meta')drawMetaChart();
+  rotularCelulas();
+}
+
+/* No celular as tabelas viram cartões: copia o cabeçalho para cada célula */
+function rotularCelulas(){
+  document.querySelectorAll('#main table').forEach(t=>{
+    const heads=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());
+    t.querySelectorAll('tbody tr').forEach(tr=>{
+      [...tr.children].forEach((td,i)=>{
+        if(heads[i])td.setAttribute('data-label',heads[i]);
+        else td.removeAttribute('data-label');
+      });
+    });
+  });
 }
 function clearSample(){
   if(!confirm('Apagar TODOS os dados (lançamentos, contas, clientes e fornecedores) e começar do zero? Essa ação não tem desfazer.'))return;
