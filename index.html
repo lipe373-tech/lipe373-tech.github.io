@@ -222,9 +222,12 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
   tr:hover td{background:transparent}
   td{border:none;padding:5px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right}
   td:before{content:attr(data-label);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft);text-align:left;flex:none;max-width:45%}
+  td:not([data-label]):before{display:none}
   td:empty{display:none}
   td:first-child{font-size:15.5px;padding-bottom:8px;margin-bottom:4px;border-bottom:1px solid var(--rose)}
   td .desc-sub{text-align:right}
+  td:last-child{justify-content:flex-end;gap:6px;padding-top:10px;margin-top:6px;border-top:1px solid var(--rose-soft)}
+  td:last-child .rowbtn{background:var(--rose-soft);border-radius:9px;min-width:42px}
 
   .modal{padding:22px 18px 26px;width:100%!important;max-width:100%;max-height:92vh;border-radius:22px 22px 0 0;position:fixed;bottom:0;left:0;right:0}
   .overlay{align-items:flex-end}
