@@ -379,7 +379,7 @@ const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
 /* ================= DATA ================= */
-const CAT_IN=['Gestão de redes','Tráfego pago','Branding & Design','Consultoria','Outros'];
+const CAT_IN=['Gestão de redes','Tráfego pago','Branding & Design','Consultoria','Mentoria','Outros'];
 const CAT_OUT=['Fornecedores','Ferramentas & Software','Impostos','Equipamentos','Educação','Pró-labore','Outros'];
 
 let state=null;
@@ -1002,7 +1002,7 @@ function viewContratos(){
 }
 
 /* ---------- PROPOSTAS ---------- */
-const SERVICOS_SUGERIDOS=['Gestão de redes sociais','Tráfego pago','Branding & Design','Consultoria','Captação de conteúdo','Site / Landing page'];
+const SERVICOS_SUGERIDOS=['Gestão de redes sociais','Tráfego pago','Mentoria','Branding & Design','Consultoria','Captação de conteúdo','Site / Landing page'];
 const SERVICO_DETALHES={};
 function listaE(a){return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:(a[0]||'');}
 /* Assistentes de detalhamento: campos rápidos que montam os "itens inclusos" sozinhos */
