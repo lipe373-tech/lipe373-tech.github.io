@@ -214,23 +214,42 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .clientcard.inativo .cc-valor{color:var(--ink-soft)}
 
 .nav .mobileonly{display:none!important}
+.mtopbar{display:none}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
-  .sidebar{top:auto;bottom:0;width:100%;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);flex-direction:row;align-items:center;box-shadow:0 -4px 16px rgba(95,51,43,.3);z-index:40}
+  /* ---------- BARRA SUPERIOR (app bar) ---------- */
+  .mtopbar{display:flex;align-items:center;gap:12px;position:fixed;top:0;left:0;right:0;height:calc(56px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 18px 0;background:var(--terra);color:var(--rose);z-index:45;box-shadow:0 2px 12px rgba(95,51,43,.22)}
+  .mtopbar .mono{font-family:'Playfair Display',serif;font-size:30px;letter-spacing:-6px;line-height:1;flex:none}
+  .mtopbar .mono .p{margin-left:1px}
+  .mtopbar .mt-title{flex:1;font-size:16px;letter-spacing:.4px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mtopbar .mt-sync{font-size:13px;opacity:.8;flex:none}
+  .mtopbar .mt-sync.err{color:#FFB4A0;opacity:1}
+
+  /* ---------- MENU INFERIOR ---------- */
+  .sidebar{top:auto;bottom:0;width:100%;height:calc(62px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);flex-direction:row;align-items:stretch;background:var(--terra);box-shadow:0 -3px 16px rgba(95,51,43,.28);z-index:40}
   .logo,.sidefoot{display:none}
-  .nav{flex-direction:row;padding:4px 4px;gap:0;overflow-x:auto;align-items:center;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .nav{flex-direction:row;padding:6px 6px;gap:2px;overflow-x:auto;align-items:center;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
   .nav::-webkit-scrollbar{display:none}
-  .nav button{position:relative;flex:none;width:auto;flex-direction:column;gap:2px;padding:5px 7px;font-size:8.5px;letter-spacing:0;border-radius:9px;justify-content:center;align-items:center;text-align:center}
-  .nav button span{max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .nav button svg{width:20px;height:20px}
-  .nav .navbadge{position:absolute;top:1px;right:2px;margin:0;font-size:9.5px;padding:0 5px}
+  .nav button{position:relative;flex:none;width:60px;flex-direction:column;gap:3px;padding:6px 4px;font-size:8.5px;letter-spacing:.2px;border-radius:12px;justify-content:center;align-items:center;text-align:center;color:rgba(237,207,198,.7);scroll-snap-align:center}
+  .nav button span{max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+  .nav button svg{width:21px;height:21px}
+  .nav button.active{background:var(--rose);color:var(--terra-dark);font-weight:600}
+  .nav .navbadge{position:absolute;top:2px;right:8px;margin:0;font-size:9px;padding:0 5px;line-height:15px;min-width:15px}
   .nav .mobileonly{display:flex!important}
-  .main{margin-left:0;padding:18px 14px 92px;max-width:100%}
-  .topbar{flex-direction:column;align-items:flex-start;gap:12px}
-  .cards{grid-template-columns:1fr 1fr;gap:10px}
-  .card{padding:14px 16px}
-  .card .val{font-size:20px}
-  .panel{padding:16px 14px;overflow:visible}
+
+  .main{margin-left:0;padding:calc(66px + env(safe-area-inset-top)) 14px calc(80px + env(safe-area-inset-bottom));max-width:100%}
+  .topbar{flex-direction:column;align-items:stretch;gap:12px;margin-bottom:18px}
+  .topbar h1{font-size:24px}
+  .topbar .btn-primary{width:100%;text-align:center}
+  .cards{grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+  .card{padding:15px 16px;border-radius:14px}
+  .card .lbl{font-size:11px;letter-spacing:1.2px}
+  .card .val{font-size:21px}
+  .panel{padding:17px 16px;overflow:visible;border-radius:16px;margin-bottom:14px}
+  .panel h3{font-size:16.5px;margin-bottom:13px}
+  .topbar .btn-ghost,.topbar select{width:100%;text-align:center}
+  .topbar>div:last-child{display:flex;flex-direction:column;gap:8px;width:100%}
+  .topbar>div:last-child .btn,.topbar>div:last-child select{width:100%}
 
   /* Tabelas viram cartões empilhados */
   table{min-width:0;font-size:14px}
@@ -321,13 +340,18 @@ setTimeout(function(){
       <div class="logosub">FINANCEIRO</div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="sidefoot">
+    <div class="sidefoot" id="sidefoot">
       <span class="sync" id="syncStatus"></span>
       <button class="sairbtn" onclick="openConfig()">⚙ AJUSTES</button>
       <button class="sairbtn" onclick="sair()">SAIR</button>
       <div>MARKETING &amp; ESTRATÉGIA</div>
     </div>
   </aside>
+  <header class="mtopbar">
+    <span class="mono">A<span class="p">P</span></span>
+    <span class="mt-title" id="mtitle">Dashboard</span>
+    <span class="mt-sync" id="mSync">✓</span>
+  </header>
   <main class="main" id="main"></main>
 </div>
 
@@ -444,7 +468,8 @@ function seed(){
 }
 
 /* ================= NUVEM (Firestore) ================= */
-function setSync(txt,cls){const el=document.getElementById('syncStatus');el.textContent=txt;el.className='sync '+(cls||'');}
+function setSync(txt,cls){const el=document.getElementById('syncStatus');if(el){el.textContent=txt;el.className='sync '+(cls||'');}
+  const m=document.getElementById('mSync');if(m){m.textContent=cls==='err'?'⚠':(/salvo/.test(txt)?'✓':'⋯');m.className='mt-sync'+(cls==='err'?' err':'');}}
 async function loadData(){
   const snap=await getDoc(doc(db,'financeiro',currentUser.uid));
   if(snap.exists()){state=snap.data();}
@@ -625,6 +650,14 @@ function renderNav(){
   ).join('')
   +`<button class="mobileonly" onclick="openConfig()"><span style="font-size:18px;line-height:1">⚙</span><span>Ajustes</span></button>`
   +`<button class="mobileonly" onclick="sair()"><span style="font-size:18px;line-height:1">⏻</span><span>Sair</span></button>`;
+  // barra superior mobile: nome da tela + centraliza o item ativo no menu
+  const lbl=(PAGES.find(p=>p[0]===page)||[,'']) [1];
+  const mt=document.getElementById('mtitle');if(mt)mt.textContent=lbl||'';
+  const nav=document.getElementById('nav');
+  const at=nav&&nav.querySelector('button.active');
+  if(at&&window.matchMedia('(max-width:800px)').matches){
+    try{at.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});}catch(e){}
+  }
 }
 function go(p){page=p;render();}
 
