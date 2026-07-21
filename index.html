@@ -374,7 +374,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -611,11 +611,12 @@ const ICONS={
   contratos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 13h7M9 17h5M9 9h3"/></svg>',
   precificacao:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 6h6M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 15h.01M9 19h6"/></svg>',
   propostas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
-  meta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>'
+  meta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>',
+  anual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>'
 };
 const PAGES=[
   ['dashboard','Dashboard'],['entradas','Entradas'],['saidas','Saídas'],
-  ['contas','Contas a Pagar'],['propostas','Propostas'],['contratos','Contratos'],['fornecedores','Fornecedores'],['clientes','Clientes'],['precificacao','Precificação'],['relatorio','Relatório Mensal'],['meta','Meta do Ano']
+  ['contas','Contas a Pagar'],['propostas','Propostas'],['contratos','Contratos'],['fornecedores','Fornecedores'],['clientes','Clientes'],['precificacao','Precificação'],['relatorio','Relatório Mensal'],['meta','Meta do Ano'],['anual','Fechamento Anual']
 ];
 function renderNav(){
   const atras=state.contas.filter(c=>contaStatus(c)==='atrasado').length;
@@ -645,10 +646,12 @@ function render(){
   if(page==='propostas')el.innerHTML=sample+viewPropostas();
   if(page==='precificacao')el.innerHTML=sample+viewPrecificacao();
   if(page==='meta')el.innerHTML=sample+viewMeta();
+  if(page==='anual')el.innerHTML=sample+viewAnual();
   if(page==='dashboard')drawDashCharts();
   if(page==='relatorio')drawRelCharts();
   if(page==='precificacao')calcPrec();
   if(page==='meta')drawMetaChart();
+  if(page==='anual')drawAnualChart();
   rotularCelulas();
 }
 
@@ -1319,6 +1322,113 @@ function drawMetaChart(){
     ]},
     options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}},
       scales:{y:{grid:{color:'rgba(138,75,65,.08)'},ticks:{callback:v=>'R$ '+(v/1000)+'k'}},x:{grid:{display:false}}}}});
+}
+
+/* ---------- FECHAMENTO ANUAL ---------- */
+let anualAno=new Date().getFullYear();
+function setAnualAno(v){anualAno=parseInt(v);render();}
+function dadosAnuais(ano){
+  const ent=Array(12).fill(0),sai=Array(12).fill(0),imp=Array(12).fill(0);
+  let prolabore=0;
+  state.entradas.filter(e=>e.status==='recebido'&&+e.data.slice(0,4)===ano).forEach(e=>{ent[+e.data.slice(5,7)-1]+=e.valor;});
+  state.saidas.filter(s=>+s.data.slice(0,4)===ano).forEach(s=>{const m=+s.data.slice(5,7)-1;sai[m]+=s.valor;if(s.categoria==='Impostos')imp[m]+=s.valor;if(s.categoria==='Pró-labore')prolabore+=s.valor;});
+  return {ent,sai,imp,prolabore};
+}
+function viewAnual(){
+  const anos=[...new Set([...state.entradas.map(e=>+e.data.slice(0,4)),...state.saidas.map(s=>+s.data.slice(0,4)),new Date().getFullYear()])].sort((a,b)=>b-a);
+  if(!anos.includes(anualAno))anualAno=anos[0];
+  const d=dadosAnuais(anualAno);
+  const totalEnt=d.ent.reduce((a,b)=>a+b,0);
+  const totalSai=d.sai.reduce((a,b)=>a+b,0);
+  const totalImp=d.imp.reduce((a,b)=>a+b,0);
+  const lucro=totalEnt-totalSai;
+  const mesesComDados=d.ent.filter(v=>v>0).length||1;
+  const media=totalEnt/mesesComDados;
+  const nomes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  let melhor={v:-1,m:0},pior={v:Infinity,m:0};
+  d.ent.forEach((v,i)=>{if(v>0){if(v>melhor.v)melhor={v,m:i};if(v<pior.v)pior={v,m:i};}});
+  // crescimento: compara com ano anterior
+  const dAnt=dadosAnuais(anualAno-1);
+  const totalAnt=dAnt.ent.reduce((a,b)=>a+b,0);
+  const cresc=totalAnt>0?((totalEnt-totalAnt)/totalAnt*100):null;
+  // ranking clientes
+  const rec={};
+  state.entradas.filter(e=>e.status==='recebido'&&+e.data.slice(0,4)===anualAno&&e.clienteId).forEach(e=>{rec[e.clienteId]=(rec[e.clienteId]||0)+e.valor;});
+  const top=Object.entries(rec).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxTop=top.length?top[0][1]:1;
+  return `
+  <div class="topbar"><div><h1>Fechamento Anual</h1><div class="sub">Retrato completo de ${anualAno}</div></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <select style="padding:10px 16px;border:1.5px solid var(--rose);border-radius:10px;background:var(--cream);outline:none" onchange="setAnualAno(this.value)">${anos.map(a=>`<option value="${a}" ${a===anualAno?'selected':''}>${a}</option>`).join('')}</select>
+      <button class="btn btn-primary" onclick="gerarFechamentoPDF(${anualAno})">⤓ PDF do ano</button>
+    </div></div>
+  <div class="cards">
+    <div class="card"><div class="lbl">Faturamento do ano</div><div class="val pos">${fmt(totalEnt)}</div><div class="note">média de ${fmt(media)}/mês</div></div>
+    <div class="card"><div class="lbl">Despesas do ano</div><div class="val neg">${fmt(totalSai)}</div></div>
+    <div class="card"><div class="lbl">Lucro do ano</div><div class="val ${lucro>=0?'pos':'neg'}">${fmt(lucro)}</div><div class="note">${totalEnt>0?(lucro/totalEnt*100).toFixed(0):0}% de margem</div></div>
+    <div class="card"><div class="lbl">vs ${anualAno-1}</div><div class="val" style="color:${cresc==null?'var(--ink-soft)':cresc>=0?'var(--green)':'var(--red)'}">${cresc==null?'—':(cresc>=0?'+':'')+cresc.toFixed(0)+'%'}</div><div class="note">${cresc==null?'sem ano anterior':'crescimento'}</div></div>
+  </div>
+  <div class="cards" style="margin-bottom:24px">
+    <div class="card"><div class="lbl">Melhor mês</div><div class="val" style="font-size:22px">${melhor.v>0?nomes[melhor.m]:'—'}</div><div class="note">${melhor.v>0?fmt(melhor.v):''}</div></div>
+    <div class="card"><div class="lbl">Menor mês</div><div class="val" style="font-size:22px">${pior.v<Infinity?nomes[pior.m]:'—'}</div><div class="note">${pior.v<Infinity?fmt(pior.v):''}</div></div>
+    <div class="card"><div class="lbl">Impostos no ano</div><div class="val" style="color:var(--amber)">${fmt(totalImp)}</div><div class="note">${totalEnt>0?(totalImp/totalEnt*100).toFixed(1):0}% do faturamento</div></div>
+    <div class="card"><div class="lbl">Pró-labore no ano</div><div class="val">${fmt(d.prolabore)}</div></div>
+  </div>
+  <div class="panel" style="margin-bottom:24px"><h3>Faturamento × Despesas × Lucro (mês a mês)</h3><div class="chartbox" style="height:300px"><canvas id="chAnual"></canvas></div></div>
+  <div class="panel"><h3>Ranking de clientes em ${anualAno}</h3>
+    ${top.length?`<div class="ranklist">${top.map(([id,v])=>`<div class="rk"><span class="nm">${esc(cliName(id))}</span><span class="bar" style="width:${Math.max(10,Math.round(v/maxTop*160))}px"></span><span class="vl">${fmt(v)} · ${(v/totalEnt*100).toFixed(1)}%</span></div>`).join('')}</div>`:`<div class="empty">Sem entradas vinculadas a clientes neste ano.</div>`}
+  </div>`;
+}
+function drawAnualChart(){
+  const d=dadosAnuais(anualAno);
+  const el=document.getElementById('chAnual');if(!el)return;
+  Chart.defaults.font.family='Jost';Chart.defaults.color='#7A5F58';
+  const lucro=d.ent.map((v,i)=>v-d.sai[i]);
+  charts.anual=new Chart(el,{
+    data:{labels:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],datasets:[
+      {type:'bar',label:'Faturamento',data:d.ent,backgroundColor:'#8A4B41',borderRadius:6,barPercentage:.7,categoryPercentage:.7},
+      {type:'bar',label:'Despesas',data:d.sai,backgroundColor:'#EDCFC6',borderRadius:6,barPercentage:.7,categoryPercentage:.7},
+      {type:'line',label:'Lucro',data:lucro,borderColor:'#6F8F6B',backgroundColor:'#6F8F6B',pointRadius:3,borderWidth:2,tension:.3}
+    ]},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}},scales:{y:{grid:{color:'rgba(138,75,65,.08)'},ticks:{callback:v=>'R$ '+(v/1000)+'k'}},x:{grid:{display:false}}}}});
+}
+function gerarFechamentoPDF(ano){
+  const d=dadosAnuais(ano);
+  const nomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const totalEnt=d.ent.reduce((a,b)=>a+b,0),totalSai=d.sai.reduce((a,b)=>a+b,0),totalImp=d.imp.reduce((a,b)=>a+b,0);
+  const lucro=totalEnt-totalSai;
+  const rows=nomes.map((n,i)=>d.ent[i]||d.sai[i]?`<tr><td>${n}</td><td class="r g">${fmt(d.ent[i])}</td><td class="r d">${fmt(d.sai[i])}</td><td class="r">${fmt(d.ent[i]-d.sai[i])}</td></tr>`:'').join('');
+  const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Fechamento ${ano} · Amanda Pinheiro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>:root{--terra:#8A4B41;--deep:#5F332B;--rose:#EDCFC6;--soft:#F5E4DD;--ink:#3E2B26;--muted:#7A5F58;--green:#6F8F6B;--red:#B04A38}
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Jost',sans-serif;color:var(--ink);padding:44px 52px;font-size:13.5px}
+  .head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--terra);padding-bottom:18px;margin-bottom:24px}
+  .mono{font-family:'Playfair Display',serif;font-size:44px;color:var(--terra);letter-spacing:-8px}.brand .nm{font-size:11px;letter-spacing:4px;color:var(--terra);margin-top:2px}
+  .ttl{text-align:right}.ttl h1{font-family:'Playfair Display',serif;font-weight:500;font-size:24px;color:var(--deep)}.ttl .p{color:var(--muted);font-size:13px;margin-top:3px}
+  .sumgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}.sum{background:var(--soft);border-radius:12px;padding:13px 16px}
+  .sum .l{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}.sum .v{font-family:'Playfair Display',serif;font-size:19px;margin-top:3px;color:var(--deep)}.sum .v.g{color:var(--green)}.sum .v.d{color:var(--red)}
+  h2{font-family:'Playfair Display',serif;font-weight:500;font-size:17px;color:var(--deep);margin:20px 0 8px}
+  table{width:100%;border-collapse:collapse}th{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);text-align:left;padding:7px 9px;border-bottom:1.5px solid var(--rose)}
+  th.r,td.r{text-align:right}td{padding:7px 9px;border-bottom:1px solid var(--soft)}td.g{color:var(--green);font-weight:500}td.d{color:var(--red);font-weight:500}
+  .tot td{font-weight:700;border-top:2px solid var(--rose);border-bottom:none;font-size:14px}
+  .foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--rose);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+  .printbar{position:fixed;top:14px;right:14px}.printbar button{font-family:'Jost';background:var(--terra);color:var(--rose);border:none;border-radius:99px;padding:11px 24px;font-size:14px;cursor:pointer}
+  @media print{.printbar{display:none}@page{margin:12mm}}</style></head><body>
+  <div class="printbar"><button onclick="window.print()">🖨 Imprimir / Salvar em PDF</button></div>
+  <div class="head"><div class="brand"><div class="mono">AP</div><div class="nm">AMANDA PINHEIRO</div></div><div class="ttl"><h1>Fechamento Anual</h1><div class="p">Ano de ${ano}</div></div></div>
+  <div class="sumgrid">
+    <div class="sum"><div class="l">Faturamento</div><div class="v g">${fmt(totalEnt)}</div></div>
+    <div class="sum"><div class="l">Despesas</div><div class="v d">${fmt(totalSai)}</div></div>
+    <div class="sum"><div class="l">Lucro</div><div class="v ${lucro>=0?'g':'d'}">${fmt(lucro)}</div></div>
+    <div class="sum"><div class="l">Impostos</div><div class="v">${fmt(totalImp)}</div></div>
+  </div>
+  <h2>Mês a mês</h2>
+  <table><thead><tr><th>Mês</th><th class="r">Faturamento</th><th class="r">Despesas</th><th class="r">Lucro</th></tr></thead>
+  <tbody>${rows}<tr class="tot"><td>Total ${ano}</td><td class="r g">${fmt(totalEnt)}</td><td class="r d">${fmt(totalSai)}</td><td class="r">${fmt(lucro)}</td></tr></tbody></table>
+  <div class="foot"><span>Amanda Pinheiro · Marketing &amp; Estratégia</span><span>Gerado em ${fdate(today())}</span></div>
+  </body></html>`;
+  const w=window.open('','_blank');if(!w){alert('Permita pop-ups para este site.');return;}
+  w.document.write(html);w.document.close();
 }
 
 /* ---------- PRECIFICAÇÃO ---------- */
