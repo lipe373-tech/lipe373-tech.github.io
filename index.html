@@ -218,7 +218,7 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .clientcard.inativo .cc-valor{color:var(--ink-soft)}
 
 .nav .mobileonly{display:none!important}
-.mtopbar,.sidesearch{display:none}
+.mtopbar{display:none}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
   /* ---------- BARRA SUPERIOR (app bar) ---------- */
@@ -236,7 +236,7 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 
   /* ---------- MENU INFERIOR ---------- */
   .sidebar{top:auto;bottom:0;width:100%;height:calc(62px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);flex-direction:row;align-items:stretch;background:var(--terra);box-shadow:0 -3px 16px rgba(95,51,43,.28);z-index:40}
-  .logo,.sidefoot{display:none}
+  .logo,.sidefoot,.sidesearch{display:none}
   .nav{flex-direction:row;padding:6px 6px;gap:2px;overflow-x:auto;align-items:center;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
   .nav::-webkit-scrollbar{display:none}
   .nav button{position:relative;flex:none;width:60px;flex-direction:column;gap:3px;padding:6px 4px;font-size:8.5px;letter-spacing:.2px;border-radius:12px;justify-content:center;align-items:center;text-align:center;color:rgba(237,207,198,.7);scroll-snap-align:center}
