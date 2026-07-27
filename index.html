@@ -407,13 +407,16 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
 /* ================= DATA ================= */
-const CAT_IN=['Gestão de redes','Tráfego pago','Branding & Design','Consultoria','Mentoria','Outros'];
-const CAT_OUT=['Fornecedores','Ferramentas & Software','Impostos','Equipamentos','Educação','Pró-labore','Outros'];
+const DEFAULT_CAT_IN=['Gestão de redes','Tráfego pago','Branding & Design','Consultoria','Mentoria','Outros'];
+const DEFAULT_CAT_OUT=['Fornecedores','Ferramentas & Software','Impostos','Equipamentos','Educação','Pró-labore','Outros'];
+const DEFAULT_SERVICOS=['Gestão de redes sociais','Tráfego pago','Mentoria','Branding & Design','Consultoria','Captação de conteúdo','Site / Landing page'];
+let CAT_IN=[...DEFAULT_CAT_IN];
+let CAT_OUT=[...DEFAULT_CAT_OUT];
 
 let state=null;
 let page='dashboard';
@@ -486,6 +489,7 @@ async function loadData(){
   // garante estruturas mínimas
   ['entradas','saidas','contas','fornecedores','clientes','contratos','propostas'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];});
   if(!state.config)state.config={taxPct:6,sample:false};
+  carregarListas();
   if(gerarRecorrentes())await persist();
 }
 
@@ -668,7 +672,7 @@ function renderNav(){
     try{at.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});}catch(e){}
   }
 }
-function go(p){page=p;busca='';const gs=document.getElementById('globalSearch');if(gs)gs.value='';render();}
+function go(p){page=p;busca='';movFilter.q='';render();}
 
 /* ---------- BUSCA GLOBAL ---------- */
 let busca='';
@@ -753,9 +757,53 @@ function rotularCelulas(){
 }
 function clearSample(){
   if(!confirm('Apagar TODOS os dados (lançamentos, contas, clientes e fornecedores) e começar do zero? Essa ação não tem desfazer.'))return;
-  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,sample:false}};
-  save();closeModal();render();
+  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos,catIn:state.config.catIn,catOut:state.config.catOut,sample:false}};
+  carregarListas();save();closeModal();render();
 }
+
+/* ---------- LISTAS PERSONALIZÁVEIS ---------- */
+function carregarListas(){
+  const c=state.config;
+  SERVICOS_SUGERIDOS=(Array.isArray(c.servicos)&&c.servicos.length)?c.servicos.slice():[...DEFAULT_SERVICOS];
+  CAT_IN=(Array.isArray(c.catIn)&&c.catIn.length)?c.catIn.slice():[...DEFAULT_CAT_IN];
+  CAT_OUT=(Array.isArray(c.catOut)&&c.catOut.length)?c.catOut.slice():[...DEFAULT_CAT_OUT];
+}
+const LISTA_MAP={serv:['servicos','Serviços de cliente / proposta'],catin:['catIn','Categorias de entrada'],catout:['catOut','Categorias de saída']};
+function listaAtual(tipo){const k=LISTA_MAP[tipo][0];return (tipo==='serv'?SERVICOS_SUGERIDOS:tipo==='catin'?CAT_IN:CAT_OUT);}
+function addListItem(tipo){
+  const el=document.getElementById('novoItem_'+tipo);if(!el)return;
+  const v=el.value.trim();if(!v)return;
+  const arr=listaAtual(tipo).slice();
+  if(arr.some(x=>x.toLowerCase()===v.toLowerCase())){alert('"'+v+'" já está na lista.');return;}
+  arr.push(v);
+  state.config[LISTA_MAP[tipo][0]]=arr;carregarListas();save();
+  document.getElementById('listasBox').innerHTML=listasHTML();
+  setTimeout(()=>{const n=document.getElementById('novoItem_'+tipo);if(n)n.focus();},30);
+}
+function removeListItem(tipo,i){
+  const arr=listaAtual(tipo).slice();
+  const item=arr[i];
+  if(!confirm('Remover "'+item+'" da lista? Lançamentos antigos com esse nome continuam intactos.'))return;
+  arr.splice(i,1);
+  state.config[LISTA_MAP[tipo][0]]=arr;carregarListas();save();
+  document.getElementById('listasBox').innerHTML=listasHTML();
+}
+function resetLista(tipo){
+  if(!confirm('Restaurar a lista padrão? Suas personalizações desta lista serão perdidas.'))return;
+  const def=tipo==='serv'?DEFAULT_SERVICOS:tipo==='catin'?DEFAULT_CAT_IN:DEFAULT_CAT_OUT;
+  state.config[LISTA_MAP[tipo][0]]=[...def];carregarListas();save();
+  document.getElementById('listasBox').innerHTML=listasHTML();
+}
+function umaLista(tipo){
+  const [,titulo]=LISTA_MAP[tipo];const arr=listaAtual(tipo);
+  return `<div style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><label style="font-size:12.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-soft)">${titulo}</label>
+      <button class="rowbtn" style="font-size:11.5px" onclick="resetLista('${tipo}')">restaurar padrão</button></div>
+    <div class="chips" style="margin:8px 0">${arr.map((x,i)=>`<span class="chipchk" style="cursor:default">${esc(x)} <button onclick="removeListItem('${tipo}',${i})" style="border:none;background:none;color:var(--red);font-size:14px;padding:0 0 0 4px;cursor:pointer">✕</button></span>`).join('')||'<span style="font-size:13px;color:var(--ink-soft)">Lista vazia</span>'}</div>
+    <div style="display:flex;gap:8px"><input id="novoItem_${tipo}" placeholder="Adicionar…" style="flex:1;padding:9px 12px;border:1.5px solid var(--rose);border-radius:9px;background:#fff;outline:none" onkeydown="if(event.key==='Enter'){event.preventDefault();addListItem('${tipo}')}"><button class="btn btn-ghost btn-sm" onclick="addListItem('${tipo}')">+ Adicionar</button></div>
+  </div>`;
+}
+function listasHTML(){return umaLista('serv')+umaLista('catin')+umaLista('catout');}
 
 /* ---------- CONFIGURAÇÕES / BACKUP ---------- */
 function openConfig(){
@@ -769,6 +817,10 @@ function openConfig(){
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('restoreFile').click()">⤒ Restaurar backup</button>
         <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreBackup(this.files[0])">
       </div>
+    </div>
+    <div class="field" style="margin-top:22px"><label>Minhas listas</label>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:12px">Gerencie os serviços e categorias que aparecem ao cadastrar clientes, entradas, saídas e propostas.</p>
+      <div id="listasBox">${listasHTML()}</div>
     </div>
     <div class="field" style="margin-top:22px"><label style="color:var(--red)">Zona de perigo</label>
       <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:10px">Apaga todos os lançamentos, contas, clientes e fornecedores. Não tem desfazer — faça um backup antes.</p>
@@ -810,7 +862,7 @@ function restoreBackup(file){
       state=d;
       ['entradas','saidas','contas','fornecedores','clientes','contratos','propostas'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];});
       if(!state.config)state.config={taxPct:6,sample:false};
-      save();closeModal();render();
+      carregarListas();save();closeModal();render();
       alert('Backup restaurado com sucesso!');
     }catch(e){alert('Arquivo de backup inválido: '+e.message);}
   };
@@ -933,30 +985,26 @@ let movFilter={mes:'',cat:'',q:''};
 function setMovMes(v){movFilter.mes=v;render();}
 function setMovCat(v){movFilter.cat=v;render();}
 function setMovBusca(v){
-  movFilter.q=v;render();
-  requestAnimationFrame(()=>{const el=document.getElementById('movBusca');if(el){el.focus();const n=el.value.length;try{el.setSelectionRange(n,n);}catch(e){}}});
+  // atualiza SÓ a lista e o contador, sem redesenhar a página (preserva o foco no campo)
+  movFilter.q=v;
+  const kind=page;
+  const w=document.getElementById('movListaWrap');if(w)w.innerHTML=movListaHTML(kind);
+  const s=document.getElementById('movSub');if(s){const l=movComputeList(kind);s.textContent=l.length+' lançamento(s) · total '+fmt(l.reduce((a,b)=>a+b.valor,0));}
+  rotularCelulas();
 }
-function viewMov(kind){
+function movComputeList(kind){
   const isIn=kind==='entradas';
   const q=(movFilter.q||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const mt=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q);
-  const list=(isIn?state.entradas:state.saidas)
+  return (isIn?state.entradas:state.saidas)
     .filter(x=>(!movFilter.mes||ym(x.data)===movFilter.mes)&&(!movFilter.cat||x.categoria===movFilter.cat)
       &&(!q||mt(x.descricao)||mt(x.categoria)||mt(String(x.valor))||mt(isIn?cliName(x.clienteId):fornName(x.fornecedorId))))
     .sort((a,b)=>b.data.localeCompare(a.data));
-  const total=list.reduce((a,b)=>a+b.valor,0);
-  const months=[...new Set((isIn?state.entradas:state.saidas).map(x=>ym(x.data)))].sort().reverse();
-  const cats=isIn?CAT_IN:CAT_OUT;
-  return `
-  <div class="topbar"><div><h1>${isIn?'Entradas':'Saídas'}</h1><div class="sub">${list.length} lançamento(s) · total ${fmt(total)}</div></div>
-    <button class="btn btn-primary" onclick="openForm('${isIn?'entrada':'saida'}')">+ Nova ${isIn?'entrada':'saída'}</button></div>
-  <div class="filters">
-    <select onchange="setMovMes(this.value)"><option value="">Todos os meses</option>${months.map(m=>`<option value="${m}" ${movFilter.mes===m?'selected':''}>${monthName(m)}</option>`).join('')}</select>
-    <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${c}</option>`).join('')}</select>
-    <input id="movBusca" value="${esc(movFilter.q||'')}" placeholder="🔍 Buscar lançamento…" oninput="setMovBusca(this.value)" autocomplete="off" style="flex:1;min-width:180px">
-    ${movFilter.q?`<button class="btn btn-ghost btn-sm" onclick="setMovBusca('')">Limpar</button>`:''}
-  </div>
-  <div class="panel">${list.length?`<table><thead><tr>
+}
+function movListaHTML(kind){
+  const isIn=kind==='entradas';
+  const list=movComputeList(kind);
+  return list.length?`<table><thead><tr>
     <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th><th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
     <tbody>${list.map(x=>`<tr>
       <td>${fdate(x.data)}</td>
@@ -966,7 +1014,24 @@ function viewMov(kind){
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
       ${isIn?`<td>${esc(x.formaPgto||'—')}</td><td>${x.status==='recebido'?'<span class="pill ok">Recebido</span>':`${x.prevista&&x.prevista<today()?'<span class="pill bad">Atrasada</span>':'<span class="pill warn">A receber</span>'} <button class="rowbtn" title="Marcar como recebido" onclick="receber('${x.id}')">✓</button>${x.prevista?`<div class="desc-sub">prev. ${fdate(x.prevista)}</div>`:''}`}</td>`:''}
       <td><button class="rowbtn" onclick="openForm('${isIn?'entrada':'saida'}','${x.id}')">✎</button><button class="rowbtn" onclick="del('${kind}','${x.id}')">🗑</button></td>
-    </tr>`).join('')}</tbody></table>`:`<div class="empty">Nenhum lançamento ainda. Clique em “+ Nova ${isIn?'entrada':'saída'}”.</div>`}</div>`;
+    </tr>`).join('')}</tbody></table>`:`<div class="empty">${movFilter.q?'Nenhum lançamento encontrado para "'+esc(movFilter.q)+'".':'Nenhum lançamento ainda. Clique em “+ Nova '+(isIn?'entrada':'saída')+'”.'}</div>`;
+}
+function viewMov(kind){
+  const isIn=kind==='entradas';
+  const list=movComputeList(kind);
+  const total=list.reduce((a,b)=>a+b.valor,0);
+  const months=[...new Set((isIn?state.entradas:state.saidas).map(x=>ym(x.data)))].sort().reverse();
+  const cats=isIn?CAT_IN:CAT_OUT;
+  return `
+  <div class="topbar"><div><h1>${isIn?'Entradas':'Saídas'}</h1><div class="sub" id="movSub">${list.length} lançamento(s) · total ${fmt(total)}</div></div>
+    <button class="btn btn-primary" onclick="openForm('${isIn?'entrada':'saida'}')">+ Nova ${isIn?'entrada':'saída'}</button></div>
+  <div class="filters">
+    <select onchange="setMovMes(this.value)"><option value="">Todos os meses</option>${months.map(m=>`<option value="${m}" ${movFilter.mes===m?'selected':''}>${monthName(m)}</option>`).join('')}</select>
+    <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${c}</option>`).join('')}</select>
+    <input id="movBusca" value="${esc(movFilter.q||'')}" placeholder="🔍 Buscar lançamento…" oninput="setMovBusca(this.value)" autocomplete="off" style="flex:1;min-width:180px">
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('movBusca').value='';setMovBusca('')">Limpar</button>
+  </div>
+  <div class="panel" id="movListaWrap">${movListaHTML(kind)}</div>`;
 }
 function receber(id){const e=state.entradas.find(x=>x.id===id);if(e){e.status='recebido';save();render();}}
 
@@ -1113,7 +1178,7 @@ function viewContratos(){
 }
 
 /* ---------- PROPOSTAS ---------- */
-const SERVICOS_SUGERIDOS=['Gestão de redes sociais','Tráfego pago','Mentoria','Branding & Design','Consultoria','Captação de conteúdo','Site / Landing page'];
+let SERVICOS_SUGERIDOS=[...DEFAULT_SERVICOS];
 const SERVICO_DETALHES={};
 function listaE(a){return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:(a[0]||'');}
 /* Assistentes de detalhamento: campos rápidos que montam os "itens inclusos" sozinhos */
