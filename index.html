@@ -407,7 +407,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -906,9 +906,10 @@ function viewDashboard(){
     <div class="card"><div class="lbl">Saldo do mês</div><div class="val ${saldo>=0?'pos':'neg'}">${fmt(saldo)}</div></div>
     <div class="card"><div class="lbl">Ticket médio</div><div class="val" style="color:var(--terra)">${fmt(ticket)}</div><div class="note">${clientesMes.size} cliente(s) no mês</div></div>
   </div>
-  <div class="cards" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+  <div class="cards" style="margin-bottom:24px">
     <div class="card"><div class="lbl">Contas a pagar</div><div class="val">${fmt(pendTotal)}</div><div class="note">${pend.length} conta(s)${atras?` · <b>${atras} atrasada(s)</b>`:''}</div></div>
     <div class="card"><div class="lbl">A receber (mês)</div><div class="val" style="color:var(--amber)">${fmt(aRec)}</div><div class="note">${atrasRec.length?`<b style="color:var(--red)">${atrasRec.length} atrasado(s)</b>`:'em dia'}</div></div>
+    <div class="card"><div class="lbl">NF a emitir</div><div class="val" style="color:${state.entradas.filter(e=>!e.semNota&&e.nfEmitida===false).length?'var(--red)':'var(--terra)'}">${state.entradas.filter(e=>!e.semNota&&e.nfEmitida===false).length}</div><div class="note">${state.entradas.filter(e=>!e.semNota&&e.nfEmitida===false).length?'nota(s) pendente(s)':'tudo emitido ✓'}</div></div>
     <div class="card"><div class="lbl">Clientes ativos</div><div class="val">${state.clientes.filter(c=>c.status!=='inativo').length}</div></div>
   </div>
   <div class="panelrow">
@@ -1008,7 +1009,7 @@ function movListaHTML(kind){
     <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th><th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
     <tbody>${list.map(x=>`<tr>
       <td>${fdate(x.data)}</td>
-      <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}${!isIn&&x.semContab?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">fora contab.</span>':''}</td>
+      <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}${isIn&&!x.semNota&&x.nfEmitida===false?` <span class="pill bad" style="font-size:11px;cursor:pointer" title="Clique quando emitir a NF" onclick="marcarNF('${x.id}')">emitir NF ✓</span>`:''}${isIn&&!x.semNota&&x.nfEmitida===true?' <span class="pill ok" style="font-size:11px">NF ✓</span>':''}${!isIn&&x.semContab?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">fora contab.</span>':''}</td>
       <td>${isIn?esc(cliName(x.clienteId)):esc(fornName(x.fornecedorId))}</td>
       <td>${esc(x.categoria)}</td>
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
@@ -1034,6 +1035,7 @@ function viewMov(kind){
   <div class="panel" id="movListaWrap">${movListaHTML(kind)}</div>`;
 }
 function receber(id){const e=state.entradas.find(x=>x.id===id);if(e){e.status='recebido';save();render();}}
+function marcarNF(id){const e=state.entradas.find(x=>x.id===id);if(e){e.nfEmitida=true;save();render();}}
 
 /* ---------- CONTAS A PAGAR ---------- */
 let contaFilter='abertas';
@@ -1858,7 +1860,8 @@ function openForm(type,id){
       <div class="field"><label>Forma de pagamento</label><select id="f_fp">${['Pix','Transferência','Cartão','Boleto','Dinheiro','Outro'].map(f=>`<option ${e&&e.formaPgto===f?'selected':''}>${f}</option>`).join('')}</select></div>
       <div class="field"><label>Previsão de recebimento</label><input type="date" id="f_prev" value="${e&&e.prevista?e.prevista:''}"></div>
     </div>
-    <div class="field"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f_semnota" style="width:auto" ${e&&e.semNota?'checked':''}> Sem nota fiscal (fica fora do PDF da contabilidade)</label></div>`;
+    <div class="field"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f_semnota" style="width:auto" ${e&&e.semNota?'checked':''} onchange="document.getElementById('boxNfe').style.display=this.checked?'none':'block'"> Sem nota fiscal (fica fora do PDF da contabilidade)</label></div>
+    <div class="field" id="boxNfe" style="display:${e&&e.semNota?'none':'block'}"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f_nfe" style="width:auto" ${e&&e.nfEmitida?'checked':''}> Nota fiscal já emitida</label><div style="font-size:12px;color:var(--ink-soft);margin-top:2px">Deixe desmarcado se ainda precisa emitir — dá pra marcar depois com um clique na lista.</div></div>`;
   }
   if(type==='saida'){
     const s=id?state.saidas.find(x=>x.id===id):null;
@@ -1947,7 +1950,8 @@ function submitForm(type,id){
   }
   if((type==='fornecedor'||type==='cliente')&&!gv('f_nome')){alert('Preencha o nome.');return;}
   if(type==='entrada'){
-    const obj={data:gv('f_data')||today(),descricao:gv('f_desc'),clienteId:gv('f_cli')||null,categoria:gv('f_cat'),valor:num(gv('f_valor')),status:gv('f_st'),semNota:document.getElementById('f_semnota').checked,formaPgto:gv('f_fp'),prevista:gv('f_prev')||null};
+    const _sn=document.getElementById('f_semnota').checked;
+    const obj={data:gv('f_data')||today(),descricao:gv('f_desc'),clienteId:gv('f_cli')||null,categoria:gv('f_cat'),valor:num(gv('f_valor')),status:gv('f_st'),semNota:_sn,nfEmitida:_sn?null:document.getElementById('f_nfe').checked,formaPgto:gv('f_fp'),prevista:gv('f_prev')||null};
     if(id){Object.assign(state.entradas.find(x=>x.id===id),obj);}else{state.entradas.push({id:uid(),...obj});}
   }
   if(type==='saida'){
