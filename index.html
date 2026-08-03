@@ -407,7 +407,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -1154,6 +1154,209 @@ function viewClientes(){
     </div>`;}).join('')}</div>`:`<div class="panel"><div class="empty">Nenhum cliente cadastrado. Clique em "+ Novo cliente".</div></div>`}`;
 }
 
+/* ---------- GERAR CONTRATO (modelo timbrado) ---------- */
+function extenso(v){
+  v=Math.round(v*100)/100;const int=Math.floor(v);const cent=Math.round((v-int)*100);
+  const u=['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const d=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const c=['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function ate999(n){if(n===0)return '';if(n===100)return 'cem';let s='';
+    const ce=Math.floor(n/100),de=Math.floor((n%100)/10),un=n%10;
+    if(ce)s+=c[ce];
+    const resto=n%100;
+    if(resto){if(s)s+=' e ';if(resto<20)s+=u[resto];else{s+=d[de];if(un)s+=' e '+u[un];}}
+    return s;}
+  function grupos(n){if(n===0)return 'zero';let partes=[];
+    const mi=Math.floor(n/1000000),mil=Math.floor((n%1000000)/1000),re=n%1000;
+    if(mi)partes.push(ate999(mi)+(mi===1?' milhão':' milhões'));
+    if(mil)partes.push((mil===1?'mil':ate999(mil)+' mil'));
+    if(re)partes.push(ate999(re));
+    return partes.join(' e ');}
+  let txt=grupos(int)+' '+(int===1?'real':'reais');
+  if(cent)txt+=' e '+ate999(cent)+' '+(cent===1?'centavo':'centavos');
+  return txt;
+}
+function fmtExt(v){return fmt(v)+' ('+extenso(v)+')';}
+function openGerarContrato(){
+  const md=document.getElementById('modal');md.style.width='620px';
+  const hoje=new Date();const dataStr=hoje.getDate()+' de '+['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][hoje.getMonth()]+' de '+hoje.getFullYear();
+  md.innerHTML=`<h2>Gerar contrato</h2>
+  <div class="field"><label>Tipo de contrato</label><select id="gc_tipo" onchange="gcToggle()">
+    <option value="redes">Gestão de Redes Sociais</option><option value="trafego">Tráfego Pago</option></select></div>
+  <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:6px 0 10px">Dados do contratante</h3>
+  <div class="field"><label>Nome / Razão social</label><input id="gc_nome" placeholder="Ex.: Clínica Bella Pele LTDA"></div>
+  <div class="fieldrow">
+    <div class="field"><label>Nome fantasia</label><input id="gc_fant" placeholder="Ex.: Bella Pele"></div>
+    <div class="field"><label>CNPJ / CPF</label><input id="gc_cnpj" placeholder="00.000.000/0000-00"></div>
+  </div>
+  <div class="field"><label>Endereço da sede</label><input id="gc_end" placeholder="Rua, nº, bairro, cidade/UF"></div>
+  <div class="fieldrow">
+    <div class="field"><label>CEP</label><input id="gc_cep" placeholder="00000-000"></div>
+    <div class="field"><label>E-mail</label><input id="gc_email" placeholder="email@cliente.com"></div>
+  </div>
+  <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:14px 0 10px">Representante legal</h3>
+  <div class="field"><label>Nome do representante</label><input id="gc_rep" placeholder="Nome completo"></div>
+  <div class="fieldrow">
+    <div class="field"><label>RG</label><input id="gc_rg" placeholder="0.000.000"></div>
+    <div class="field"><label>CPF</label><input id="gc_cpf" placeholder="000.000.000-00"></div>
+  </div>
+  <div class="field"><label>Endereço residencial do representante</label><input id="gc_repend" placeholder="Rua, nº, bairro, cidade/UF"></div>
+  <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:14px 0 10px">Serviço e valores</h3>
+  <div class="field" id="gc_boxPlat"><label>Plataformas</label><div class="chips" id="gc_plats"></div></div>
+  <div class="fieldrow">
+    <div class="field"><label>Vigência (meses)</label><input type="number" id="gc_vig" value="3" min="1"></div>
+    <div class="field"><label>Valor total (R$)</label><input type="number" step="0.01" id="gc_valor" placeholder="0,00" oninput="gcPrefillPag()"></div>
+  </div>
+  <div class="field"><label>Forma de pagamento (edite como quiser)</label><textarea id="gc_pag" style="min-height:90px"></textarea></div>
+  <div class="fieldrow">
+    <div class="field"><label>Cidade</label><input id="gc_cidade" value="Itajaí/SC"></div>
+    <div class="field"><label>Data do contrato</label><input id="gc_data" value="${dataStr}"></div>
+  </div>
+  <div class="modalbtns">
+    <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="gerarContratoPDF()">Gerar contrato ✦</button>
+  </div>`;
+  document.getElementById('overlay').classList.add('open');
+  gcToggle();
+}
+function gcToggle(){
+  const t=document.getElementById('gc_tipo').value;
+  const plats=t==='redes'?['Instagram','Facebook','LinkedIn','TikTok','YouTube']:['Meta Ads (Facebook/Instagram)','Google Ads','LinkedIn Ads','TikTok Ads'];
+  document.getElementById('gc_plats').innerHTML=plats.map((p,i)=>`<label class="chipchk"><input type="checkbox" value="${p}" ${i<(t==='redes'?3:1)?'checked':''}>${p}</label>`).join('');
+  gcPrefillPag();
+}
+function gcPrefillPag(){
+  const t=document.getElementById('gc_tipo').value;
+  const v=parseFloat(document.getElementById('gc_valor').value)||0;
+  const ta=document.getElementById('gc_pag');
+  if(ta.dataset.touched==='1')return;
+  if(t==='trafego'){
+    const ent=v?v/3:0,saldo=v-ent;
+    ta.value=v?`A) Entrada de ${fmtExt(ent)} no ato da assinatura;\nB) Saldo de ${fmtExt(saldo)} em 2 (duas) parcelas iguais com vencimento em 30 e 60 dias após a assinatura;\nC) Pagamentos via Chave PIX 47.231.860/0001-08 ou boleto enviado com 3 dias de antecedência.`:'';
+  }else{
+    ta.value=v?`A) Entrada de ${fmtExt(v)} no dia ___ de ______ de ______;\nB) Pagamentos via Chave PIX 47.231.860/0001-08 ou boleto enviado com 3 dias de antecedência.`:'';
+  }
+}
+function gerarContratoPDF(){
+  const g=id=>(document.getElementById(id)?.value||'').trim();
+  document.getElementById('gc_pag').dataset.touched='1';
+  const t=document.getElementById('gc_tipo').value;
+  const plats=[...document.querySelectorAll('#gc_plats input:checked')].map(c=>c.value);
+  const nome=g('gc_nome')||'NOME DO CLIENTE';
+  const valor=parseFloat(g('gc_valor'))||0;
+  const vig=g('gc_vig')||'3';
+  const d={nome,fant:g('gc_fant')||'—',cnpj:g('gc_cnpj')||'—',end:g('gc_end')||'—',cep:g('gc_cep')||'—',email:g('gc_email')||'—',
+    rep:g('gc_rep')||'—',rg:g('gc_rg')||'—',cpf:g('gc_cpf')||'—',repend:g('gc_repend')||g('gc_end')||'—',
+    plats:plats.length?listaE(plats):'—',vig,valorTxt:valor?fmtExt(valor):'R$ ___',pag:g('gc_pag')||'—',cidade:g('gc_cidade')||'Itajaí/SC',data:g('gc_data')||''};
+  const corpo=t==='redes'?contratoRedes(d):contratoTrafego(d);
+  const titulo=t==='redes'?'Gestão de Redes Sociais':'Tráfego Pago';
+  const html=contratoWrapper(titulo,d,corpo);
+  const w=window.open('','_blank');if(!w){alert('Permita pop-ups para este site.');return;}
+  w.document.write(html);w.document.close();
+}
+function contratoWrapper(titulo,d,corpo){
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Contrato · ${esc(d.nome)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>:root{--terra:#8A4B41;--deep:#5F332B;--rose:#EDCFC6;--soft:#F5E4DD;--ink:#3E2B26;--muted:#7A5F58}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Jost',sans-serif;color:var(--ink);font-size:12.5px;line-height:1.6}
+  .page{max-width:820px;margin:0 auto;padding:0 0 40px}
+  .cab{background:var(--terra);color:var(--rose);padding:26px 48px;display:flex;align-items:center;justify-content:space-between}
+  .cab .mono{font-family:'Playfair Display',serif;font-size:40px;letter-spacing:-8px;line-height:1}
+  .cab .nm{font-size:10px;letter-spacing:4px;margin-top:2px}
+  .cab .r{text-align:right;font-size:11px;line-height:1.5;opacity:.9}
+  .body{padding:32px 48px}
+  h1{font-family:'Playfair Display',serif;font-weight:500;font-size:20px;color:var(--deep);text-align:center;margin-bottom:4px}
+  .subt{text-align:center;color:var(--muted);font-size:12px;margin-bottom:22px;text-transform:uppercase;letter-spacing:2px}
+  h2{font-family:'Jost';font-weight:600;font-size:13px;color:var(--terra);margin:16px 0 6px;letter-spacing:.3px}
+  p{margin:6px 0;text-align:justify}
+  .ass{margin-top:48px;display:flex;gap:50px}
+  .ass div{flex:1;border-top:1.2px solid var(--ink);padding-top:6px;text-align:center;font-size:11.5px}
+  .test{margin-top:26px;font-size:11.5px;color:var(--muted)}
+  .foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--rose);font-size:10.5px;color:var(--muted);text-align:center}
+  .printbar{position:fixed;top:14px;right:14px}.printbar button{font-family:'Jost';background:var(--terra);color:var(--rose);border:none;border-radius:99px;padding:11px 24px;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(95,51,43,.3)}
+  @media print{.printbar{display:none}@page{margin:14mm}.cab{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>
+  <div class="printbar"><button onclick="window.print()">🖨 Imprimir / Salvar em PDF</button></div>
+  <div class="page">
+    <div class="cab"><div><div class="mono">AP</div><div class="nm">AMANDA PINHEIRO</div></div>
+      <div class="r">AP Marketing Digital LTDA<br>CNPJ 47.231.860/0001-08<br>Itajaí/SC · amandapinheiromarketing@gmail.com</div></div>
+    <div class="body">
+      <h1>Contrato Particular de Prestação de Serviços</h1>
+      <div class="subt">${esc(titulo)}</div>
+      ${corpo}
+      <p style="margin-top:22px">${esc(d.cidade)}, ${esc(d.data)}.</p>
+      <div class="ass"><div>CONTRATANTE<br>${esc(d.nome)}</div><div>CONTRATADA<br>Amanda Pinheiro</div></div>
+      <div class="test">Testemunha 1: ______________________________  Testemunha 2: ______________________________</div>
+      <div class="foot">AP Marketing Digital LTDA · CNPJ 47.231.860/0001-08 · Itajaí/SC</div>
+    </div>
+  </div></body></html>`;
+}
+function contratoPartes(d){
+  return `<h2>DA IDENTIFICAÇÃO DAS PARTES</h2>
+  <p><b>CONTRATANTE:</b> ${esc(d.nome)}, com sede em ${esc(d.end)} – CEP ${esc(d.cep)}, inscrita no CNPJ/CPF sob o número ${esc(d.cnpj)}, com o nome fantasia ${esc(d.fant)}, com endereço de e-mail: ${esc(d.email)}, neste ato representado por ${esc(d.rep)}, portador da carteira de identidade ${esc(d.rg)}, CPF ${esc(d.cpf)}, residente e domiciliado em ${esc(d.repend)}.</p>
+  <p><b>CONTRATADA:</b> AP Marketing Digital LTDA, inscrita no CNPJ sob o número 47.231.860/0001-08, com sede em Rio Araguaia, nº 155 – Bairro São João, CEP 88304-420 – Itajaí/SC, endereço de e-mail: amandapinheiromarketing@gmail.com, neste ato representado por Amanda Pinheiro, brasileira, empresária, portadora da carteira de identidade 6.875.973, CPF 120.687.069-97, residente e domiciliada em Rio Araguaia, nº 155, Bairro São João, CEP 88304-420, Itajaí/SC.</p>
+  <h2>CONSIDERAÇÕES PRELIMINARES</h2>
+  <p>A leitura e a aceitação das cláusulas abaixo são indispensáveis para a contratação dos serviços oferecidos pela CONTRATADA. O CONTRATANTE, por estes termos, concorda que recebeu o contrato, fez a leitura, compreendeu e aprovou seu conteúdo, especificações e condições impostas para uso dos serviços estabelecidos neste contrato.</p>`;
+}
+function contratoRedes(d){
+  return contratoPartes(d)+`
+  <h2>CLÁUSULA PRIMEIRA – DO OBJETO</h2>
+  <p><b>Parágrafo primeiro –</b> A CONTRATADA fará o gerenciamento das páginas comerciais da empresa CONTRATANTE nas seguintes plataformas: ${esc(d.plats)}.</p>
+  <p><b>Parágrafo segundo –</b> Os serviços serão realizados de acordo com o plano escolhido pela CONTRATANTE.</p>
+  <h2>CLÁUSULA SEGUNDA – DA VIGÊNCIA</h2>
+  <p>O prazo de vigência deste contrato é de ${esc(d.vig)} meses, contados a partir da assinatura. A prorrogação se dará mediante aceitação expressa das partes, por novo contrato ou termo aditivo, podendo ser prorrogado por tempo indefinido, caso em que poderá ser rescindido mediante comunicação formal (e-mail).</p>
+  <h2>CLÁUSULA TERCEIRA – DO VALOR E FORMA DE PAGAMENTO</h2>
+  <p><b>Parágrafo primeiro –</b> Pelos serviços profissionais prestados, assistirá à CONTRATADA, independentemente de qualquer resultado e devido de imediato, o valor líquido e certo de ${esc(d.valorTxt)}, a ser pago da seguinte forma:</p>
+  <p style="white-space:pre-line;margin-left:14px">${esc(d.pag)}</p>
+  <p><b>Parágrafo segundo –</b> Na hipótese de atraso, incidirá multa de 2% (dois por cento) do valor mensal, acrescidos de juros moratórios de 1% (um por cento) ao mês sobre o valor da parcela inadimplente.</p>
+  <p><b>Parágrafo terceiro –</b> Caso a CONTRATANTE se torne inadimplente por mais de 7 (sete) dias do vencimento, haverá imediata suspensão dos serviços.</p>
+  <p><b>Parágrafo quarto –</b> Os valores em forma de mensalidade serão reajustados anualmente conforme a variação do IGP-M (FGV), ou índice que vier a substituí-lo, em caso de renovação.</p>
+  <h2>CLÁUSULA QUARTA – DO CRONOGRAMA</h2>
+  <p>Assinado o contrato, a CONTRATADA agendará em até 3 (três) dias o briefing para coleta de informações. Em até 5 (cinco) dias realizará o planejamento do conteúdo, cabendo à CONTRATANTE aprovar em até 3 (três) dias. Aprovado, a CONTRATADA apresentará em até 5 (cinco) dias as artes e legendas, que deverão ser aprovadas em até 3 (três) dias. Uma vez aprovado o conteúdo, arte ou vídeo, não será mais passível de alterações. Caso o conteúdo seja criado pela CONTRATANTE, este deverá entregá-lo com 07 (sete) dias úteis de antecedência.</p>
+  <h2>CLÁUSULA QUINTA – DAS OBRIGAÇÕES DA CONTRATANTE</h2>
+  <p>Remunerar a CONTRATADA conforme a Cláusula Terceira; disponibilizar textos, fotos, logos e demais materiais; responsabilizar-se por qualquer infração legal sobre o conteúdo publicado; fornecer acesso integral às páginas e à identidade visual da marca; oferecer feedback e aprovar as tarefas; manter o servidor/hospedagem e o acesso às ferramentas necessárias; assumir responsabilidade pelo uso de marcas de terceiros; informar quaisquer alterações de dados; e receber relatórios periódicos.</p>
+  <h2>CLÁUSULA SEXTA – DAS OBRIGAÇÕES DA CONTRATADA</h2>
+  <p>Iniciar a prestação do serviço em até 3 (três) dias úteis após a assinatura; restringir-se às atividades descritas, não respondendo por questões de hospedagem/site ou ações de terceiros; emitir e enviar relatórios periódicos; não divulgar dados do CONTRATANTE; e cumprir fielmente o cronograma, prestando o suporte necessário.</p>
+  <h2>CLÁUSULA SÉTIMA – DA RESCISÃO</h2>
+  <p>Em caso de infração, cabe à parte não infratora notificar o infrator, que deverá regularizar de imediato sob pena de rescisão. Na hipótese de rescisão, incorrerá a parte infratora em multa de 50% (cinquenta por cento) sobre o valor das parcelas vincendas. Casos fortuitos ou de força maior, nos termos do art. 393 do Código Civil, eximem as partes, devendo a parte impossibilitada informar a outra de imediato.</p>
+  <h2>CLÁUSULA OITAVA – DA CONFIDENCIALIDADE</h2>
+  <p>As partes comprometem-se a não divulgar informações confidenciais a que tiverem acesso, respondendo civil e criminalmente pela divulgação indevida, ficando estipulado valor indenizatório de 60% deste contrato (ou 3 meses, em caso de prazo indefinido), além do ressarcimento de perdas e danos.</p>
+  <h2>CLÁUSULA NONA – DAS DISPOSIÇÕES GERAIS</h2>
+  <p>Este contrato só poderá ser alterado por escrito e mediante assinatura das partes. Não se estabelece qualquer vínculo empregatício entre as partes. O Direito Autoral da produção é da CONTRATADA, não podendo a CONTRATANTE ceder o serviço a terceiros sem anuência formal. Casos omissos serão acordados em aditivo.</p>
+  <h2>CLÁUSULA DÉCIMA – DO FORO</h2>
+  <p>As partes elegem o foro da Comarca de Itajaí (SC) para dirimir quaisquer dúvidas, renunciando a qualquer outro. E, por estarem assim justas e acordadas, assinam o presente instrumento em 02 (duas) vias de igual teor, na presença de duas testemunhas.</p>`;
+}
+function contratoTrafego(d){
+  return contratoPartes(d)+`
+  <h2>CLÁUSULA PRIMEIRA – DO OBJETO</h2>
+  <p>A CONTRATADA, de acordo com o plano contratado, irá gerenciar as campanhas de tráfego patrocinadas na(s) plataforma(s): ${esc(d.plats)}, de modo que o anúncio do CONTRATANTE seja exibido conforme o plano de serviço contratado.</p>
+  <p><b>Parágrafo primeiro –</b> A gestão se dará da seguinte forma: A) iniciada em até 5 (cinco) dias úteis após a assinatura; B) a campanha criada será de titularidade exclusiva da CONTRATADA; C) o CONTRATANTE acompanhará os resultados por relatório em PDF a cada 30 (trinta) dias, com feedbacks semanais em grupo de WhatsApp.</p>
+  <p><b>Parágrafo segundo –</b> O contrato NÃO representa garantia de posição do anúncio, definida pela tecnologia das plataformas. A CONTRATADA responde apenas pela criação e gerenciamento, não pelo sucesso da campanha.</p>
+  <p><b>Parágrafo terceiro –</b> Caso a plataforma não autorize a campanha, as partes reformularão os termos até a aprovação. <b>Parágrafo quarto –</b> A CONTRATADA não se responsabiliza pela conversão do lead em cliente.</p>
+  <h2>CLÁUSULA SEGUNDA – DAS OBRIGAÇÕES DA CONTRATANTE</h2>
+  <p>Oferecer feedback e aprovar as tarefas; os gastos investidos em tráfego NÃO estão incluídos no valor deste contrato, sendo de inteira responsabilidade da CONTRATANTE.</p>
+  <p><b>Do valor –</b> Pelos serviços prestados, independentemente de qualquer resultado, é devido de imediato o valor líquido e certo de ${esc(d.valorTxt)}, a ser pago da seguinte forma:</p>
+  <p style="white-space:pre-line;margin-left:14px">${esc(d.pag)}</p>
+  <p>Na hipótese de atraso, multa de 2% (dois por cento) e juros de 1% (um por cento) ao mês. Inadimplência superior a 7 (sete) dias suspende os serviços. A CONTRATANTE deve manter acesso às ferramentas necessárias, assumir responsabilidade pelo uso de marcas de terceiros e informar alterações de dados.</p>
+  <h2>CLÁUSULA TERCEIRA – DAS OBRIGAÇÕES DA CONTRATADA</h2>
+  <p>Iniciar o serviço em até 5 (cinco) dias úteis após a assinatura; restringir-se às atividades descritas; emitir e enviar relatórios periódicos conforme a Cláusula Primeira.</p>
+  <h2>CLÁUSULA QUARTA – DA VIGÊNCIA E RENOVAÇÃO</h2>
+  <p>O prazo de vigência é de ${esc(d.vig)} meses, contados da assinatura, prorrogável por aceitação expressa das partes, por novo contrato ou termo aditivo, podendo vigorar por tempo indefinido.</p>
+  <h2>CLÁUSULA QUINTA – DA RESCISÃO</h2>
+  <p>Em caso de infração, a parte não infratora notificará o infrator para regularização imediata, sob pena de rescisão e multa de 50% (cinquenta por cento) sobre as parcelas vincendas. Após 2 (dois) meses de vigência, não haverá multa, bastando aviso prévio de 20 (vinte) dias. Casos fortuitos ou de força maior (art. 393 do Código Civil) eximem as partes.</p>
+  <h2>CLÁUSULA SEXTA – DEMAIS OBRIGAÇÕES</h2>
+  <p>O contrato só poderá ser alterado por escrito e assinatura das partes. Não se estabelece vínculo empregatício entre as partes.</p>
+  <h2>CLÁUSULA SÉTIMA – DA CONFIDENCIALIDADE</h2>
+  <p>As partes comprometem-se a não divulgar informações confidenciais, respondendo civil e criminalmente pela divulgação indevida, com valor indenizatório de 60% do contrato (ou 3 meses, em prazo indefinido), além de perdas e danos.</p>
+  <h2>CLÁUSULA OITAVA – DA NÃO CONTEMPLAÇÃO</h2>
+  <p>Eventuais alterações ou casos omissos serão acordados em aditivo, conforme a legislação vigente.</p>
+  <h2>CLÁUSULA NONA – DA DECLARAÇÃO DO CONTRATANTE</h2>
+  <p>O CONTRATANTE declara ter conhecimento do funcionamento do serviço de tráfego pago e de que a CONTRATADA gerenciará conta já existente, sendo o manuseio das informações crucial para a execução do objeto.</p>
+  <h2>CLÁUSULA DÉCIMA – DO FORO</h2>
+  <p>As partes elegem o foro da Comarca de Itajaí (SC), renunciando a qualquer outro. E, por estarem assim justas e acordadas, assinam o presente instrumento em 02 (duas) vias de igual teor, na presença de duas testemunhas.</p>`;
+}
+
 /* ---------- CONTRATOS ---------- */
 function viewContratos(){
   const list=state.contratos.slice().sort((a,b)=>((a.status==='ativo'?0:1)-(b.status==='ativo'?0:1))||(b.inicio||'').localeCompare(a.inicio||''));
@@ -1162,7 +1365,7 @@ function viewContratos(){
   const hoje=today();
   return `
   <div class="topbar"><div><h1>Contratos</h1><div class="sub">${ativos.length} ativo(s) · ${fmt(mensal)}/mês contratados</div></div>
-    <button class="btn btn-primary" onclick="openForm('contrato')">+ Novo contrato</button></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="openGerarContrato()">📄 Gerar contrato</button><button class="btn btn-primary" onclick="openForm('contrato')">+ Novo contrato</button></div></div>
   <div class="panel">${list.length?`<table><thead><tr>
     <th>Cliente</th><th>Serviço / contrato</th><th>Valor</th><th>Início</th><th>Término</th><th>Status</th><th></th></tr></thead>
     <tbody>${list.map(c=>{
