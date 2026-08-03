@@ -842,7 +842,7 @@ async function exportExcel(){
   const wb=XLSX.utils.book_new();
   const add=(nome,rows)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Aviso:'Sem registros'}]),nome);
   add('Entradas',state.entradas.map(e=>({Data:fdate(e.data),'Descrição':e.descricao,Cliente:cliName(e.clienteId),Categoria:e.categoria,'Valor (R$)':e.valor,Status:e.status==='recebido'?'Recebido':'A receber','Forma':e.formaPgto||'','Prevista para':e.prevista?fdate(e.prevista):'','Nota fiscal':e.semNota?'Não':'Sim'})));
-  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor})));
+  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor,'Contabilidade':s.semContab?'Não':'Sim'})));
   add('Contas a pagar',state.contas.map(c=>({Vencimento:fdate(c.vencimento),Fornecedor:fornName(c.fornecedorId),'Descrição':c.descricao,'Valor (R$)':c.valor,Status:contaStatus(c)==='pago'?'Paga':contaStatus(c)==='atrasado'?'Atrasada':'Pendente','Paga em':c.pagoEm?fdate(c.pagoEm):''})));
   add('Fornecedores',state.fornecedores.map(f=>({Nome:f.nome,'Serviço':f.servico,Contato:f.contato})));
   add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Situação':c.status==='inativo'?'Inativo':'Ativo','Cliente desde':c.desde?fdate(c.desde):'','Saiu em':c.saidaEm?fdate(c.saidaEm):'','Nota fiscal':c.semNota?'Não':'Sim'})));
@@ -1008,7 +1008,7 @@ function movListaHTML(kind){
     <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th><th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
     <tbody>${list.map(x=>`<tr>
       <td>${fdate(x.data)}</td>
-      <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}</td>
+      <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}${!isIn&&x.semContab?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">fora contab.</span>':''}</td>
       <td>${isIn?esc(cliName(x.clienteId)):esc(fornName(x.fornecedorId))}</td>
       <td>${esc(x.categoria)}</td>
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
@@ -1731,7 +1731,7 @@ function gerarRelatorio(scope,fiscal){
   const modoSem=fiscal==='semnota';
   const inPeriod=d=>!isMes||ym(d)===relMes;
   const ents=state.entradas.filter(e=>inPeriod(e.data)&&(modoFiscal?!e.semNota:true)&&(modoSem?e.semNota:true)).sort((a,b)=>a.data.localeCompare(b.data));
-  const sais=(modoSem?[]:state.saidas.filter(s=>inPeriod(s.data))).sort((a,b)=>a.data.localeCompare(b.data));
+  const sais=(modoSem?[]:state.saidas.filter(s=>inPeriod(s.data)&&(!modoFiscal||!s.semContab))).sort((a,b)=>a.data.localeCompare(b.data));
   const entRec=ents.filter(e=>e.status==='recebido').reduce((a,b)=>a+b.valor,0);
   const entPend=ents.filter(e=>e.status==='a_receber').reduce((a,b)=>a+b.valor,0);
   const saiTot=sais.reduce((a,b)=>a+b.valor,0);
@@ -1869,7 +1869,8 @@ function openForm(type,id){
     </div>
     <div class="field"><label>Descrição</label><input id="f_desc" value="${s?esc(s.descricao):''}" placeholder="Ex.: Assinatura Canva, artes do mês..."></div>
     <div class="field"><label>Fornecedor</label><select id="f_forn">${opt(state.fornecedores,s?s.fornecedorId:null,'— Sem fornecedor —')}</select></div>
-    <div class="field"><label>Categoria</label><select id="f_cat">${cats(CAT_OUT,s?s.categoria:null)}</select></div>`;
+    <div class="field"><label>Categoria</label><select id="f_cat">${cats(CAT_OUT,s?s.categoria:null)}</select></div>
+    <div class="field"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f_ssc" style="width:auto" ${s&&s.semContab?'checked':''}> Não enviar esta saída para a contabilidade</label></div>`;
   }
   if(type==='conta'){
     const c=id?state.contas.find(x=>x.id===id):null;
@@ -1950,7 +1951,7 @@ function submitForm(type,id){
     if(id){Object.assign(state.entradas.find(x=>x.id===id),obj);}else{state.entradas.push({id:uid(),...obj});}
   }
   if(type==='saida'){
-    const obj={data:gv('f_data')||today(),descricao:gv('f_desc'),fornecedorId:gv('f_forn')||null,categoria:gv('f_cat'),valor:num(gv('f_valor'))};
+    const obj={data:gv('f_data')||today(),descricao:gv('f_desc'),fornecedorId:gv('f_forn')||null,categoria:gv('f_cat'),valor:num(gv('f_valor')),semContab:document.getElementById('f_ssc').checked};
     if(id){Object.assign(state.saidas.find(x=>x.id===id),obj);}else{state.saidas.push({id:uid(),...obj});}
   }
   if(type==='conta'){
