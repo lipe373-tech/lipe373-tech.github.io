@@ -210,6 +210,10 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .clientcard .cc-valor span{font-family:'Jost';font-size:13px;color:var(--ink-soft);margin-left:2px}
 .clientcard .cc-status{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
 .clientcard .cc-dia{font-size:12.5px;color:var(--ink-soft)}
+.clientcard .cc-rel{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.clientcard .rel-chip{flex:1;min-width:130px;border:1.5px solid var(--rose);background:transparent;color:var(--ink-soft);border-radius:9px;padding:8px 10px;font-size:12.5px;transition:.15s}
+.clientcard .rel-chip:hover{border-color:var(--terra)}
+.clientcard .rel-chip.on{background:var(--green-bg);border-color:var(--green);color:var(--green);font-weight:600}
 .clientcard .cc-foot{display:flex;gap:14px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rose-soft)}
 .clientcard .cc-foot div{flex:1}
 .clientcard .cc-foot span{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft)}
@@ -407,7 +411,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -624,6 +628,7 @@ const fdate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y
 const today=()=>new Date().toISOString().slice(0,10);
 const ym=s=>s.slice(0,7);
 const thisYM=()=>today().slice(0,7);
+function semKey(dt=new Date()){const d=new Date(Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate()));const day=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-day);const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));const wk=Math.ceil((((d-ys)/86400000)+1)/7);return d.getUTCFullYear()+'-W'+String(wk).padStart(2,'0');}
 const monthName=y=>{const[a,b]=y.split('-');return new Date(a,b-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});};
 const cliName=id=>{const c=state.clientes.find(x=>x.id===id);return c?c.nome:'—';};
 const fornName=id=>{const f=state.fornecedores.find(x=>x.id===id);return f?f.nome:'—';};
@@ -910,7 +915,7 @@ function viewDashboard(){
     <div class="card"><div class="lbl">Contas a pagar</div><div class="val">${fmt(pendTotal)}</div><div class="note">${pend.length} conta(s)${atras?` · <b>${atras} atrasada(s)</b>`:''}</div></div>
     <div class="card"><div class="lbl">A receber (mês)</div><div class="val" style="color:var(--amber)">${fmt(aRec)}</div><div class="note">${atrasRec.length?`<b style="color:var(--red)">${atrasRec.length} atrasado(s)</b>`:'em dia'}</div></div>
     <div class="card"><div class="lbl">NF a emitir</div><div class="val" style="color:${state.entradas.filter(e=>!e.semNota&&e.nfEmitida===false).length?'var(--red)':'var(--terra)'}">${state.entradas.filter(e=>!e.semNota&&e.nfEmitida===false).length}</div><div class="note">${state.entradas.filter(e=>!e.semNota&&e.nfEmitida===false).length?'nota(s) pendente(s)':'tudo emitido ✓'}</div></div>
-    <div class="card"><div class="lbl">Clientes ativos</div><div class="val">${state.clientes.filter(c=>c.status!=='inativo').length}</div></div>
+    <div class="card"><div class="lbl">Relatórios da semana</div><div class="val" style="color:${state.clientes.filter(c=>c.status!=='inativo'&&c.relSemanaEm!==semKey()).length?'var(--amber)':'var(--green)'}">${state.clientes.filter(c=>c.status!=='inativo'&&c.relSemanaEm===semKey()).length}/${state.clientes.filter(c=>c.status!=='inativo').length}</div><div class="note">${state.clientes.filter(c=>c.status!=='inativo'&&c.relSemanaEm!==semKey()).length} a enviar${state.clientes.filter(c=>c.status!=='inativo'&&c.relMesEm!==thisYM()).length?` · ${state.clientes.filter(c=>c.status!=='inativo'&&c.relMesEm!==thisYM()).length} mensal`:''}</div></div>
   </div>
   <div class="panelrow">
     <div class="panel"><h3>Fluxo de caixa — últimos 6 meses</h3><div class="chartbox"><canvas id="chFlux"></canvas></div></div>
@@ -1092,6 +1097,12 @@ function viewFornecedores(){
 }
 let cliFiltro='ativos';
 function setCliFiltro(v){cliFiltro=v;render();}
+function toggleRel(id,tipo){
+  const c=state.clientes.find(x=>x.id===id);if(!c)return;
+  if(tipo==='sem')c.relSemanaEm=(c.relSemanaEm===semKey())?null:semKey();
+  else c.relMesEm=(c.relMesEm===thisYM())?null:thisYM();
+  save();render();
+}
 function viewClientes(){
   const ano=new Date().getFullYear()+'';
   const y=thisYM();
@@ -1147,6 +1158,10 @@ function viewClientes(){
       ${c.servico?`<div class="cc-serv">${esc(c.servico)}</div>`:''}
       <div class="cc-valor">${c.valorMensal?fmt(c.valorMensal)+'<span>/mês</span>':'<span style="font-size:14px;color:var(--ink-soft)">sem mensalidade fixa</span>'}</div>
       ${st?`<div class="cc-status"><span class="pill ${st.cls}">${st.t}</span>${c.valorMensal?`<span class="cc-dia">vence dia ${c.diaCobranca||5}</span>`:''}</div>`:''}
+      ${ativo(c)?`<div class="cc-rel">
+        <button class="rel-chip ${c.relSemanaEm===semKey()?'on':''}" onclick="toggleRel('${c.id}','sem')">${c.relSemanaEm===semKey()?'✓ ':''}Relatório semanal</button>
+        <button class="rel-chip ${c.relMesEm===thisYM()?'on':''}" onclick="toggleRel('${c.id}','mes')">${c.relMesEm===thisYM()?'✓ ':''}Relatório mensal</button>
+      </div>`:''}
       <div class="cc-foot">
         <div><span>Recebido em ${ano}</span><b>${fmt(noAno[c.id]||0)}</b></div>
         <div><span>${ativo(c)?'Cliente desde':'Período'}</span><b>${c.desde?fdate(c.desde):(desde[c.id]?fdate(desde[c.id]):'—')}${ativo(c)?'':(c.saidaEm?' → '+fdate(c.saidaEm):'')}</b></div>
@@ -1462,28 +1477,7 @@ function viewPropostas(){
     </tr>`;}).join('')}</tbody></table>`:`<div class="empty">Nenhuma proposta ainda. Clique em "+ Nova proposta" para montar a primeira.</div>`}</div>`;
 }
 function setPropStatus(id,v){const p=state.propostas.find(x=>x.id===id);if(p){p.status=v;save();render();}}
-function propRowHTML(i){
-  return `<div class="prop-item" data-svc="${esc(i.svc||'')}">
-    <input class="pi-nome" placeholder="Serviço" value="${esc(i.nome||'')}">
-    <input class="pi-valor" type="number" step="0.01" min="0" placeholder="R$" value="${i.valor||''}">
-    <select class="pi-tipo"><option value="mensal" ${i.tipo!=='unico'?'selected':''}>/mês</option><option value="unico" ${i.tipo==='unico'?'selected':''}>único</option></select>
-    <button class="pi-x" style="color:var(--terra)" onclick="const t=this.parentElement.querySelector('.pi-det');t.style.display=t.style.display==='none'?'block':'none'" title="Itens inclusos (detalhamento)">☰</button>
-    <button class="pi-x" onclick="this.closest('.prop-item').remove()" title="Remover">✕</button>
-    ${i.svc&&ASSISTENTES[i.svc]?`<div class="as-wrap">${ASSISTENTES[i.svc].campos}</div>`:''}
-    <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
-  </div>`;
-}
-function addPropItem(nome,valor,tipo,detalhes){
-  const svc=ASSISTENTES[nome||'']?nome:'';
-  const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
-  const box=document.getElementById('propItens');
-  box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
-  if(svc){
-    const row=box.lastElementChild;
-    row.querySelector('.pi-det').value=ASSISTENTES[svc].gerar(row);
-    row.querySelector('.pi-det').style.display='block';
-  }
-}
+function propRowHTML(i){}
 function openProposta(id){
   const p=id?state.propostas.find(x=>x.id===id):null;
   const md=document.getElementById('modal');
@@ -1983,6 +1977,27 @@ function gerarRelatorio(scope,fiscal){
     .foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--rose);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
     .printbar{position:fixed;top:14px;right:14px}
     .printbar button{font-family:'Jost';background:var(--terra);color:var(--rose);border:none;border-radius:99px;padding:11px 24px;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(95,51,43,.3)}
+
+  return `<div class="prop-item" data-svc="${esc(i.svc||'')}">
+    <input class="pi-nome" placeholder="Serviço" value="${esc(i.nome||'')}">
+    <input class="pi-valor" type="number" step="0.01" min="0" placeholder="R$" value="${i.valor||''}">
+    <select class="pi-tipo"><option value="mensal" ${i.tipo!=='unico'?'selected':''}>/mês</option><option value="unico" ${i.tipo==='unico'?'selected':''}>único</option></select>
+    <button class="pi-x" style="color:var(--terra)" onclick="const t=this.parentElement.querySelector('.pi-det');t.style.display=t.style.display==='none'?'block':'none'" title="Itens inclusos (detalhamento)">☰</button>
+    <button class="pi-x" onclick="this.closest('.prop-item').remove()" title="Remover">✕</button>
+    ${i.svc&&ASSISTENTES[i.svc]?`<div class="as-wrap">${ASSISTENTES[i.svc].campos}</div>`:''}
+    <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
+  </div>`;
+}
+function addPropItem(nome,valor,tipo,detalhes){
+  const svc=ASSISTENTES[nome||'']?nome:'';
+  const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
+  const box=document.getElementById('propItens');
+  box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
+  if(svc){
+    const row=box.lastElementChild;
+    row.querySelector('.pi-det').value=ASSISTENTES[svc].gerar(row);
+    row.querySelector('.pi-det').style.display='block';
+  }
     .empty{color:var(--muted);padding:10px 2px}
     @media print{.printbar{display:none}body{padding:10px 0}}
   </style></head><body>
