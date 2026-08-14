@@ -1477,7 +1477,28 @@ function viewPropostas(){
     </tr>`;}).join('')}</tbody></table>`:`<div class="empty">Nenhuma proposta ainda. Clique em "+ Nova proposta" para montar a primeira.</div>`}</div>`;
 }
 function setPropStatus(id,v){const p=state.propostas.find(x=>x.id===id);if(p){p.status=v;save();render();}}
-function propRowHTML(i){}
+function propRowHTML(i){
+  return `<div class="prop-item" data-svc="${esc(i.svc||'')}">
+    <input class="pi-nome" placeholder="Serviço" value="${esc(i.nome||'')}">
+    <input class="pi-valor" type="number" step="0.01" min="0" placeholder="R$" value="${i.valor||''}">
+    <select class="pi-tipo"><option value="mensal" ${i.tipo!=='unico'?'selected':''}>/mês</option><option value="unico" ${i.tipo==='unico'?'selected':''}>único</option></select>
+    <button class="pi-x" style="color:var(--terra)" onclick="const t=this.parentElement.querySelector('.pi-det');t.style.display=t.style.display==='none'?'block':'none'" title="Itens inclusos (detalhamento)">☰</button>
+    <button class="pi-x" onclick="this.closest('.prop-item').remove()" title="Remover">✕</button>
+    ${i.svc&&ASSISTENTES[i.svc]?`<div class="as-wrap">${ASSISTENTES[i.svc].campos}</div>`:''}
+    <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
+  </div>`;
+}
+function addPropItem(nome,valor,tipo,detalhes){
+  const svc=ASSISTENTES[nome||'']?nome:'';
+  const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
+  const box=document.getElementById('propItens');
+  box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
+  if(svc){
+    const row=box.lastElementChild;
+    row.querySelector('.pi-det').value=ASSISTENTES[svc].gerar(row);
+    row.querySelector('.pi-det').style.display='block';
+  }
+}
 function openProposta(id){
   const p=id?state.propostas.find(x=>x.id===id):null;
   const md=document.getElementById('modal');
@@ -1977,27 +1998,6 @@ function gerarRelatorio(scope,fiscal){
     .foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--rose);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
     .printbar{position:fixed;top:14px;right:14px}
     .printbar button{font-family:'Jost';background:var(--terra);color:var(--rose);border:none;border-radius:99px;padding:11px 24px;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(95,51,43,.3)}
-
-  return `<div class="prop-item" data-svc="${esc(i.svc||'')}">
-    <input class="pi-nome" placeholder="Serviço" value="${esc(i.nome||'')}">
-    <input class="pi-valor" type="number" step="0.01" min="0" placeholder="R$" value="${i.valor||''}">
-    <select class="pi-tipo"><option value="mensal" ${i.tipo!=='unico'?'selected':''}>/mês</option><option value="unico" ${i.tipo==='unico'?'selected':''}>único</option></select>
-    <button class="pi-x" style="color:var(--terra)" onclick="const t=this.parentElement.querySelector('.pi-det');t.style.display=t.style.display==='none'?'block':'none'" title="Itens inclusos (detalhamento)">☰</button>
-    <button class="pi-x" onclick="this.closest('.prop-item').remove()" title="Remover">✕</button>
-    ${i.svc&&ASSISTENTES[i.svc]?`<div class="as-wrap">${ASSISTENTES[i.svc].campos}</div>`:''}
-    <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
-  </div>`;
-}
-function addPropItem(nome,valor,tipo,detalhes){
-  const svc=ASSISTENTES[nome||'']?nome:'';
-  const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
-  const box=document.getElementById('propItens');
-  box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
-  if(svc){
-    const row=box.lastElementChild;
-    row.querySelector('.pi-det').value=ASSISTENTES[svc].gerar(row);
-    row.querySelector('.pi-det').style.display='block';
-  }
     .empty{color:var(--muted);padding:10px 2px}
     @media print{.printbar{display:none}body{padding:10px 0}}
   </style></head><body>
