@@ -1192,9 +1192,19 @@ function extenso(v){
   return txt;
 }
 function fmtExt(v){return fmt(v)+' ('+extenso(v)+')';}
+const MESES_EXT=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+function dataExtenso(d){
+  if(typeof d==='string'){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return '___ de ______ de ______';
+    const [a,m,dd]=d.split('-').map(Number);
+    return dd+' de '+MESES_EXT[m-1]+' de '+a;
+  }
+  return d.getDate()+' de '+MESES_EXT[d.getMonth()]+' de '+d.getFullYear();
+}
 function openGerarContrato(){
   const md=document.getElementById('modal');md.style.width='620px';
-  const hoje=new Date();const dataStr=hoje.getDate()+' de '+['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][hoje.getMonth()]+' de '+hoje.getFullYear();
+  const hoje=new Date();const dataStr=dataExtenso(hoje);
+  const isoHoje=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000).toISOString().slice(0,10);
   md.innerHTML=`<h2>Gerar contrato</h2>
   <div class="field"><label>Tipo de contrato</label><select id="gc_tipo" onchange="gcToggle()">
     <option value="redes">Gestão de Redes Sociais</option><option value="trafego">Tráfego Pago</option></select></div>
@@ -1222,6 +1232,10 @@ function openGerarContrato(){
     <div class="field"><label>Vigência (meses)</label><input type="number" id="gc_vig" value="3" min="1"></div>
     <div class="field"><label>Valor total (R$)</label><input type="number" step="0.01" id="gc_valor" placeholder="0,00" oninput="gcPrefillPag()"></div>
   </div>
+  <div class="fieldrow">
+    <div class="field"><label>Data da entrada / 1º pagamento</label><input type="date" id="gc_dtent" value="${isoHoje}" onchange="gcPrefillPag()"></div>
+    <div class="field"><label>Vencimento das demais (dia)</label><input type="number" id="gc_diaven" min="1" max="31" value="10" oninput="gcPrefillPag()"></div>
+  </div>
   <div class="field"><label>Forma de pagamento (edite como quiser)</label><textarea id="gc_pag" style="min-height:90px"></textarea></div>
   <div class="fieldrow">
     <div class="field"><label>Cidade</label><input id="gc_cidade" value="Itajaí/SC"></div>
@@ -1245,11 +1259,13 @@ function gcPrefillPag(){
   const v=parseFloat(document.getElementById('gc_valor').value)||0;
   const ta=document.getElementById('gc_pag');
   if(ta.dataset.touched==='1')return;
+  const dt=dataExtenso(document.getElementById('gc_dtent')?.value||'');
+  const dia=parseInt(document.getElementById('gc_diaven')?.value,10)||10;
   if(t==='trafego'){
     const ent=v?v/3:0,saldo=v-ent;
-    ta.value=v?`A) Entrada de ${fmtExt(ent)} no ato da assinatura;\nB) Saldo de ${fmtExt(saldo)} em 2 (duas) parcelas iguais com vencimento em 30 e 60 dias após a assinatura;\nC) Pagamentos via Chave PIX 47.231.860/0001-08 ou boleto enviado com 3 dias de antecedência.`:'';
+    ta.value=v?`A) Entrada de ${fmtExt(ent)} no dia ${dt};\nB) Saldo de ${fmtExt(saldo)} em 2 (duas) parcelas iguais e fixas, com vencimento todo dia ${dia} dos meses subsequentes;\nC) Pagamentos via Chave PIX 47.231.860/0001-08 ou boleto enviado com 3 dias de antecedência.`:'';
   }else{
-    ta.value=v?`A) Entrada de ${fmtExt(v)} no dia ___ de ______ de ______;\nB) Pagamentos via Chave PIX 47.231.860/0001-08 ou boleto enviado com 3 dias de antecedência.`:'';
+    ta.value=v?`A) Entrada de ${fmtExt(v)} no dia ${dt};\nB) Demais pagamentos com vencimento todo dia ${dia} de cada mês;\nC) Pagamentos via Chave PIX 47.231.860/0001-08 ou boleto enviado com 3 dias de antecedência.`:'';
   }
 }
 function gerarContratoPDF(){
