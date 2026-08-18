@@ -1280,12 +1280,14 @@ function contratoWrapper(titulo,d,corpo){
   .cab .mono{font-family:'Playfair Display',serif;font-size:40px;letter-spacing:-8px;line-height:1}
   .cab .nm{font-size:10px;letter-spacing:4px;margin-top:2px}
   .cab .r{text-align:right;font-size:11px;line-height:1.5;opacity:.9}
+  .cabline{height:3px;background:var(--rose)}
   .body{padding:32px 48px}
   h1{font-family:'Playfair Display',serif;font-weight:500;font-size:20px;color:var(--deep);text-align:center;margin-bottom:4px}
   .subt{text-align:center;color:var(--muted);font-size:12px;margin-bottom:22px;text-transform:uppercase;letter-spacing:2px}
   h2{font-family:'Jost';font-weight:600;font-size:13px;color:var(--terra);margin:16px 0 6px;letter-spacing:.3px}
-  p{margin:6px 0;text-align:justify}
-  .ass{margin-top:48px;display:flex;gap:50px}
+  p{margin:6px 0;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+  .dtline{margin-top:34px!important}
+  .ass{margin-top:54px;display:flex;gap:50px}
   .ass div{flex:1;border-top:1.2px solid var(--ink);padding-top:6px;text-align:center;font-size:11.5px}
   .test{margin-top:26px;font-size:11.5px;color:var(--muted)}
   .foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--rose);font-size:10.5px;color:var(--muted);text-align:center}
@@ -1303,24 +1305,26 @@ function contratoWrapper(titulo,d,corpo){
     .body{padding:16px 4px 0}
     h1{font-size:17px;margin-bottom:3px}
     .subt{font-size:10px;letter-spacing:1.8px;margin-bottom:14px}
-    h2{font-size:11.2px;margin:11px 0 3px;break-after:avoid;page-break-after:avoid}
+    h2{font-size:11.2px;margin:13px 0 3px;break-after:avoid;page-break-after:avoid}
     p{margin:4px 0;orphans:3;widows:3}
-    .ass{margin-top:34px;gap:44px}
-    .ass div{font-size:10.5px}
-    .test{margin-top:18px;font-size:10.5px}
-    .foot{margin-top:16px;padding-top:8px;font-size:9.5px}
+    .dtline{margin-top:44px!important}
+    .ass{margin-top:60px;gap:48px}
+    .ass div{font-size:10.5px;padding-top:7px}
+    .test{margin-top:26px;font-size:10.5px}
+    .foot{margin-top:22px;padding-top:9px;font-size:9.5px}
   }
 </style></head><body>
   <div class="printbar"><button onclick="window.print()">🖨 Imprimir / Salvar em PDF</button></div>
   <div class="page">
     <div class="cab"><div><div class="mono">AP</div><div class="nm">AMANDA PINHEIRO</div></div>
       <div class="r">AP Marketing Digital LTDA<br>CNPJ 47.231.860/0001-08<br>Itajaí/SC · amandapinheiromarketing@gmail.com</div></div>
+    <div class="cabline"></div>
     <div class="body">
       <h1>Contrato Particular de Prestação de Serviços</h1>
       <div class="subt">${esc(titulo)}</div>
       ${corpo}
       <div class="fim">
-        <p style="margin-top:22px">${esc(d.cidade)}, ${esc(d.data)}.</p>
+        <p class="dtline">${esc(d.cidade)}, ${esc(d.data)}.</p>
         <div class="ass"><div>CONTRATANTE<br>${esc(d.nome)}</div><div>CONTRATADA<br>Amanda Pinheiro</div></div>
         <div class="test">Testemunha 1: ______________________________  Testemunha 2: ______________________________</div>
         <div class="foot">AP Marketing Digital LTDA · CNPJ 47.231.860/0001-08 · Itajaí/SC</div>
