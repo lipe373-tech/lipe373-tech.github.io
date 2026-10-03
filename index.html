@@ -14,7 +14,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://amandapinheiro-6d032.firebaseapp.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="no-referrer">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous"></script>
 <style>
 :root{
   --terra:#8A4B41;
@@ -371,6 +373,8 @@ setTimeout(function(){
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
 <script>
+/* Não deixa o sistema ser exibido dentro de outro site (clickjacking) */
+if(window.top!==window.self){document.documentElement.style.display='none';}
 /* Vigia de carregamento: se o sistema não iniciar, mostra o erro na tela de login */
 window.addEventListener('error',function(ev){
   if(window.__apReady)return;
@@ -404,14 +408,14 @@ const firebaseConfig={
 
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,doc,getDoc,runTransaction,collection,getDocs,query,orderBy,limit,documentId} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const configOk=!Object.values(firebaseConfig).some(v=>String(v).includes("COLE_AQUI"));
 let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -483,16 +487,59 @@ function seed(){
   return {entradas,saidas,contas,fornecedores:forn,clientes:cli,contratos,propostas,config:{taxPct:6,sample:true}};
 }
 
-/* ================= NUVEM (Firestore) ================= */
+/* ================= SANITIZAÇÃO =================
+   Todo dado que entra (nuvem, backup ou cópia diária) passa por aqui: só campos
+   conhecidos, tipos certos e tamanho limitado. Impede que um backup adulterado
+   injete HTML/JS na tela. Campo novo no sistema = acrescentar aqui, senão some. */
+const S={
+  id:v=>{v=String(v??'');return /^[A-Za-z0-9_-]{1,40}$/.test(v)?v:null;},
+  str:(v,max=500)=>String(v??'').slice(0,max),
+  num:v=>{const n=Number(v);return Number.isFinite(n)?Math.round(n*100)/100:0;},
+  optNum:v=>v==null||v===''?null:S.num(v),
+  int:(v,min,max,def)=>{const n=parseInt(v,10);return Number.isFinite(n)?Math.min(Math.max(n,min),max):def;},
+  date:v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v??''))?String(v):null,
+  re:(v,rx)=>rx.test(String(v??''))?String(v):null,
+  bool:v=>v===true,
+  tri:v=>v===true?true:v===false?false:null, // nfEmitida: true / false (a emitir) / null (não se aplica)
+  pick:(v,list,def)=>list.includes(v)?v:def,
+  lista:v=>Array.isArray(v)?v.slice(0,100).map(x=>S.str(x,120)).filter(Boolean):null,
+};
+const SCHEMA={
+  entradas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),status:S.pick(x.status,['recebido','a_receber'],'recebido'),semNota:S.bool(x.semNota),nfEmitida:S.tri(x.nfEmitida),prevista:S.date(x.prevista),formaPgto:S.str(x.formaPgto,40)}),
+  saidas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),fornecedorId:S.id(x.fornecedorId),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),semContab:S.bool(x.semContab)}),
+  contas:x=>({id:S.id(x.id)||uid(),fornecedorId:S.id(x.fornecedorId),descricao:S.str(x.descricao),valor:S.num(x.valor),vencimento:S.date(x.vencimento)||today(),status:S.pick(x.status,['pendente','pago'],'pendente'),pagoEm:S.date(x.pagoEm),recorrente:S.bool(x.recorrente)}),
+  fornecedores:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servico:S.str(x.servico),contato:S.str(x.contato,200)}),
+  clientes:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servicos:Array.isArray(x.servicos)?x.servicos.slice(0,30).map(s=>S.str(s,120)):null,servico:S.str(x.servico),valorMensal:S.num(x.valorMensal),diaCobranca:S.int(x.diaCobranca,1,28,5),categoria:S.str(x.categoria,120),semNota:S.bool(x.semNota),
+    status:S.pick(x.status,['ativo','inativo'],'ativo'),desde:S.date(x.desde),saidaEm:S.date(x.saidaEm),relSemanaEm:S.re(x.relSemanaEm,/^\d{4}-W\d{2}$/),relMesEm:S.re(x.relMesEm,/^\d{4}-\d{2}$/)}),
+  contratos:x=>({id:S.id(x.id)||uid(),clienteId:S.id(x.clienteId),titulo:S.str(x.titulo,200),valor:S.num(x.valor),periodicidade:S.pick(x.periodicidade,['mensal','projeto'],'mensal'),inicio:S.date(x.inicio),fim:S.date(x.fim),status:S.pick(x.status,['ativo','pausado','encerrado'],'ativo'),obs:S.str(x.obs)}),
+  propostas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),nome:S.str(x.nome,200),contato:S.str(x.contato,200),status:S.pick(x.status,['rascunho','enviada','aceita','recusada'],'rascunho'),validade:S.date(x.validade),desconto:S.num(x.desconto),duracao:S.int(x.duracao,0,99,0),duracaoUn:S.pick(x.duracaoUn,['semanas','meses','anos'],'meses'),obs:S.str(x.obs,4000),
+    itens:(Array.isArray(x.itens)?x.itens:[]).slice(0,50).filter(i=>i&&typeof i==='object').map(i=>({nome:S.str(i.nome,200),valor:S.num(i.valor),tipo:S.pick(i.tipo,['mensal','unico'],'mensal'),detalhes:S.str(i.detalhes,4000)}))}),
+};
+const COLECOES=Object.keys(SCHEMA);
+function sanitizeState(raw){
+  const d=raw&&typeof raw==='object'?raw:{};
+  const out={};
+  COLECOES.forEach(k=>{out[k]=(Array.isArray(d[k])?d[k]:[]).slice(0,20000).filter(x=>x&&typeof x==='object').map(SCHEMA[k]);});
+  const c=d.config&&typeof d.config==='object'?d.config:{};
+  out.config={taxPct:S.optNum(c.taxPct)??6,simTax:S.optNum(c.simTax),metaAno:S.optNum(c.metaAno),sample:S.bool(c.sample),
+    lastGen:S.re(c.lastGen,/^\d{4}-\d{2}$/),ultimaCopia:S.date(c.ultimaCopia),servicos:S.lista(c.servicos),catIn:S.lista(c.catIn),catOut:S.lista(c.catOut)};
+  out._rev=S.int(d._rev,0,1e9,0);
+  return out;
+}
+
+/* ================= NUVEM (Firestore) =================
+   Cada gravação leva um contador de versão (_rev). Se outro aparelho/aba gravou
+   depois que estes dados foram carregados, a gravação é recusada em vez de
+   apagar o que foi feito lá (as regras do Firestore conferem o mesmo). */
 function setSync(txt,cls){const el=document.getElementById('syncStatus');if(el){el.textContent=txt;el.className='sync '+(cls||'');}
   const m=document.getElementById('mSync');if(m){m.textContent=cls==='err'?'⚠':(/salvo/.test(txt)?'✓':'⋯');m.className='mt-sync'+(cls==='err'?' err':'');}}
+const docRef=()=>doc(db,'financeiro',currentUser.uid);
+const copiaRef=dia=>doc(db,'financeiro',currentUser.uid,'copias',dia);
+let saving=false,dirty=false,conflito=false;
 async function loadData(){
-  const snap=await getDoc(doc(db,'financeiro',currentUser.uid));
-  if(snap.exists()){state=snap.data();}
-  else{state=seed();await persist();}
-  // garante estruturas mínimas
-  ['entradas','saidas','contas','fornecedores','clientes','contratos','propostas'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];});
-  if(!state.config)state.config={taxPct:6,sample:false};
+  const snap=await getDoc(docRef());
+  if(snap.exists()){state=sanitizeState(snap.data());}
+  else{state=sanitizeState(seed());await persist();}
   carregarListas();
   if(gerarRecorrentes())await persist();
 }
@@ -528,26 +575,102 @@ function gerarRecorrentes(){
   return true;
 }
 async function persist(){
+  if(!currentUser||!state||conflito)return;
+  if(saving){dirty=true;return;} // já tem gravação em andamento: grava de novo ao terminar
+  saving=true;
   setSync('salvando…','ok');
   try{
-    // JSON round-trip remove valores undefined, que o Firestore rejeita
-    await setDoc(doc(db,'financeiro',currentUser.uid),JSON.parse(JSON.stringify(state)));
+    do{
+      dirty=false;
+      const base=state._rev||0;
+      // JSON round-trip remove valores undefined, que o Firestore rejeita
+      const data=JSON.parse(JSON.stringify({...state,_rev:base+1}));
+      let copiou=null;
+      await runTransaction(db,async tx=>{
+        const snap=await tx.get(docRef());
+        const remoto=snap.exists()?(snap.data()._rev||0):0;
+        if(remoto!==base)throw Object.assign(new Error('conflito de versão'),{code:'ap/conflito'});
+        // cópia diária: no 1º salvamento do dia guarda os dados como estavam antes
+        // (as regras só permitem criar cópias, nunca alterar ou apagar; pula se o
+        // documento estiver perto do limite de 1 MB, para nunca travar o salvamento)
+        const hoje=today();
+        if(snap.exists()&&(snap.data().config||{}).ultimaCopia!==hoje&&JSON.stringify(snap.data()).length<900000){
+          const c=await tx.get(copiaRef(hoje));
+          if(!c.exists())tx.set(copiaRef(hoje),{feitaEm:new Date().toISOString(),rev:remoto,dados:snap.data()});
+          data.config.ultimaCopia=hoje;copiou=hoje;
+        }
+        tx.set(docRef(),data);
+      });
+      state._rev=base+1;
+      if(copiou)state.config.ultimaCopia=copiou;
+    }while(dirty);
     setSync('✓ salvo na nuvem','ok');
   }catch(e){
     console.error(e);
-    setSync('⚠ erro ao salvar ('+(e.code||'verifique a internet')+')','err');
+    if(e.code==='ap/conflito'){conflito=true;mostrarConflito();}
+    else setSync('⚠ erro ao salvar ('+(e.code||'verifique a internet')+')','err');
+  }finally{
+    saving=false;
   }
 }
 function save(){ // agrupa gravações rápidas em uma só
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(persist,400);
+  saveTimer=setTimeout(()=>{saveTimer=null;persist();},400);
 }
+async function flushSave(){ // grava o que estiver pendente antes de sair
+  if(saveTimer){clearTimeout(saveTimer);saveTimer=null;await persist();}
+  for(let i=0;saving&&i<100;i++)await new Promise(r=>setTimeout(r,100));
+}
+function mostrarConflito(){
+  setSync('⚠ não salvo: recarregue a página','err');
+  const md=document.getElementById('modal');
+  md.innerHTML=`<h2>⚠ Dados alterados em outro aparelho</h2>
+    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft)">O sistema foi usado em outro aparelho ou aba depois que esta tela foi aberta.
+    Para não apagar o que foi feito lá, as últimas alterações feitas <b>aqui</b> não foram salvas.</p>
+    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft);margin-top:10px">Recarregue para ver os dados atualizados e refaça a alteração. Se quiser, baixe antes uma cópia do que está nesta tela.</p>
+    <div class="modalbtns"><button class="btn btn-ghost" onclick="exportJSON()">⤓ Baixar cópia desta tela</button><button class="btn btn-primary" onclick="location.reload()">Recarregar</button></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+/* Ao voltar para a aba/app, puxa a versão mais nova se outro aparelho gravou */
+async function atualizarSeMudou(){
+  if(!currentUser||!state||saving||saveTimer||conflito)return;
+  if(document.getElementById('overlay').classList.contains('open'))return;
+  try{
+    const snap=await getDoc(docRef());
+    if(snap.exists()&&(snap.data()._rev||0)>(state._rev||0)&&!saving&&!saveTimer){state=sanitizeState(snap.data());carregarListas();render();}
+  }catch(e){console.error(e);}
+}
+
+/* ================= SESSÃO: encerra após inatividade ================= */
+const IDLE_MS=30*60*1000;
+const IDLE_KEY='ap_ultimaAtividade';
+let ultimaAtiv=Date.now();
+function lerAtiv(){try{return Number(localStorage.getItem(IDLE_KEY))||0;}catch(e){return 0;}}
+function marcarAtiv(force){
+  const t=Date.now();
+  if(!force&&t-ultimaAtiv<10000)return;
+  ultimaAtiv=t;
+  try{localStorage.setItem(IDLE_KEY,String(t));}catch(e){}
+}
+['pointerdown','keydown','touchstart','wheel'].forEach(ev=>document.addEventListener(ev,()=>marcarAtiv(),{passive:true,capture:true}));
+function ociosoDemais(){return Date.now()-Math.max(ultimaAtiv,lerAtiv())>IDLE_MS;}
+async function checkIdle(){
+  if(currentUser&&ociosoDemais()){await encerrarSessao('Sessão encerrada após 30 minutos sem uso. Entre novamente.');return true;}
+  return false;
+}
+setInterval(checkIdle,60000);
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState!=='visible')return;
+  if(await checkIdle())return;
+  atualizarSeMudou();
+});
 
 /* ================= AUTENTICAÇÃO ================= */
 const ERR_PT={
   'auth/invalid-credential':'E-mail ou senha incorretos.',
   'auth/invalid-email':'E-mail inválido.',
-  'auth/user-not-found':'Usuário não encontrado.',
+  'auth/user-not-found':'E-mail ou senha incorretos.',
+  'auth/user-disabled':'Este acesso está desativado.',
   'auth/wrong-password':'E-mail ou senha incorretos.',
   'auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos.',
   'auth/network-request-failed':'Sem conexão. Verifique a internet.',
@@ -557,6 +680,7 @@ async function doLogin(){
   const btn=document.getElementById('loginBtn');
   document.getElementById('loginErr').classList.remove('show');
   btn.disabled=true;btn.textContent='ENTRANDO…';
+  marcarAtiv(true);
   try{
     await signInWithEmailAndPassword(auth,document.getElementById('loginEmail').value.trim(),document.getElementById('loginPass').value);
   }catch(e){
@@ -568,14 +692,25 @@ async function doLogin(){
 async function doReset(){
   const email=document.getElementById('loginEmail').value.trim();
   if(!email){loginError('Digite seu e-mail no campo acima e clique de novo em "Esqueci minha senha".');return;}
+  // mesma mensagem exista ou não a conta, para não revelar quais e-mails têm acesso
+  const ok='Se este e-mail tiver acesso, enviamos um link de redefinição para '+email+'. Confira a caixa de entrada (e o spam).';
   try{
     await sendPasswordResetEmail(auth,email);
-    loginError('Enviamos um link de redefinição para '+email+'. Confira a caixa de entrada (e o spam).');
-  }catch(e){loginError(ERR_PT[e.code]||'Não foi possível enviar o e-mail. ('+e.code+')');}
+    loginError(ok);
+  }catch(e){
+    if(e.code==='auth/user-not-found')loginError(ok);
+    else loginError(ERR_PT[e.code]||'Não foi possível enviar o e-mail. ('+e.code+')');
+  }
+}
+async function encerrarSessao(msg){
+  await flushSave();
+  await signOut(auth);
+  closeModal();
+  if(msg)loginError(msg);
 }
 function sair(){
   if(!confirm('Sair do sistema?'))return;
-  signOut(auth);
+  encerrarSessao();
 }
 
 /* ================= INICIALIZAÇÃO ================= */
@@ -600,6 +735,15 @@ if(!configOk){
   onAuthStateChanged(auth,async user=>{
     const boot=document.getElementById('bootScreen');if(boot)boot.style.display='none';
     if(user){
+      // sessão lembrada no aparelho, mas parada há mais de 30 min: pede login de novo
+      const ult=lerAtiv();
+      if(ult&&Date.now()-ult>IDLE_MS){
+        await signOut(auth);
+        loginError('Sessão encerrada após 30 minutos sem uso. Entre novamente.');
+        return;
+      }
+      marcarAtiv(true);
+      conflito=false;
       currentUser=user;
       document.getElementById('loginScreen').style.display='none';
       document.getElementById('appShell').classList.add('on');
@@ -616,6 +760,13 @@ if(!configOk){
       }
     }else{
       currentUser=null;state=null;
+      clearTimeout(saveTimer);saveTimer=null;
+      Object.values(charts).forEach(c=>c.destroy());charts={};
+      // não deixa dados financeiros no HTML da página depois de sair
+      document.getElementById('main').innerHTML='';
+      document.getElementById('modal').innerHTML='';
+      document.getElementById('overlay').classList.remove('open');
+      document.getElementById('loginPass').value='';
       document.getElementById('loginScreen').style.display='flex';
       document.getElementById('appShell').classList.remove('on');
     }
@@ -762,7 +913,7 @@ function rotularCelulas(){
 }
 function clearSample(){
   if(!confirm('Apagar TODOS os dados (lançamentos, contas, clientes e fornecedores) e começar do zero? Essa ação não tem desfazer.'))return;
-  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos,catIn:state.config.catIn,catOut:state.config.catOut,sample:false}};
+  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos||null,catIn:state.config.catIn||null,catOut:state.config.catOut||null,sample:false,lastGen:state.config.lastGen||null,ultimaCopia:state.config.ultimaCopia||null},_rev:state._rev||0};
   carregarListas();save();closeModal();render();
 }
 
@@ -823,6 +974,10 @@ function openConfig(){
         <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreBackup(this.files[0])">
       </div>
     </div>
+    <div class="field" style="margin-top:22px"><label>Cópias automáticas diárias</label>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:10px">Todo dia, no primeiro salvamento, o sistema guarda na nuvem uma cópia de como os dados estavam. Essas cópias não podem ser alteradas nem apagadas.</p>
+      <div id="copiasBox"><button class="btn btn-ghost btn-sm" onclick="listarCopias()">Ver cópias</button></div>
+    </div>
     <div class="field" style="margin-top:22px"><label>Minhas listas</label>
       <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:12px">Gerencie os serviços e categorias que aparecem ao cadastrar clientes, entradas, saídas e propostas.</p>
       <div id="listasBox">${listasHTML()}</div>
@@ -834,13 +989,48 @@ function openConfig(){
     <div class="modalbtns"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button></div>`;
   document.getElementById('overlay').classList.add('open');
 }
+let copiasCache={};
+async function listarCopias(){
+  const box=document.getElementById('copiasBox');
+  box.innerHTML='<div style="font-size:13.5px;color:var(--ink-soft)">Carregando…</div>';
+  try{
+    const snap=await getDocs(query(collection(db,'financeiro',currentUser.uid,'copias'),orderBy(documentId(),'desc'),limit(15)));
+    copiasCache={};
+    snap.forEach(d=>{if(S.date(d.id))copiasCache[d.id]=d.data();});
+    const ids=Object.keys(copiasCache).sort().reverse();
+    box.innerHTML=ids.length?`<div class="duelist">${ids.map(id=>{
+      const dd=copiasCache[id].dados||{};
+      const n=(Array.isArray(dd.entradas)?dd.entradas.length:0)+(Array.isArray(dd.saidas)?dd.saidas.length:0);
+      return `<div class="dueitem"><div class="who"><div class="n">${fdate(id)}</div><div class="d">${n} lançamento(s)</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="baixarCopia('${id}')">⤓ Baixar</button>
+        <button class="btn btn-ghost btn-sm" onclick="restaurarCopia('${id}')">Restaurar</button></div>`;
+    }).join('')}</div>`:'<div style="font-size:13.5px;color:var(--ink-soft)">Nenhuma cópia ainda. A primeira é criada no próximo salvamento.</div>';
+  }catch(e){
+    console.error(e);
+    box.innerHTML='<div style="font-size:13.5px;color:var(--red)">Não foi possível carregar as cópias. Verifique a internet.</div>';
+  }
+}
+function baixarCopia(id){
+  const c=copiasCache[id];if(!c)return;
+  download('copia-financeiro-'+id+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:c.feitaEm,dados:c.dados},null,2)],{type:'application/json'}));
+}
+function restaurarCopia(id){
+  const c=copiasCache[id];if(!c)return;
+  if(!confirm('Restaurar a cópia de '+fdate(id)+' vai SUBSTITUIR os dados atuais. Antes, uma cópia dos dados atuais será baixada no seu aparelho. Continuar?'))return;
+  exportJSON();
+  const rev=state._rev||0,uc=state.config.ultimaCopia;
+  state=sanitizeState(c.dados);
+  state._rev=rev;state.config.ultimaCopia=uc;
+  carregarListas();save();closeModal();render();
+  alert('Cópia de '+fdate(id)+' restaurada.');
+}
 function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
 function exportJSON(){
   download('backup-financeiro-'+today()+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:new Date().toISOString(),dados:state},null,2)],{type:'application/json'}));
 }
 async function loadXLSX(){
   if(window.XLSX)return;
-  await new Promise((ok,err)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=()=>err(new Error('Não foi possível baixar o gerador de Excel. Verifique a internet.'));document.head.appendChild(s);});
+  await new Promise((ok,err)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.integrity='sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==';s.crossOrigin='anonymous';s.onload=ok;s.onerror=()=>err(new Error('Não foi possível baixar o gerador de Excel. Verifique a internet.'));document.head.appendChild(s);});
 }
 async function exportExcel(){
   try{await loadXLSX();}catch(e){alert(e.message);return;}
@@ -864,9 +1054,10 @@ function restoreBackup(file){
       const d=j.dados||j;
       if(!Array.isArray(d.entradas)||!Array.isArray(d.saidas))throw new Error('estrutura inválida');
       if(!confirm('Restaurar este backup vai SUBSTITUIR todos os dados atuais pelos do arquivo'+(j.geradoEm?' (gerado em '+fdate(j.geradoEm.slice(0,10))+')':'')+'. Continuar?'))return;
-      state=d;
-      ['entradas','saidas','contas','fornecedores','clientes','contratos','propostas'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];});
-      if(!state.config)state.config={taxPct:6,sample:false};
+      const rev=state._rev||0,uc=state.config.ultimaCopia;
+      state=sanitizeState(d);
+      state._rev=rev; // a versão é a da nuvem, não a do arquivo
+      state.config.ultimaCopia=uc;
       carregarListas();save();closeModal();render();
       alert('Backup restaurado com sucesso!');
     }catch(e){alert('Arquivo de backup inválido: '+e.message);}
@@ -1033,7 +1224,7 @@ function viewMov(kind){
     <button class="btn btn-primary" onclick="openForm('${isIn?'entrada':'saida'}')">+ Nova ${isIn?'entrada':'saída'}</button></div>
   <div class="filters">
     <select onchange="setMovMes(this.value)"><option value="">Todos os meses</option>${months.map(m=>`<option value="${m}" ${movFilter.mes===m?'selected':''}>${monthName(m)}</option>`).join('')}</select>
-    <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${c}</option>`).join('')}</select>
+    <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <input id="movBusca" value="${esc(movFilter.q||'')}" placeholder="🔍 Buscar lançamento…" oninput="setMovBusca(this.value)" autocomplete="off" style="flex:1;min-width:180px">
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('movBusca').value='';setMovBusca('')">Limpar</button>
   </div>
@@ -1529,6 +1720,7 @@ function propRowHTML(i){
     <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
   </div>`;
 }
+function addPropSug(i){if(SERVICOS_SUGERIDOS[i]!=null)addPropItem(SERVICOS_SUGERIDOS[i]);}
 function addPropItem(nome,valor,tipo,detalhes){
   const svc=ASSISTENTES[nome||'']?nome:'';
   const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
@@ -1551,7 +1743,7 @@ function openProposta(id){
     <div class="field"><label>Contato (opcional)</label><input id="pr_contato" value="${p?esc(p.contato||''):''}" placeholder="E-mail ou WhatsApp"></div>
   </div>
   <div class="field"><label>Serviços da proposta</label>
-    <div class="chips">${SERVICOS_SUGERIDOS.map(s=>`<button class="chip" onclick="addPropItem('${s.replace(/'/g,"\\'")}')">+ ${s}</button>`).join('')}</div>
+    <div class="chips">${SERVICOS_SUGERIDOS.map((s,i)=>`<button class="chip" onclick="addPropSug(${i})">+ ${esc(s)}</button>`).join('')}</div>
     <div id="propItens">${(p?p.itens:[{nome:'',valor:'',tipo:'mensal'}]).map(propRowHTML).join('')}</div>
     <button class="btn btn-ghost btn-sm" onclick="addPropItem()">+ Adicionar serviço em branco</button>
   </div>
@@ -2100,7 +2292,7 @@ function del(coll,id){
 function openForm(type,id){
   const ov=document.getElementById('overlay');const md=document.getElementById('modal');
   const opt=(list,sel,none)=>`<option value="">${none}</option>`+list.map(x=>`<option value="${x.id}" ${sel===x.id?'selected':''}>${esc(x.nome)}</option>`).join('');
-  const cats=(arr,sel)=>arr.map(c=>`<option ${sel===c?'selected':''}>${c}</option>`).join('');
+  const cats=(arr,sel)=>arr.map(c=>`<option ${sel===c?'selected':''}>${esc(c)}</option>`).join('');
   let html='';
   if(type==='entrada'){
     const e=id?state.entradas.find(x=>x.id===id):null;
@@ -2176,7 +2368,7 @@ function openForm(type,id){
     html=`<h2>${c?'Editar':'Novo'} cliente</h2>
     <div class="field"><label>Nome</label><input id="f_nome" value="${c?esc(c.nome):''}" placeholder="Ex.: Clínica Bella Pele"></div>
     <div class="field"><label>Serviços contratados (marque quantos quiser)</label>
-      <div class="chips" id="f_svcbox">${SERVICOS_SUGERIDOS.map(s=>`<label class="chipchk"><input type="checkbox" value="${esc(s)}" ${marcado(s)?'checked':''}>${s}</label>`).join('')}</div>
+      <div class="chips" id="f_svcbox">${SERVICOS_SUGERIDOS.map(s=>`<label class="chipchk"><input type="checkbox" value="${esc(s)}" ${marcado(s)?'checked':''}>${esc(s)}</label>`).join('')}</div>
       <input id="f_servx" value="${esc(extras)}" placeholder="Outros serviços (separe por vírgula)">
     </div>
     <div class="fieldrow">
