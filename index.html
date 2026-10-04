@@ -432,7 +432,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -1435,6 +1435,12 @@ const GC_TIPOS={
 };
 const GC_STATUS=[['rascunho','Aguardando assinatura'],['ativo','Ativo'],['pausado','Pausado'],['encerrado','Encerrado']];
 let gcEditId=null;
+// 11 dígitos = CPF (pessoa física); 14 = CNPJ
+const ehCPF=v=>String(v||'').replace(/\D/g,'').length===11;
+function fmtDoc(v){const n=String(v||'').replace(/\D/g,'');
+  if(n.length===11)return n.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
+  if(n.length===14)return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
+  return v;}
 function gcVazio(){
   return {tipo:'trafego',propostaId:'',clienteId:'',razao:'',cnpj:'',end:'',rep:'',cpf:'',email:'',
     servicos:[],outros:'',plats:[],outrasRedes:'',pubs:'',meses:'',valor:'',dataProposta:'',
@@ -1501,11 +1507,11 @@ function openGerarContrato(id,opts){
   ${h3('Contratante')}
   <div class="fieldrow">
     <div class="field"><label>Cliente no sistema (opcional)</label><select id="gc_cli"><option value="">— Nenhum —</option>${state.clientes.map(x=>`<option value="${x.id}" ${d.clienteId===x.id?'selected':''}>${esc(x.nome)}</option>`).join('')}</select></div>
-    <div class="field"><label>CNPJ</label>${inp('gc_cnpj',d.cnpj,'00.000.000/0000-00')}</div>
+    <div class="field"><label id="gc_ldoc">${ehCPF(d.cnpj)?'CPF · pessoa física':'CNPJ ou CPF'}</label><input id="gc_cnpj" value="${esc(d.cnpj||'')}" placeholder="CNPJ ou CPF" oninput="gcPessoaToggle()" onblur="this.value=fmtDoc(this.value)"></div>
   </div>
-  <div class="field"><label>Razão social</label>${inp('gc_razao',d.razao,'Ex.: Clínica Bella Pele LTDA')}</div>
-  <div class="field"><label>Endereço da sede</label>${inp('gc_end',d.end,'Rua, nº, bairro, CEP, cidade/UF')}</div>
-  <div class="fieldrow">
+  <div class="field"><label id="gc_lrazao">${ehCPF(d.cnpj)?'Nome completo':'Razão social'}</label>${inp('gc_razao',d.razao,'Ex.: Clínica Bella Pele LTDA')}</div>
+  <div class="field"><label id="gc_lend">${ehCPF(d.cnpj)?'Endereço residencial':'Endereço da sede'}</label>${inp('gc_end',d.end,'Rua, nº, bairro, CEP, cidade/UF')}</div>
+  <div class="fieldrow" id="gc_repbox" style="display:${ehCPF(d.cnpj)?'none':'grid'}">
     <div class="field"><label>Representante legal</label>${inp('gc_rep',d.rep,'Nome completo')}</div>
     <div class="field"><label>CPF do representante</label>${inp('gc_cpf',d.cpf,'000.000.000-00')}</div>
   </div>
@@ -1553,7 +1559,7 @@ function openGerarContrato(id,opts){
 function gcLer(){
   const g=id=>(document.getElementById(id)?.value||'').trim();
   const marc=box=>[...document.querySelectorAll('#'+box+' input:checked')].map(x=>x.value);
-  return {tipo:g('gc_tipo')||'trafego',propostaId:g('gc_prop'),clienteId:g('gc_cli'),razao:g('gc_razao'),cnpj:g('gc_cnpj'),end:g('gc_end'),
+  return {tipo:g('gc_tipo')||'trafego',propostaId:g('gc_prop'),clienteId:g('gc_cli'),razao:g('gc_razao'),cnpj:fmtDoc(g('gc_cnpj')),end:g('gc_end'),
     rep:g('gc_rep'),cpf:g('gc_cpf'),email:g('gc_email'),servicos:marc('gc_svcs'),outros:g('gc_outros'),plats:marc('gc_plats'),
     outrasRedes:g('gc_outrasRedes'),pubs:g('gc_pubs'),meses:parseInt(g('gc_meses'),10)||'',valor:parseFloat(g('gc_valor'))||'',
     dataProposta:g('gc_dprop'),respNome:g('gc_rnome'),respCargo:g('gc_rcargo'),respWhats:g('gc_rwhats'),respEmail:g('gc_remail'),
@@ -1567,6 +1573,13 @@ function gcRecarregar(pid){
     openGerarContrato(gcEditId,{doc:d});
   }else openGerarContrato(gcEditId,{doc:d,propostaId:pid||null});
 }
+function gcPessoaToggle(){
+  const pf=ehCPF(document.getElementById('gc_cnpj').value);
+  document.getElementById('gc_ldoc').textContent=pf?'CPF · pessoa física':'CNPJ ou CPF';
+  document.getElementById('gc_lrazao').textContent=pf?'Nome completo':'Razão social';
+  document.getElementById('gc_lend').textContent=pf?'Endereço residencial':'Endereço da sede';
+  document.getElementById('gc_repbox').style.display=pf?'none':'grid';
+}
 function gcVencToggle(){
   const dia=document.getElementById('gc_vtipo').value==='dia';
   document.getElementById('gc_vbox').style.display=dia?'grid':'none';
@@ -1575,7 +1588,7 @@ function gcVencToggle(){
 }
 function gcRespDoRep(){
   const s=(a,b)=>{const el=document.getElementById(a);if(el&&!el.value)el.value=document.getElementById(b).value;};
-  s('gc_rnome','gc_rep');s('gc_remail','gc_email');
+  s('gc_rnome',ehCPF(document.getElementById('gc_cnpj').value)?'gc_razao':'gc_rep');s('gc_remail','gc_email');
 }
 function gcSalvar(gerar){
   const d=gcLer();
@@ -1600,8 +1613,9 @@ function contratoDocHTML(d){
   const T=GC_TIPOS[d.tipo]||GC_TIPOS.trafego;
   const ph=t=>`<span class="ph">{{${t}}}</span>`;
   const F=(v,t)=>v?esc(v):ph(t);
-  const razao=d.razao?esc(d.razao):'<span class="ph">DEFINIR RAZÃO SOCIAL</span>';
-  const razaoCab=d.razao?esc(d.razao):'DEFINIR RAZÃO SOCIAL';
+  const pf=ehCPF(d.cnpj);
+  const razao=d.razao?esc(d.razao):`<span class="ph">${pf?'DEFINIR NOME':'DEFINIR RAZÃO SOCIAL'}</span>`;
+  const razaoCab=d.razao?esc(d.razao):(pf?'DEFINIR NOME':'DEFINIR RAZÃO SOCIAL');
   const box=(lista,marcados)=>lista.map(s=>`${marcados.includes(s)?'☒':'☐'} ${esc(s)}`).join('<br>');
   const outro=(rot,v)=>v?`<br>☒ ${rot}: ${esc(v)}`:''; // sem "Outros" preenchido, a linha não aparece
   const valor=parseFloat(d.valor)>0?esc(fmtExt(parseFloat(d.valor))):ph('definir');
@@ -1635,7 +1649,9 @@ function contratoDocHTML(d){
     row('Multa rescisória',multa),row('Canais oficiais da CONTRATADA',canais),
     row('Responsável designado pela CONTRATANTE (ponto focal único)',resp)
   ];
-  const partes=`<p><span class="lb">CONTRATANTE:</span> <b>${razao}</b>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${F(d.cnpj,'00.000.000/0000-00')}, com sede na ${F(d.end,'endereço completo, nº, bairro, CEP, cidade/UF')}, neste ato representada por seu(sua) representante legal, ${F(d.rep,'nome completo')}, inscrito(a) no CPF sob o nº ${F(d.cpf,'000.000.000-00')}, correio eletrônico ${F(d.email,'e-mail')}, doravante denominada simplesmente CONTRATANTE.</p>
+  const contratantePF=`<p><span class="lb">CONTRATANTE:</span> <b>${razao}</b>, pessoa física, inscrita no CPF sob o nº ${esc(d.cnpj)}, residente e domiciliada na ${F(d.end,'endereço completo, nº, bairro, CEP, cidade/UF')}, correio eletrônico ${F(d.email,'e-mail')}, doravante denominada simplesmente CONTRATANTE.</p>`;
+  const contratantePJ=`<p><span class="lb">CONTRATANTE:</span> <b>${razao}</b>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${F(d.cnpj,'00.000.000/0000-00')}, com sede na ${F(d.end,'endereço completo, nº, bairro, CEP, cidade/UF')}, neste ato representada por seu(sua) representante legal, ${F(d.rep,'nome completo')}, inscrito(a) no CPF sob o nº ${F(d.cpf,'000.000.000-00')}, correio eletrônico ${F(d.email,'e-mail')}, doravante denominada simplesmente CONTRATANTE.</p>`;
+  const partes=(pf?contratantePF:contratantePJ)+`
   <p><span class="lb">CONTRATADA:</span> <b>AP MARKETING DIGITAL LTDA</b>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº 47.231.860/0001-08, com sede na Rua José Pereira Liberato, nº 298, Box 41, Bairro São João, CEP 88305-390, Itajaí/SC, neste ato representada por sua representante legal, Amanda Pinheiro, inscrita no CPF sob o nº 120.687.069-97, correio eletrônico amandapinheiromarketing@gmail.com, doravante denominada simplesmente CONTRATADA.</p>
   <p>CONTRATANTE e CONTRATADA acima qualificadas, quando referidas de forma isolada como Parte e quando em conjunto Partes, celebram o presente Contrato na melhor forma do direito e mediante as cláusulas e condições a seguir:</p>`;
   const clausulas=d.tipo==='social'?CLAUSULAS_SOCIAL:CLAUSULAS_TRAFEGO;
