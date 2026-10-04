@@ -47,7 +47,7 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .logincard{width:380px;max-width:92vw;text-align:center}
 .logincard .monogram{font-family:'Playfair Display',Georgia,serif;font-size:110px;line-height:.9;color:var(--rose);letter-spacing:-20px;position:relative;display:inline-block}
 .logincard .lname{font-size:12px;letter-spacing:6px;color:var(--rose);margin-top:4px}
-.logincard .lsub{font-size:10px;letter-spacing:4px;color:rgba(237,207,198,.55);margin:10px 0 34px}
+.logincard .lsub{font-size:11px;letter-spacing:3.5px;color:rgba(237,207,198,.55);margin:10px 0 34px}
 .logincard input{width:100%;padding:14px 18px;border:none;border-radius:12px;background:rgba(251,245,241,.96);margin-bottom:12px;outline:none;font-size:15px}
 .logincard input:focus{box-shadow:0 0 0 2.5px var(--rose)}
 .logincard .entrar{width:100%;padding:14px;border:none;border-radius:12px;background:var(--rose);color:var(--terra-deep);font-size:15.5px;font-weight:600;letter-spacing:1px;margin-top:6px;transition:.18s}
@@ -68,8 +68,8 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .logo{padding:38px 0 26px;text-align:center;position:relative}
 .monogram{font-family:'Playfair Display',Georgia,serif;font-size:78px;line-height:.9;color:var(--rose);letter-spacing:-14px;position:relative;display:inline-block}
 .monogram .p{margin-left:2px}
-.logoname{position:absolute;left:0;right:0;top:88px;font-size:10.5px;letter-spacing:5px;font-weight:400;color:var(--rose);text-shadow:0 0 6px var(--terra),0 0 10px var(--terra)}
-.logosub{margin-top:14px;font-size:10px;letter-spacing:4px;color:rgba(237,207,198,.6)}
+.logoname{position:absolute;left:0;right:0;top:88px;font-size:11px;letter-spacing:4.5px;font-weight:400;color:var(--rose);text-shadow:0 0 6px var(--terra),0 0 10px var(--terra)}
+.logosub{margin-top:14px;font-size:11px;letter-spacing:3.5px;color:rgba(237,207,198,.6)}
 .nav{flex:1;padding:22px 14px;display:flex;flex-direction:column;gap:4px}
 .nav button{display:flex;align-items:center;gap:12px;width:100%;padding:11px 16px;border:none;background:transparent;color:rgba(237,207,198,.78);font-size:14.5px;letter-spacing:.6px;border-radius:10px;transition:.18s;text-align:left}
 .nav button svg{width:18px;height:18px;flex:none}
@@ -129,6 +129,17 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .rowbtn{border:none;background:transparent;color:var(--ink-soft);font-size:15px;padding:4px 7px;border-radius:7px}
 .rowbtn:hover{background:var(--rose);color:var(--terra-dark)}
 .empty{padding:40px;text-align:center;color:var(--ink-soft);font-size:15px}
+.conf{width:24px;height:24px;border:1.8px solid #CFA79D;border-radius:7px;background:transparent;display:inline-flex;align-items:center;justify-content:center;color:transparent;padding:0;margin-right:10px;vertical-align:middle;transition:.15s;flex:none}
+.conf svg{width:14px;height:14px}
+.conf:hover{border-color:var(--terra)}
+.conf.on{background:var(--green);border-color:var(--green);color:#fff}
+.conf:focus-visible{outline:2px solid var(--terra);outline-offset:2px}
+td .datacell{display:inline-flex;align-items:center;white-space:nowrap}
+tr.conferido td{color:var(--ink-soft)}
+tr.conferido td.money{opacity:.65}
+.confbar{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--ink-soft);width:100%}
+.confbar .track{width:120px;height:6px;border-radius:99px;background:var(--rose-soft);overflow:hidden;flex:none}
+.confbar .track i{display:block;height:100%;background:var(--green)}
 
 /* ---------- FILTERS ---------- */
 .filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
@@ -224,6 +235,7 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .clientcard.inativo .cc-valor{color:var(--ink-soft)}
 
 .nav .mobileonly{display:none!important}
+.nav .sh{display:none}
 .mtopbar{display:none}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
@@ -245,8 +257,10 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
   .logo,.sidefoot,.sidesearch{display:none}
   .nav{flex-direction:row;padding:6px 6px;gap:2px;overflow-x:auto;align-items:center;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
   .nav::-webkit-scrollbar{display:none}
-  .nav button{position:relative;flex:none;width:60px;flex-direction:column;gap:3px;padding:6px 4px;font-size:8.5px;letter-spacing:.2px;border-radius:12px;justify-content:center;align-items:center;text-align:center;color:rgba(237,207,198,.7);scroll-snap-align:center}
-  .nav button span{max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+  .nav button{position:relative;flex:none;width:64px;flex-direction:column;gap:3px;padding:6px 4px;font-size:11px;letter-spacing:0;border-radius:12px;justify-content:center;align-items:center;text-align:center;color:rgba(237,207,198,.7);scroll-snap-align:center}
+  .nav button span{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
+  .nav .lg{display:none}
+  .nav .sh{display:inline}
   .nav button svg{width:21px;height:21px}
   .nav button.active{background:var(--rose);color:var(--terra-dark);font-weight:600}
   .nav .navbadge{position:absolute;top:2px;right:8px;margin:0;font-size:9px;padding:0 5px;line-height:15px;min-width:15px}
@@ -280,6 +294,8 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
   td .desc-sub{text-align:right}
   td:last-child{justify-content:flex-end;gap:6px;padding-top:10px;margin-top:6px;border-top:1px solid var(--rose-soft)}
   td:last-child .rowbtn{background:var(--rose-soft);border-radius:9px;min-width:42px}
+  .conf{width:30px;height:30px}
+  .conf svg{width:17px;height:17px}
 
   .modal{padding:22px 18px 26px;width:100%!important;max-width:100%;max-height:92vh;border-radius:22px 22px 0 0;position:fixed;bottom:0;left:0;right:0}
   .overlay{align-items:flex-end}
@@ -415,7 +431,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -505,8 +521,8 @@ const S={
   lista:v=>Array.isArray(v)?v.slice(0,100).map(x=>S.str(x,120)).filter(Boolean):null,
 };
 const SCHEMA={
-  entradas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),status:S.pick(x.status,['recebido','a_receber'],'recebido'),semNota:S.bool(x.semNota),nfEmitida:S.tri(x.nfEmitida),prevista:S.date(x.prevista),formaPgto:S.str(x.formaPgto,40)}),
-  saidas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),fornecedorId:S.id(x.fornecedorId),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),semContab:S.bool(x.semContab)}),
+  entradas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),status:S.pick(x.status,['recebido','a_receber'],'recebido'),semNota:S.bool(x.semNota),nfEmitida:S.tri(x.nfEmitida),conferido:S.bool(x.conferido),prevista:S.date(x.prevista),formaPgto:S.str(x.formaPgto,40)}),
+  saidas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),fornecedorId:S.id(x.fornecedorId),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),semContab:S.bool(x.semContab),conferido:S.bool(x.conferido)}),
   contas:x=>({id:S.id(x.id)||uid(),fornecedorId:S.id(x.fornecedorId),descricao:S.str(x.descricao),valor:S.num(x.valor),vencimento:S.date(x.vencimento)||today(),status:S.pick(x.status,['pendente','pago'],'pendente'),pagoEm:S.date(x.pagoEm),recorrente:S.bool(x.recorrente)}),
   fornecedores:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servico:S.str(x.servico),contato:S.str(x.contato,200)}),
   clientes:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servicos:Array.isArray(x.servicos)?x.servicos.slice(0,30).map(s=>S.str(s,120)):null,servico:S.str(x.servico),valorMensal:S.num(x.valorMensal),diaCobranca:S.int(x.diaCobranca,1,28,5),categoria:S.str(x.categoria,120),semNota:S.bool(x.semNota),
@@ -809,13 +825,13 @@ const ICONS={
   anual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>'
 };
 const PAGES=[
-  ['dashboard','Dashboard'],['entradas','Entradas'],['saidas','Saídas'],
-  ['contas','Contas a Pagar'],['propostas','Propostas'],['contratos','Contratos'],['fornecedores','Fornecedores'],['clientes','Clientes'],['precificacao','Precificação'],['relatorio','Relatório Mensal'],['meta','Meta do Ano'],['anual','Fechamento Anual']
+  ['dashboard','Dashboard','Início'],['entradas','Entradas'],['saidas','Saídas'],
+  ['contas','Contas a Pagar','Contas'],['propostas','Propostas'],['contratos','Contratos'],['fornecedores','Fornecedores','Fornec.'],['clientes','Clientes'],['precificacao','Precificação','Preços'],['relatorio','Relatório Mensal','Relatório'],['meta','Meta do Ano','Meta'],['anual','Fechamento Anual','Anual']
 ];
 function renderNav(){
   const atras=state.contas.filter(c=>contaStatus(c)==='atrasado').length;
-  document.getElementById('nav').innerHTML=PAGES.map(([k,l])=>
-    `<button class="${page===k?'active':''}" onclick="go('${k}')">${ICONS[k]}<span>${l}</span>${k==='contas'&&atras?`<span class="navbadge">${atras}</span>`:''}</button>`
+  document.getElementById('nav').innerHTML=PAGES.map(([k,l,sh])=>
+    `<button class="${page===k?'active':''}" onclick="go('${k}')" aria-label="${l}">${ICONS[k]}<span class="lg">${l}</span><span class="sh">${sh||l}</span>${k==='contas'&&atras?`<span class="navbadge">${atras}</span>`:''}</button>`
   ).join('')
   +`<button class="mobileonly" onclick="openConfig()"><span style="font-size:18px;line-height:1">⚙</span><span>Ajustes</span></button>`
   +`<button class="mobileonly" onclick="sair()"><span style="font-size:18px;line-height:1">⏻</span><span>Sair</span></button>`;
@@ -1036,8 +1052,8 @@ async function exportExcel(){
   try{await loadXLSX();}catch(e){alert(e.message);return;}
   const wb=XLSX.utils.book_new();
   const add=(nome,rows)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Aviso:'Sem registros'}]),nome);
-  add('Entradas',state.entradas.map(e=>({Data:fdate(e.data),'Descrição':e.descricao,Cliente:cliName(e.clienteId),Categoria:e.categoria,'Valor (R$)':e.valor,Status:e.status==='recebido'?'Recebido':'A receber','Forma':e.formaPgto||'','Prevista para':e.prevista?fdate(e.prevista):'','Nota fiscal':e.semNota?'Não':'Sim'})));
-  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor,'Contabilidade':s.semContab?'Não':'Sim'})));
+  add('Entradas',state.entradas.map(e=>({Data:fdate(e.data),'Descrição':e.descricao,Cliente:cliName(e.clienteId),Categoria:e.categoria,'Valor (R$)':e.valor,Status:e.status==='recebido'?'Recebido':'A receber','Forma':e.formaPgto||'','Prevista para':e.prevista?fdate(e.prevista):'','Nota fiscal':e.semNota?'Não':'Sim','Conferido no extrato':e.conferido?'Sim':'Não'})));
+  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor,'Contabilidade':s.semContab?'Não':'Sim','Conferido no extrato':s.conferido?'Sim':'Não'})));
   add('Contas a pagar',state.contas.map(c=>({Vencimento:fdate(c.vencimento),Fornecedor:fornName(c.fornecedorId),'Descrição':c.descricao,'Valor (R$)':c.valor,Status:contaStatus(c)==='pago'?'Paga':contaStatus(c)==='atrasado'?'Atrasada':'Pendente','Paga em':c.pagoEm?fdate(c.pagoEm):''})));
   add('Fornecedores',state.fornecedores.map(f=>({Nome:f.nome,'Serviço':f.servico,Contato:f.contato})));
   add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Situação':c.status==='inativo'?'Inativo':'Ativo','Cliente desde':c.desde?fdate(c.desde):'','Saiu em':c.saidaEm?fdate(c.saidaEm):'','Nota fiscal':c.semNota?'Não':'Sim'})));
@@ -1178,9 +1194,11 @@ function drawDashCharts(){
 }
 
 /* ---------- ENTRADAS / SAÍDAS ---------- */
-let movFilter={mes:'',cat:'',q:''};
+let movFilter={mes:'',cat:'',q:'',conf:''};
 function setMovMes(v){movFilter.mes=v;render();}
 function setMovCat(v){movFilter.cat=v;render();}
+function setMovConf(v){movFilter.conf=v;render();}
+function conferir(kind,id){const x=state[kind].find(i=>i.id===id);if(x){x.conferido=!x.conferido;save();render();}}
 function setMovBusca(v){
   // atualiza SÓ a lista e o contador, sem redesenhar a página (preserva o foco no campo)
   movFilter.q=v;
@@ -1195,6 +1213,7 @@ function movComputeList(kind){
   const mt=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q);
   return (isIn?state.entradas:state.saidas)
     .filter(x=>(!movFilter.mes||ym(x.data)===movFilter.mes)&&(!movFilter.cat||x.categoria===movFilter.cat)
+      &&(!movFilter.conf||(movFilter.conf==='sim')===!!x.conferido)
       &&(!q||mt(x.descricao)||mt(x.categoria)||mt(String(x.valor))||mt(isIn?cliName(x.clienteId):fornName(x.fornecedorId))))
     .sort((a,b)=>b.data.localeCompare(a.data));
 }
@@ -1203,15 +1222,15 @@ function movListaHTML(kind){
   const list=movComputeList(kind);
   return list.length?`<table><thead><tr>
     <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th><th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
-    <tbody>${list.map(x=>`<tr>
-      <td>${fdate(x.data)}</td>
+    <tbody>${list.map(x=>`<tr class="${x.conferido?'conferido':''}">
+      <td><span class="datacell"><button class="conf ${x.conferido?'on':''}" role="checkbox" aria-checked="${!!x.conferido}" aria-label="Conferido com o extrato" title="${x.conferido?'Conferido. Clique para desmarcar':'Marcar como conferido no extrato'}" onclick="conferir('${kind}','${x.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>${fdate(x.data)}</span></td>
       <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}${isIn&&!x.semNota&&x.nfEmitida===false?` <span class="pill bad" style="font-size:11px;cursor:pointer" title="Clique quando emitir a NF" onclick="marcarNF('${x.id}')">emitir NF ✓</span>`:''}${isIn&&!x.semNota&&x.nfEmitida===true?' <span class="pill ok" style="font-size:11px">NF ✓</span>':''}${!isIn&&x.semContab?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">fora contab.</span>':''}</td>
       <td>${isIn?esc(cliName(x.clienteId)):esc(fornName(x.fornecedorId))}</td>
       <td>${esc(x.categoria)}</td>
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
       ${isIn?`<td>${esc(x.formaPgto||'—')}</td><td>${x.status==='recebido'?'<span class="pill ok">Recebido</span>':`${x.prevista&&x.prevista<today()?'<span class="pill bad">Atrasada</span>':'<span class="pill warn">A receber</span>'} <button class="rowbtn" title="Marcar como recebido" onclick="receber('${x.id}')">✓</button>${x.prevista?`<div class="desc-sub">prev. ${fdate(x.prevista)}</div>`:''}`}</td>`:''}
       <td><button class="rowbtn" onclick="openForm('${isIn?'entrada':'saida'}','${x.id}')">✎</button><button class="rowbtn" onclick="del('${kind}','${x.id}')">🗑</button></td>
-    </tr>`).join('')}</tbody></table>`:`<div class="empty">${movFilter.q?'Nenhum lançamento encontrado para "'+esc(movFilter.q)+'".':'Nenhum lançamento ainda. Clique em “+ Nova '+(isIn?'entrada':'saída')+'”.'}</div>`;
+    </tr>`).join('')}</tbody></table>`:`<div class="empty">${movFilter.q?'Nenhum lançamento encontrado para "'+esc(movFilter.q)+'".':movFilter.conf?'Nenhum lançamento com esse filtro.':'Nenhum lançamento ainda. Clique em “+ Nova '+(isIn?'entrada':'saída')+'”.'}</div>`;
 }
 function viewMov(kind){
   const isIn=kind==='entradas';
@@ -1219,14 +1238,20 @@ function viewMov(kind){
   const total=list.reduce((a,b)=>a+b.valor,0);
   const months=[...new Set((isIn?state.entradas:state.saidas).map(x=>ym(x.data)))].sort().reverse();
   const cats=isIn?CAT_IN:CAT_OUT;
+  const base=(isIn?state.entradas:state.saidas).filter(x=>(!movFilter.mes||ym(x.data)===movFilter.mes)&&(!movFilter.cat||x.categoria===movFilter.cat));
+  const nConf=base.filter(x=>x.conferido).length;
+  const falta=base.filter(x=>!x.conferido).reduce((a,b)=>a+b.valor,0);
+  const pct=base.length?Math.round(nConf/base.length*100):0;
   return `
   <div class="topbar"><div><h1>${isIn?'Entradas':'Saídas'}</h1><div class="sub" id="movSub">${list.length} lançamento(s) · total ${fmt(total)}</div></div>
     <button class="btn btn-primary" onclick="openForm('${isIn?'entrada':'saida'}')">+ Nova ${isIn?'entrada':'saída'}</button></div>
   <div class="filters">
     <select onchange="setMovMes(this.value)"><option value="">Todos os meses</option>${months.map(m=>`<option value="${m}" ${movFilter.mes===m?'selected':''}>${monthName(m)}</option>`).join('')}</select>
     <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <select onchange="setMovConf(this.value)"><option value="">Conferência: todos</option><option value="nao" ${movFilter.conf==='nao'?'selected':''}>Não conferidos</option><option value="sim" ${movFilter.conf==='sim'?'selected':''}>Conferidos</option></select>
     <input id="movBusca" value="${esc(movFilter.q||'')}" placeholder="🔍 Buscar lançamento…" oninput="setMovBusca(this.value)" autocomplete="off" style="flex:1;min-width:180px">
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('movBusca').value='';setMovBusca('')">Limpar</button>
+    ${base.length?`<div class="confbar"><div class="track"><i style="width:${pct}%"></i></div>${nConf} de ${base.length} conferidos${falta?` · falta conferir ${fmt(falta)}`:''}</div>`:''}
   </div>
   <div class="panel" id="movListaWrap">${movListaHTML(kind)}</div>`;
 }
