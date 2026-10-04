@@ -432,7 +432,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug,editServModelo,salvarServModelo,fecharServModelo});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -525,6 +525,8 @@ const S={
     o.servicos=(Array.isArray(v.servicos)?v.servicos:[]).slice(0,10).map(x=>S.str(x,120));o.plats=(Array.isArray(v.plats)?v.plats:[]).slice(0,10).map(x=>S.str(x,120));
     o.meses=S.int(v.meses,0,120,0)||'';o.valor=S.num(v.valor)||'';o.dataProposta=S.date(v.dataProposta)||'';o.data=S.date(v.data)||'';o.vencTipo=S.pick(v.vencTipo,['assinatura','dia'],'assinatura');o.venc1=S.date(v.venc1)||'';o.vencDia=S.int(v.vencDia,0,31,0)||'';return o;},
   lista:v=>Array.isArray(v)?v.slice(0,100).map(x=>S.str(x,120)).filter(Boolean):null,
+  // escopo padrão de cada serviço (Ajustes > Minhas listas)
+  modelos:v=>Array.isArray(v)?v.slice(0,100).filter(m=>m&&typeof m==='object'&&String(m.nome??'').trim()).map(m=>({nome:S.str(m.nome,120),detalhes:S.str(m.detalhes,4000),valor:S.num(m.valor),tipo:S.pick(m.tipo,['mensal','unico'],'mensal')})):null,
 };
 const SCHEMA={
   entradas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),status:S.pick(x.status,['recebido','a_receber'],'recebido'),semNota:S.bool(x.semNota),nfEmitida:S.tri(x.nfEmitida),conferido:S.bool(x.conferido),prevista:S.date(x.prevista),formaPgto:S.str(x.formaPgto,40)}),
@@ -544,7 +546,7 @@ function sanitizeState(raw){
   COLECOES.forEach(k=>{out[k]=(Array.isArray(d[k])?d[k]:[]).slice(0,20000).filter(x=>x&&typeof x==='object').map(SCHEMA[k]);});
   const c=d.config&&typeof d.config==='object'?d.config:{};
   out.config={taxPct:S.optNum(c.taxPct)??6,simTax:S.optNum(c.simTax),metaAno:S.optNum(c.metaAno),sample:S.bool(c.sample),
-    lastGen:S.re(c.lastGen,/^\d{4}-\d{2}$/),ultimaCopia:S.date(c.ultimaCopia),servicos:S.lista(c.servicos),catIn:S.lista(c.catIn),catOut:S.lista(c.catOut)};
+    lastGen:S.re(c.lastGen,/^\d{4}-\d{2}$/),ultimaCopia:S.date(c.ultimaCopia),servicos:S.lista(c.servicos),servModelos:S.modelos(c.servModelos),catIn:S.lista(c.catIn),catOut:S.lista(c.catOut)};
   out._rev=S.int(d._rev,0,1e9,0);
   return out;
 }
@@ -935,7 +937,7 @@ function rotularCelulas(){
 }
 function clearSample(){
   if(!confirm('Apagar TODOS os dados (lançamentos, contas, clientes e fornecedores) e começar do zero? Essa ação não tem desfazer.'))return;
-  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos||null,catIn:state.config.catIn||null,catOut:state.config.catOut||null,sample:false,lastGen:state.config.lastGen||null,ultimaCopia:state.config.ultimaCopia||null},_rev:state._rev||0};
+  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos||null,servModelos:state.config.servModelos||null,catIn:state.config.catIn||null,catOut:state.config.catOut||null,sample:false,lastGen:state.config.lastGen||null,ultimaCopia:state.config.ultimaCopia||null},_rev:state._rev||0};
   carregarListas();save();closeModal();render();
 }
 
@@ -963,6 +965,7 @@ function removeListItem(tipo,i){
   const item=arr[i];
   if(!confirm('Remover "'+item+'" da lista? Lançamentos antigos com esse nome continuam intactos.'))return;
   arr.splice(i,1);
+  if(tipo==='serv'&&state.config.servModelos)state.config.servModelos=state.config.servModelos.filter(m=>m.nome.toLowerCase()!==item.toLowerCase());
   state.config[LISTA_MAP[tipo][0]]=arr;carregarListas();save();
   document.getElementById('listasBox').innerHTML=listasHTML();
 }
@@ -977,11 +980,40 @@ function umaLista(tipo){
   return `<div style="margin-bottom:16px">
     <div style="display:flex;justify-content:space-between;align-items:baseline"><label style="font-size:12.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-soft)">${titulo}</label>
       <button class="rowbtn" style="font-size:11.5px" onclick="resetLista('${tipo}')">restaurar padrão</button></div>
-    <div class="chips" style="margin:8px 0">${arr.map((x,i)=>`<span class="chipchk" style="cursor:default">${esc(x)} <button onclick="removeListItem('${tipo}',${i})" style="border:none;background:none;color:var(--red);font-size:14px;padding:0 0 0 4px;cursor:pointer">✕</button></span>`).join('')||'<span style="font-size:13px;color:var(--ink-soft)">Lista vazia</span>'}</div>
+    ${tipo==='serv'?`<p style="font-size:12.5px;color:var(--ink-soft);margin-top:4px">Toque em ✎ para definir o escopo padrão, o valor e o tipo de cobrança de cada serviço. Eles entram sozinhos ao adicionar o serviço numa proposta.</p>`:''}
+    <div class="chips" style="margin:8px 0">${arr.map((x,i)=>`<span class="chipchk" style="cursor:default">${esc(x)}${tipo==='serv'?` <button onclick="editServModelo(${i})" title="Editar escopo padrão" aria-label="Editar escopo padrão de ${esc(x)}" style="border:none;background:none;color:${modeloServ(x)?'var(--terra)':'var(--ink-soft)'};font-size:14px;padding:0 0 0 2px;cursor:pointer">✎</button>`:''} <button onclick="removeListItem('${tipo}',${i})" style="border:none;background:none;color:var(--red);font-size:14px;padding:0 0 0 4px;cursor:pointer">✕</button></span>`).join('')||'<span style="font-size:13px;color:var(--ink-soft)">Lista vazia</span>'}</div>
+    ${tipo==='serv'?'<div id="servModeloBox"></div>':''}
     <div style="display:flex;gap:8px"><input id="novoItem_${tipo}" placeholder="Adicionar…" style="flex:1;padding:9px 12px;border:1.5px solid var(--rose);border-radius:9px;background:#fff;outline:none" onkeydown="if(event.key==='Enter'){event.preventDefault();addListItem('${tipo}')}"><button class="btn btn-ghost btn-sm" onclick="addListItem('${tipo}')">+ Adicionar</button></div>
   </div>`;
 }
 function listasHTML(){return umaLista('serv')+umaLista('catin')+umaLista('catout');}
+/* ---------- ESCOPO PADRÃO DOS SERVIÇOS ---------- */
+function editServModelo(i){
+  const nome=SERVICOS_SUGERIDOS[i];const box=document.getElementById('servModeloBox');if(nome==null||!box)return;
+  const m=modeloServ(nome);const assist=!!ASSISTENTES[nome];
+  const det=m?m.detalhes:(assist?'':detalhesFixos(nome));
+  box.innerHTML=`<div style="background:var(--rose-soft);border-radius:12px;padding:14px 16px;margin:4px 0 12px">
+    <div style="font-family:'Playfair Display',serif;font-size:17px;color:var(--terra-deep);margin-bottom:4px">${esc(nome)}</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px">${assist?'Os itens deste serviço são montados pelo assistente da proposta (quantidades e plataformas). O texto abaixo entra <b>depois</b> deles, como observações extras.':'Um item por linha. Eles aparecem como tópicos no PDF da proposta e ainda podem ser ajustados em cada proposta.'}</p>
+    <div class="fieldrow">
+      <div class="field"><label>Valor padrão</label><input id="sm_valor" type="number" step="0.01" min="0" placeholder="R$" value="${m&&m.valor?m.valor:''}"></div>
+      <div class="field"><label>Cobrança</label><select id="sm_tipo"><option value="mensal" ${!m||m.tipo!=='unico'?'selected':''}>Mensal</option><option value="unico" ${m&&m.tipo==='unico'?'selected':''}>Valor único</option></select></div>
+    </div>
+    <div class="field"><label>${assist?'Observações extras':'Itens inclusos / observações'}</label><textarea id="sm_det" style="min-height:160px" maxlength="4000" placeholder="${assist?'Ex.: Não inclui impulsionamento':'Ex.: Reunião de briefing'}">${esc(det)}</textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="fecharServModelo()">Cancelar</button><button class="btn btn-primary btn-sm" onclick="salvarServModelo(${i})">Salvar escopo</button></div>
+  </div>`;
+  setTimeout(()=>{box.scrollIntoView({block:'nearest',behavior:'smooth'});const t=document.getElementById('sm_det');if(t)t.focus();},30);
+}
+function fecharServModelo(){const box=document.getElementById('servModeloBox');if(box)box.innerHTML='';}
+function salvarServModelo(i){
+  const nome=SERVICOS_SUGERIDOS[i];if(nome==null)return;
+  const novo={nome,detalhes:S.str(document.getElementById('sm_det').value.replace(/\s+$/,''),4000),valor:S.num(document.getElementById('sm_valor').value),tipo:S.pick(document.getElementById('sm_tipo').value,['mensal','unico'],'mensal')};
+  state.config.servModelos=(state.config.servModelos||[]).filter(m=>m.nome.toLowerCase()!==nome.toLowerCase()).concat(novo);
+  save();
+  document.getElementById('listasBox').innerHTML=listasHTML();
+  const box=document.getElementById('servModeloBox');
+  if(box)box.innerHTML=`<div style="font-size:13px;color:var(--green);margin:2px 0 10px">✓ Escopo de "${esc(nome)}" salvo.</div>`;
+}
 
 /* ---------- CONFIGURAÇÕES / BACKUP ---------- */
 function openConfig(){
@@ -1937,7 +1969,12 @@ const SERVICO_DETALHES={
   ].join('\n')
 };
 // escopo padrão também para serviços renomeados (ex.: "Landing page", "Site")
-const detalhesPadrao=nome=>SERVICO_DETALHES[nome]||(/landing|landpage|\bsite\b/i.test(nome||'')?SERVICO_DETALHES['Site / Landing page']:'');
+const detalhesFixos=nome=>SERVICO_DETALHES[nome]||(/landing|landpage|\bsite\b/i.test(nome||'')?SERVICO_DETALHES['Site / Landing page']:'');
+// modelo salvo em Ajustes tem prioridade sobre o texto fixo acima
+const modeloServ=nome=>{const n=String(nome||'').trim().toLowerCase();return ((state&&state.config.servModelos)||[]).find(m=>m.nome.toLowerCase()===n)||null;};
+const detalhesPadrao=nome=>{const m=modeloServ(nome);return m?m.detalhes:detalhesFixos(nome);};
+// serviços com assistente: texto gerado + observações extras do modelo
+function detAssistente(svc,row){const m=modeloServ(svc);const base=ASSISTENTES[svc].gerar(row);return m&&m.detalhes.trim()?base+'\n'+m.detalhes.trim():base;}
 function listaE(a){return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:(a[0]||'');}
 /* Assistentes de detalhamento: campos rápidos que montam os "itens inclusos" sozinhos */
 const ASSISTENTES={
@@ -1977,7 +2014,7 @@ function regenDet(el){
   const svc=row.dataset.svc;
   if(!svc||!ASSISTENTES[svc])return;
   const t=row.querySelector('.pi-det');
-  t.value=ASSISTENTES[svc].gerar(row);
+  t.value=detAssistente(svc,row);
   t.style.display='block';
 }
 function durTxt(p){
@@ -2027,7 +2064,7 @@ function propRowHTML(i){
     <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
   </div>`;
 }
-function addPropSug(i){if(SERVICOS_SUGERIDOS[i]!=null)addPropItem(SERVICOS_SUGERIDOS[i]);}
+function addPropSug(i){const nome=SERVICOS_SUGERIDOS[i];if(nome==null)return;const m=modeloServ(nome);addPropItem(nome,m&&m.valor||'',m?m.tipo:'mensal');}
 function addPropItem(nome,valor,tipo,detalhes){
   const svc=ASSISTENTES[nome||'']?nome:'';
   const det=detalhes!=null?detalhes:detalhesPadrao(nome);
@@ -2035,7 +2072,7 @@ function addPropItem(nome,valor,tipo,detalhes){
   box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
   if(svc){
     const row=box.lastElementChild;
-    row.querySelector('.pi-det').value=ASSISTENTES[svc].gerar(row);
+    row.querySelector('.pi-det').value=detAssistente(svc,row);
     row.querySelector('.pi-det').style.display='block';
   }
 }
