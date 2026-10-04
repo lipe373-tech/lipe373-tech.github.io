@@ -1924,7 +1924,20 @@ function viewContratos(){
 
 /* ---------- PROPOSTAS ---------- */
 let SERVICOS_SUGERIDOS=[...DEFAULT_SERVICOS];
-const SERVICO_DETALHES={};
+const SERVICO_DETALHES={
+  'Site / Landing page':[
+    '1. Reunião de briefing: levantamento de informações sobre a empresa, público-alvo, objetivos, produtos ou serviços e diferenciais competitivos.',
+    '2. Planejamento e estruturação da página: organização estratégica das seções e definição da jornada do usuário, com foco na conversão.',
+    '3. Copywriting comercial: desenvolvimento dos textos da landing page, com base nas informações coletadas durante o briefing, utilizando técnicas de escrita persuasiva e direcionadas ao objetivo da página.',
+    '4. Aprovação da copy: o cliente terá direito a uma rodada de ajustes nos textos apresentados. Após a aprovação do conteúdo textual, será iniciada a etapa de design e desenvolvimento visual.',
+    '5. Design responsivo: desenvolvimento da identidade visual da página, adaptada para computadores, tablets e dispositivos móveis.',
+    '6. Aprovação do design: o cliente terá direito a uma rodada de ajustes no design apresentado, antes da aprovação e entrega definitiva.',
+    '7. Integração de contato: inclusão de botão de WhatsApp ou formulário para captação de leads, conforme a necessidade do projeto.',
+    '8. Configuração básica de conversões: implementação dos recursos de mensuração previamente definidos, conforme a plataforma utilizada e os acessos disponibilizados pelo cliente.'
+  ].join('\n')
+};
+// escopo padrão também para serviços renomeados (ex.: "Landing page", "Site")
+const detalhesPadrao=nome=>SERVICO_DETALHES[nome]||(/landing|landpage|\bsite\b/i.test(nome||'')?SERVICO_DETALHES['Site / Landing page']:'');
 function listaE(a){return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:(a[0]||'');}
 /* Assistentes de detalhamento: campos rápidos que montam os "itens inclusos" sozinhos */
 const ASSISTENTES={
@@ -2017,7 +2030,7 @@ function propRowHTML(i){
 function addPropSug(i){if(SERVICOS_SUGERIDOS[i]!=null)addPropItem(SERVICOS_SUGERIDOS[i]);}
 function addPropItem(nome,valor,tipo,detalhes){
   const svc=ASSISTENTES[nome||'']?nome:'';
-  const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
+  const det=detalhes!=null?detalhes:detalhesPadrao(nome);
   const box=document.getElementById('propItens');
   box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
   if(svc){
