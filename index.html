@@ -1589,7 +1589,7 @@ function contratoDocHTML(d){
   const razao=d.razao?esc(d.razao):'<span class="ph">DEFINIR RAZÃO SOCIAL</span>';
   const razaoCab=d.razao?esc(d.razao):'DEFINIR RAZÃO SOCIAL';
   const box=(lista,marcados)=>lista.map(s=>`${marcados.includes(s)?'☒':'☐'} ${esc(s)}`).join('<br>');
-  const outro=(rot,v)=>`<br>${v?'☒':'☐'} ${rot}: ${v?esc(v):ph('definir')}`;
+  const outro=(rot,v)=>v?`<br>☒ ${rot}: ${esc(v)}`:''; // sem "Outros" preenchido, a linha não aparece
   const valor=parseFloat(d.valor)>0?esc(fmtExt(parseFloat(d.valor))):ph('definir');
   const prazo=mesesTxt(d.meses)?esc(mesesTxt(d.meses)):ph('definir');
   const dprop=d.dataProposta?fdate(d.dataProposta):ph('dd/mm/aaaa');
@@ -1600,7 +1600,7 @@ function contratoDocHTML(d){
   const multa='30% (trinta por cento) sobre o saldo restante do Contrato, quando vigente por prazo determinado. Após esse período, somente aviso prévio de 20 (vinte) dias.';
   const canais='WhatsApp (47) 99642-9421 e respectivos grupos criados para o projeto; e-mail amandapinheiromarketing@gmail.com.';
   const quadro=d.tipo==='social'?[
-    row('Proposta Comercial vinculada (Anexo I)',`Proposta Comercial emitida em ${dprop}, aceita pela CONTRATANTE, que define o escopo, as redes sociais, as quantidades, os formatos, os entregáveis, o valor e o prazo deste Contrato.`),
+    d.propostaId?row('Proposta Comercial vinculada (Anexo I)',`Proposta Comercial emitida em ${dprop}, aceita pela CONTRATANTE, que define o escopo, as redes sociais, as quantidades, os formatos, os entregáveis, o valor e o prazo deste Contrato.`):'',
     row('Serviços contratados',box(T.servicos,d.servicos)+outro('Outros',d.outros)+'<br>Escopo e entregáveis: exclusivamente os descritos na Proposta Comercial.'),
     row('Redes sociais gerenciadas',box(T.plats,d.plats)+outro('Outras',d.outrasRedes)),
     row('Publicações contratadas',`${d.pubs?esc(d.pubs):ph('quantidade e formatos por semana/mês')}, conforme a Proposta Comercial.`),
@@ -1610,7 +1610,7 @@ function contratoDocHTML(d){
     row('Multa rescisória',multa),row('Canais oficiais da CONTRATADA',canais),
     row('Responsável designado pela CONTRATANTE (ponto focal único)',resp)
   ]:[
-    row('Proposta Comercial vinculada (Anexo I)',`Proposta Comercial emitida em ${dprop}, aceita pela CONTRATANTE, que define o escopo, as quantidades, os entregáveis, o valor e o prazo deste Contrato.`),
+    d.propostaId?row('Proposta Comercial vinculada (Anexo I)',`Proposta Comercial emitida em ${dprop}, aceita pela CONTRATANTE, que define o escopo, as quantidades, os entregáveis, o valor e o prazo deste Contrato.`):'',
     row('Serviços contratados',box(T.servicos,d.servicos)+outro('Outros',d.outros)+'<br>Escopo e entregáveis: exclusivamente os descritos na Proposta Comercial.'),
     row('Plataformas de anúncio',box(T.plats,d.plats)),
     row('Valor mensal',valor),row('Prazo de vigência',prazo),row('Vencimentos',venc),row('Forma de pagamento',pag),
