@@ -432,7 +432,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,addPropSug});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 
@@ -523,7 +523,7 @@ const S={
   docContrato:v=>{if(!v||typeof v!=='object')return null;const o={tipo:S.pick(v.tipo,['trafego','social'],'trafego'),propostaId:S.id(v.propostaId)||''};
     ['razao','cnpj','end','rep','cpf','email','outros','outrasRedes','pubs','respNome','respCargo','respWhats','respEmail'].forEach(k=>{o[k]=S.str(v[k],300);});
     o.servicos=(Array.isArray(v.servicos)?v.servicos:[]).slice(0,10).map(x=>S.str(x,120));o.plats=(Array.isArray(v.plats)?v.plats:[]).slice(0,10).map(x=>S.str(x,120));
-    o.meses=S.int(v.meses,0,120,0)||'';o.valor=S.num(v.valor)||'';o.dataProposta=S.date(v.dataProposta)||'';o.data=S.date(v.data)||'';return o;},
+    o.meses=S.int(v.meses,0,120,0)||'';o.valor=S.num(v.valor)||'';o.dataProposta=S.date(v.dataProposta)||'';o.data=S.date(v.data)||'';o.vencTipo=S.pick(v.vencTipo,['assinatura','dia'],'assinatura');o.venc1=S.date(v.venc1)||'';o.vencDia=S.int(v.vencDia,0,31,0)||'';return o;},
   lista:v=>Array.isArray(v)?v.slice(0,100).map(x=>S.str(x,120)).filter(Boolean):null,
 };
 const SCHEMA={
@@ -1438,7 +1438,7 @@ let gcEditId=null;
 function gcVazio(){
   return {tipo:'trafego',propostaId:'',clienteId:'',razao:'',cnpj:'',end:'',rep:'',cpf:'',email:'',
     servicos:[],outros:'',plats:[],outrasRedes:'',pubs:'',meses:'',valor:'',dataProposta:'',
-    respNome:'',respCargo:'',respWhats:'',respEmail:'',data:today(),status:'rascunho'};
+    respNome:'',respCargo:'',respWhats:'',respEmail:'',data:today(),status:'rascunho',vencTipo:'assinatura',venc1:'',vencDia:''};
 }
 function nExt(n){return extenso(n).replace(/ reais?$/,'').replace(/^um real$/,'um');}
 function mesesTxt(n){n=parseInt(n,10);if(!n)return '';return n+' ('+nExt(n)+') '+(n===1?'mês':'meses');}
@@ -1524,6 +1524,13 @@ function openGerarContrato(id,opts){
     <div class="field"><label>Data da proposta</label>${inp('gc_dprop',d.dataProposta,'','date')}</div>
     <div class="field"><label>Data do contrato</label>${inp('gc_data',d.data,'','date')}</div>
   </div>
+  <div class="field"><label>Vencimentos</label><select id="gc_vtipo" onchange="gcVencToggle()">
+    <option value="assinatura" ${d.vencTipo!=='dia'?'selected':''}>1ª mensalidade na assinatura, demais no mesmo dia (padrão do modelo)</option>
+    <option value="dia" ${d.vencTipo==='dia'?'selected':''}>Dia fixo de pagamento</option></select></div>
+  <div class="fieldrow" id="gc_vbox" style="display:${d.vencTipo==='dia'?'grid':'none'}">
+    <div class="field"><label>1ª mensalidade em</label>${inp('gc_venc1',d.venc1,'','date')}</div>
+    <div class="field"><label>Demais todo dia</label>${inp('gc_vdia',d.vencDia,'Ex.: 10','number')}</div>
+  </div>
   ${h3('Responsável designado pelo cliente')}
   <div class="fieldrow">
     <div class="field"><label>Nome</label>${inp('gc_rnome',d.respNome,'Nome')}</div>
@@ -1550,7 +1557,8 @@ function gcLer(){
     rep:g('gc_rep'),cpf:g('gc_cpf'),email:g('gc_email'),servicos:marc('gc_svcs'),outros:g('gc_outros'),plats:marc('gc_plats'),
     outrasRedes:g('gc_outrasRedes'),pubs:g('gc_pubs'),meses:parseInt(g('gc_meses'),10)||'',valor:parseFloat(g('gc_valor'))||'',
     dataProposta:g('gc_dprop'),respNome:g('gc_rnome'),respCargo:g('gc_rcargo'),respWhats:g('gc_rwhats'),respEmail:g('gc_remail'),
-    data:g('gc_data')||today(),status:g('gc_status')||'rascunho'};
+    data:g('gc_data')||today(),status:g('gc_status')||'rascunho',
+    vencTipo:g('gc_vtipo')||'assinatura',venc1:g('gc_venc1'),vencDia:Math.min(Math.max(parseInt(g('gc_vdia'),10)||0,0),31)||''};
 }
 function gcRecarregar(pid){
   const d=gcLer();
@@ -1558,6 +1566,12 @@ function gcRecarregar(pid){
     const T=GC_TIPOS[d.tipo];d.servicos=d.servicos.filter(s=>T.servicos.includes(s));d.plats=d.plats.filter(s=>T.plats.includes(s));
     openGerarContrato(gcEditId,{doc:d});
   }else openGerarContrato(gcEditId,{doc:d,propostaId:pid||null});
+}
+function gcVencToggle(){
+  const dia=document.getElementById('gc_vtipo').value==='dia';
+  document.getElementById('gc_vbox').style.display=dia?'grid':'none';
+  const cli=state.clientes.find(c=>c.id===document.getElementById('gc_cli').value);
+  const vd=document.getElementById('gc_vdia');if(dia&&cli&&!vd.value&&cli.diaCobranca)vd.value=cli.diaCobranca;
 }
 function gcRespDoRep(){
   const s=(a,b)=>{const el=document.getElementById(a);if(el&&!el.value)el.value=document.getElementById(b).value;};
@@ -1595,7 +1609,10 @@ function contratoDocHTML(d){
   const dprop=d.dataProposta?fdate(d.dataProposta):ph('dd/mm/aaaa');
   const resp=`Nome: ${F(d.respNome,'definir')}<br>Cargo: ${F(d.respCargo,'definir')}<br>WhatsApp: ${F(d.respWhats,'definir')}<br>E-mail: ${F(d.respEmail,'definir')}`;
   const row=(l,v)=>`<tr><td class="ql">${l}</td><td>${v}</td></tr>`;
-  const venc='1ª mensalidade na data da assinatura deste Contrato; demais no mesmo dia dos meses subsequentes, salvo condição diversa na Proposta Comercial.';
+  const vDia=parseInt(d.vencDia,10)||0;
+  const venc=d.vencTipo==='dia'
+    ?`1ª mensalidade em ${d.venc1?fdate(d.venc1):ph('dd/mm/aaaa')}; demais todo dia ${vDia?vDia+' ('+esc(nExt(vDia))+')':ph('dia')} dos meses subsequentes, salvo condição diversa na Proposta Comercial.`
+    :'1ª mensalidade na data da assinatura deste Contrato; demais no mesmo dia dos meses subsequentes, salvo condição diversa na Proposta Comercial.';
   const pag='PIX (chave CNPJ 47.231.860/0001-08) ou boleto bancário emitido pela CONTRATADA. Banco C6 S.A. (336), Agência 0001, Conta Corrente 28101506-6, titular AP Marketing Digital, CNPJ 47.231.860/0001-08.';
   const multa='30% (trinta por cento) sobre o saldo restante do Contrato, quando vigente por prazo determinado. Após esse período, somente aviso prévio de 20 (vinte) dias.';
   const canais='WhatsApp (47) 99642-9421 e respectivos grupos criados para o projeto; e-mail amandapinheiromarketing@gmail.com.';
