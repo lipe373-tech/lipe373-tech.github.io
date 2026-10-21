@@ -1,0 +1,35 @@
+# Impede que um index.html antigo substitua o atual (foi o que apagou dados em out/2026).
+# Se o arquivo enviado não tiver APP_VERSAO, ou tiver um número menor que o anterior,
+# o envio é desfeito automaticamente e o GitHub manda e-mail avisando da falha.
+name: Guarda de versão
+on:
+  push:
+    branches: [main]
+    paths: [index.html]
+permissions:
+  contents: write
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Comparar versão com a anterior
+        id: v
+        run: |
+          ver() { grep -oE 'const APP_VERSAO=[0-9]+' | grep -oE '[0-9]+$' || echo 0; }
+          novo=$(ver < index.html)
+          antigo=$(git show HEAD^:index.html 2>/dev/null | ver)
+          echo "anterior=$antigo enviado=$novo"
+          if [ "$novo" -lt "$antigo" ]; then echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Desfazer envio de versão antiga
+        if: steps.v.outputs.ok == 'false'
+        run: |
+          git config user.name "guarda-de-versao"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout HEAD^ -- index.html
+          git commit -m "Desfaz envio de index.html antigo (versão menor que a publicada)"
+          git push origin HEAD:main
+          echo "::error::O index.html enviado é mais antigo que o publicado e foi desfeito. Baixe a versão atual do GitHub antes de editar."
+          exit 1
