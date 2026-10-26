@@ -14,9 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://amandapinheiro-6d032.firebaseapp.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
-<meta name="referrer" content="no-referrer">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   --terra:#8A4B41;
@@ -47,7 +45,7 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .logincard{width:380px;max-width:92vw;text-align:center}
 .logincard .monogram{font-family:'Playfair Display',Georgia,serif;font-size:110px;line-height:.9;color:var(--rose);letter-spacing:-20px;position:relative;display:inline-block}
 .logincard .lname{font-size:12px;letter-spacing:6px;color:var(--rose);margin-top:4px}
-.logincard .lsub{font-size:11px;letter-spacing:3.5px;color:rgba(237,207,198,.55);margin:10px 0 34px}
+.logincard .lsub{font-size:10px;letter-spacing:4px;color:rgba(237,207,198,.55);margin:10px 0 34px}
 .logincard input{width:100%;padding:14px 18px;border:none;border-radius:12px;background:rgba(251,245,241,.96);margin-bottom:12px;outline:none;font-size:15px}
 .logincard input:focus{box-shadow:0 0 0 2.5px var(--rose)}
 .logincard .entrar{width:100%;padding:14px;border:none;border-radius:12px;background:var(--rose);color:var(--terra-deep);font-size:15.5px;font-weight:600;letter-spacing:1px;margin-top:6px;transition:.18s}
@@ -68,8 +66,8 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .logo{padding:38px 0 26px;text-align:center;position:relative}
 .monogram{font-family:'Playfair Display',Georgia,serif;font-size:78px;line-height:.9;color:var(--rose);letter-spacing:-14px;position:relative;display:inline-block}
 .monogram .p{margin-left:2px}
-.logoname{position:absolute;left:0;right:0;top:88px;font-size:11px;letter-spacing:4.5px;font-weight:400;color:var(--rose);text-shadow:0 0 6px var(--terra),0 0 10px var(--terra)}
-.logosub{margin-top:14px;font-size:11px;letter-spacing:3.5px;color:rgba(237,207,198,.6)}
+.logoname{position:absolute;left:0;right:0;top:88px;font-size:10.5px;letter-spacing:5px;font-weight:400;color:var(--rose);text-shadow:0 0 6px var(--terra),0 0 10px var(--terra)}
+.logosub{margin-top:14px;font-size:10px;letter-spacing:4px;color:rgba(237,207,198,.6)}
 .nav{flex:1;padding:22px 14px;display:flex;flex-direction:column;gap:4px}
 .nav button{display:flex;align-items:center;gap:12px;width:100%;padding:11px 16px;border:none;background:transparent;color:rgba(237,207,198,.78);font-size:14.5px;letter-spacing:.6px;border-radius:10px;transition:.18s;text-align:left}
 .nav button svg{width:18px;height:18px;flex:none}
@@ -87,6 +85,18 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .sidefoot .sync.err{color:#FFB4A0}
 .sairbtn{background:none;border:1px solid rgba(237,207,198,.35);color:rgba(237,207,198,.75);border-radius:99px;padding:5px 16px;font-size:12px;letter-spacing:1px;margin-bottom:10px}
 .sairbtn:hover{border-color:var(--rose);color:var(--rose)}
+
+/* ---------- olho: ocultar valores na tela ---------- */
+.sidefoot-btns{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap}
+.sidefoot-btns .sairbtn{margin-bottom:0}
+.sidefoot-btns .olhobtn{flex:0 0 auto;display:inline-grid;place-items:center;padding:4px 10px}
+.olhobtn svg,.mtopbar [data-olho] svg{width:18px;height:18px;flex:none}
+.olho-risco{display:none}
+body.valores-ocultos .olho-risco{display:inline}
+body.valores-ocultos .olhobtn{border-color:var(--amber);color:var(--rose)}
+body.valores-ocultos :is(.val,.money,.amt,.note,.v,.vl,.cc-valor,.cc-foot b,.desc-sub,.sub,td.money,canvas){filter:blur(7px);user-select:none;transition:filter .15s}
+body.valores-ocultos .modal :is(.amt,.v,.d){filter:blur(7px)}
+@media (prefers-reduced-motion:reduce){body.valores-ocultos :is(.val,.money,.amt,.note,.v,.vl){transition:none}}
 
 /* ---------- MAIN ---------- */
 .main{margin-left:250px;flex:1;padding:34px 42px;max-width:1250px}
@@ -129,17 +139,6 @@ td .desc-sub{font-size:12px;color:var(--ink-soft)}
 .rowbtn{border:none;background:transparent;color:var(--ink-soft);font-size:15px;padding:4px 7px;border-radius:7px}
 .rowbtn:hover{background:var(--rose);color:var(--terra-dark)}
 .empty{padding:40px;text-align:center;color:var(--ink-soft);font-size:15px}
-.conf{width:24px;height:24px;border:1.8px solid #CFA79D;border-radius:7px;background:transparent;display:inline-flex;align-items:center;justify-content:center;color:transparent;padding:0;margin-right:10px;vertical-align:middle;transition:.15s;flex:none}
-.conf svg{width:14px;height:14px}
-.conf:hover{border-color:var(--terra)}
-.conf.on{background:var(--green);border-color:var(--green);color:#fff}
-.conf:focus-visible{outline:2px solid var(--terra);outline-offset:2px}
-td .datacell{display:inline-flex;align-items:center;white-space:nowrap}
-tr.conferido td{color:var(--ink-soft)}
-tr.conferido td.money{opacity:.65}
-.confbar{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--ink-soft);width:100%}
-.confbar .track{width:120px;height:6px;border-radius:99px;background:var(--rose-soft);overflow:hidden;flex:none}
-.confbar .track i{display:block;height:100%;background:var(--green)}
 
 /* ---------- FILTERS ---------- */
 .filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
@@ -179,7 +178,6 @@ tr.conferido td.money{opacity:.65}
 .chip:hover{background:var(--rose-soft)}
 .chipchk{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--rose);border-radius:99px;padding:5px 12px;font-size:12.5px;background:#fff;cursor:pointer;color:var(--ink)}
 .chipchk input{width:auto!important;accent-color:var(--terra);margin:0}
-.field label.chipchk{display:inline-flex;text-transform:none;letter-spacing:0;font-size:12.5px;margin:0;color:var(--ink)}
 .chipchk:has(input:checked){background:var(--rose-soft);border-color:var(--terra);color:var(--terra-dark)}
 .prop-item{display:flex;gap:7px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
 .prop-item input,.prop-item select{padding:9px 10px;border:1.5px solid var(--rose);border-radius:9px;background:#fff;outline:none;font-size:13.5px}
@@ -236,13 +234,7 @@ tr.conferido td.money{opacity:.65}
 .clientcard.inativo .cc-valor{color:var(--ink-soft)}
 
 .nav .mobileonly{display:none!important}
-.nav .sh{display:none}
 .mtopbar{display:none}
-/* olho: esconde valores da tela (PDFs e relatórios gerados não mudam) */
-body.privado .val{filter:blur(6px);user-select:none}
-body.privado #main canvas{filter:blur(10px)}
-.mt-eye{background:none;border:none;color:inherit;padding:4px;cursor:pointer;flex:none;display:flex;margin-left:auto}
-.mt-eye svg,.sairbtn svg{width:18px;height:18px;vertical-align:-4px}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
   /* ---------- BARRA SUPERIOR (app bar) ---------- */
@@ -263,10 +255,8 @@ body.privado #main canvas{filter:blur(10px)}
   .logo,.sidefoot,.sidesearch{display:none}
   .nav{flex-direction:row;padding:6px 6px;gap:2px;overflow-x:auto;align-items:center;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
   .nav::-webkit-scrollbar{display:none}
-  .nav button{position:relative;flex:none;width:64px;flex-direction:column;gap:3px;padding:6px 4px;font-size:11px;letter-spacing:0;border-radius:12px;justify-content:center;align-items:center;text-align:center;color:rgba(237,207,198,.7);scroll-snap-align:center}
-  .nav button span{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
-  .nav .lg{display:none}
-  .nav .sh{display:inline}
+  .nav button{position:relative;flex:none;width:60px;flex-direction:column;gap:3px;padding:6px 4px;font-size:8.5px;letter-spacing:.2px;border-radius:12px;justify-content:center;align-items:center;text-align:center;color:rgba(237,207,198,.7);scroll-snap-align:center}
+  .nav button span{max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
   .nav button svg{width:21px;height:21px}
   .nav button.active{background:var(--rose);color:var(--terra-dark);font-weight:600}
   .nav .navbadge{position:absolute;top:2px;right:8px;margin:0;font-size:9px;padding:0 5px;line-height:15px;min-width:15px}
@@ -300,8 +290,6 @@ body.privado #main canvas{filter:blur(10px)}
   td .desc-sub{text-align:right}
   td:last-child{justify-content:flex-end;gap:6px;padding-top:10px;margin-top:6px;border-top:1px solid var(--rose-soft)}
   td:last-child .rowbtn{background:var(--rose-soft);border-radius:9px;min-width:42px}
-  .conf{width:30px;height:30px}
-  .conf svg{width:17px;height:17px}
 
   .modal{padding:22px 18px 26px;width:100%!important;max-width:100%;max-height:92vh;border-radius:22px 22px 0 0;position:fixed;bottom:0;left:0;right:0}
   .overlay{align-items:flex-end}
@@ -379,16 +367,18 @@ setTimeout(function(){
     <nav class="nav" id="nav"></nav>
     <div class="sidefoot" id="sidefoot">
       <span class="sync" id="syncStatus"></span>
-      <button class="sairbtn" id="eyeBtn" onclick="togglePrivado()"></button>
-      <button class="sairbtn" onclick="openConfig()">⚙ AJUSTES</button>
-      <button class="sairbtn" onclick="sair()">SAIR</button>
+      <div class="sidefoot-btns">
+        <button class="sairbtn olhobtn" type="button" onclick="alternarValores()" aria-pressed="false" aria-label="Ocultar valores" title="Ocultar valores" data-olho><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="olho-risco" d="M4 4l16 16"/></svg></button>
+        <button class="sairbtn" onclick="openConfig()">⚙ AJUSTES</button>
+        <button class="sairbtn" onclick="sair()">SAIR</button>
+      </div>
       <div>MARKETING &amp; ESTRATÉGIA</div>
     </div>
   </aside>
   <header class="mtopbar">
     <span class="mono">A<span class="p">P</span></span>
     <span class="mt-title" id="mtitle">Dashboard</span>
-    <button class="mt-eye" id="mEye" onclick="togglePrivado()"></button>
+    <button class="mt-searchbtn" type="button" onclick="alternarValores()" aria-pressed="false" aria-label="Ocultar valores" data-olho><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="olho-risco" d="M4 4l16 16"/></svg></button>
     <span class="mt-sync" id="mSync">✓</span>
   </header>
   <main class="main" id="main"></main>
@@ -397,8 +387,6 @@ setTimeout(function(){
 <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
 
 <script>
-/* Não deixa o sistema ser exibido dentro de outro site (clickjacking) */
-if(window.top!==window.self){document.documentElement.style.display='none';}
 /* Vigia de carregamento: se o sistema não iniciar, mostra o erro na tela de login */
 window.addEventListener('error',function(ev){
   if(window.__apReady)return;
@@ -432,14 +420,14 @@ const firebaseConfig={
 
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut,sendPasswordResetEmail,setPersistence,indexedDBLocalPersistence,browserLocalPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,runTransaction,collection,getDocs,query,orderBy,limit,documentId} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const configOk=!Object.values(firebaseConfig).some(v=>String(v).includes("COLE_AQUI"));
 let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto});
+Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcToggle,gcPrefillPag,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,alternarValores});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -448,6 +436,25 @@ try{
   const _ei=document.getElementById('loginEmail');
   if(_ue&&_ei){_ei.value=_ue;const _pi=document.getElementById('loginPass');if(_pi)setTimeout(()=>_pi.focus(),200);}
 }catch(_){}
+
+/* ---------- Modo "ocultar valores" (olho) ----------
+   Só embaça o que aparece na tela, para quando tem gente por perto. Não altera dado nenhum
+   e não vale para os PDFs gerados. A escolha fica guardada neste aparelho. */
+const CHAVE_OLHO='apfin.ocultarValores';
+function aplicarOlho(on){
+  document.body.classList.toggle('valores-ocultos',on);
+  document.querySelectorAll('[data-olho]').forEach(b=>{
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.setAttribute('aria-label',on?'Mostrar valores':'Ocultar valores');
+    b.title=on?'Mostrar valores':'Ocultar valores';
+  });
+}
+function alternarValores(){
+  const on=!document.body.classList.contains('valores-ocultos');
+  try{localStorage.setItem(CHAVE_OLHO,on?'1':'0');}catch(e){}
+  aplicarOlho(on);
+}
+try{aplicarOlho(localStorage.getItem(CHAVE_OLHO)==='1');}catch(e){}
 
 /* ================= DATA ================= */
 const DEFAULT_CAT_IN=['Gestão de redes','Tráfego pago','Branding & Design','Consultoria','Mentoria','Outros'];
@@ -517,120 +524,16 @@ function seed(){
   return {entradas,saidas,contas,fornecedores:forn,clientes:cli,contratos,propostas,config:{taxPct:6,sample:true}};
 }
 
-/* ================= SANITIZAÇÃO =================
-   Todo dado que entra (nuvem, backup ou cópia diária) passa por aqui: só campos
-   conhecidos, tipos certos e tamanho limitado. Impede que um backup adulterado
-   injete HTML/JS na tela. Campo novo no sistema = acrescentar aqui, senão some. */
-const S={
-  id:v=>{v=String(v??'');return /^[A-Za-z0-9_-]{1,40}$/.test(v)?v:null;},
-  str:(v,max=500)=>String(v??'').slice(0,max),
-  num:v=>{const n=Number(v);return Number.isFinite(n)?Math.round(n*100)/100:0;},
-  optNum:v=>v==null||v===''?null:S.num(v),
-  int:(v,min,max,def)=>{const n=parseInt(v,10);return Number.isFinite(n)?Math.min(Math.max(n,min),max):def;},
-  date:v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v??''))?String(v):null,
-  re:(v,rx)=>rx.test(String(v??''))?String(v):null,
-  bool:v=>v===true,
-  tri:v=>v===true?true:v===false?false:null, // nfEmitida: true / false (a emitir) / null (não se aplica)
-  pick:(v,list,def)=>list.includes(v)?v:def,
-  // dados do contrato gerado pelo modelo: só campos conhecidos, texto curto
-  docContrato:v=>{if(!v||typeof v!=='object')return null;const o={tipo:S.pick(v.tipo,['trafego','social'],'trafego'),propostaId:S.id(v.propostaId)||''};
-    ['razao','cnpj','end','rep','cpf','email','outros','outrasRedes','pubs','respNome','respCargo','respWhats','respEmail'].forEach(k=>{o[k]=S.str(v[k],300);});
-    o.servicos=(Array.isArray(v.servicos)?v.servicos:[]).slice(0,10).map(x=>S.str(x,120));o.plats=(Array.isArray(v.plats)?v.plats:[]).slice(0,10).map(x=>S.str(x,120));
-    o.meses=S.int(v.meses,0,120,0)||'';o.valor=S.num(v.valor)||'';o.dataProposta=S.date(v.dataProposta)||'';o.data=S.date(v.data)||'';o.vencTipo=S.pick(v.vencTipo,['assinatura','dia'],'assinatura');o.venc1=S.date(v.venc1)||'';o.vencDia=S.int(v.vencDia,0,31,0)||'';return o;},
-  lista:v=>Array.isArray(v)?v.slice(0,100).map(x=>S.str(x,120)).filter(Boolean):null,
-  // texto padrão de cada serviço na proposta (Ajustes > Minhas listas)
-  // dados da empresa (Ajustes): só as chaves conhecidas, texto curto
-  empresa:v=>{if(!v||typeof v!=='object')return null;const o={};EMP_CAMPOS.forEach(([k])=>{o[k]=S.str(v[k],300);});return o;},
-  modelos:v=>Array.isArray(v)?v.slice(0,100).filter(m=>m&&typeof m==='object'&&String(m.nome??'').trim()).map(m=>({nome:S.str(m.nome,120),detalhes:S.str(m.detalhes,4000)})):null,
-};
-const SCHEMA={
-  entradas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),status:S.pick(x.status,['recebido','a_receber'],'recebido'),semNota:S.bool(x.semNota),nfEmitida:S.tri(x.nfEmitida),conferido:S.bool(x.conferido),prevista:S.date(x.prevista),formaPgto:S.str(x.formaPgto,40)}),
-  saidas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),fornecedorId:S.id(x.fornecedorId),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),semContab:S.bool(x.semContab),conferido:S.bool(x.conferido)}),
-  contas:x=>({id:S.id(x.id)||uid(),fornecedorId:S.id(x.fornecedorId),descricao:S.str(x.descricao),valor:S.num(x.valor),vencimento:S.date(x.vencimento)||today(),status:S.pick(x.status,['pendente','pago'],'pendente'),pagoEm:S.date(x.pagoEm),recorrente:S.bool(x.recorrente)}),
-  fornecedores:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servico:S.str(x.servico),contato:S.str(x.contato,200)}),
-  clientes:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servicos:Array.isArray(x.servicos)?x.servicos.slice(0,30).map(s=>S.str(s,120)):null,servico:S.str(x.servico),valorMensal:S.num(x.valorMensal),diaCobranca:S.int(x.diaCobranca,1,28,5),categoria:S.str(x.categoria,120),semNota:S.bool(x.semNota),
-    status:S.pick(x.status,['ativo','inativo'],'ativo'),desde:S.date(x.desde),saidaEm:S.date(x.saidaEm),relSemanaEm:S.re(x.relSemanaEm,/^\d{4}-W\d{2}$/),relMesEm:S.re(x.relMesEm,/^\d{4}-\d{2}$/)}),
-  contratos:x=>({id:S.id(x.id)||uid(),clienteId:S.id(x.clienteId),titulo:S.str(x.titulo,200),valor:S.num(x.valor),periodicidade:S.pick(x.periodicidade,['mensal','projeto'],'mensal'),inicio:S.date(x.inicio),fim:S.date(x.fim),status:S.pick(x.status,['rascunho','ativo','pausado','encerrado'],'ativo'),obs:S.str(x.obs),doc:S.docContrato(x.doc)}),
-  propostas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),nome:S.str(x.nome,200),contato:S.str(x.contato,200),status:S.pick(x.status,['rascunho','enviada','aceita','recusada'],'rascunho'),validade:S.date(x.validade),desconto:S.num(x.desconto),duracao:S.int(x.duracao,0,99,0),duracaoUn:S.pick(x.duracaoUn,['semanas','meses','anos'],'meses'),obs:S.str(x.obs,4000),
-    itens:(Array.isArray(x.itens)?x.itens:[]).slice(0,50).filter(i=>i&&typeof i==='object').map(i=>({nome:S.str(i.nome,200),valor:S.num(i.valor),tipo:S.pick(i.tipo,['mensal','unico'],'mensal'),detalhes:S.str(i.detalhes,4000)}))}),
-};
-const COLECOES=Object.keys(SCHEMA);
-function sanitizeState(raw){
-  const d=raw&&typeof raw==='object'?raw:{};
-  const out={};
-  COLECOES.forEach(k=>{out[k]=(Array.isArray(d[k])?d[k]:[]).slice(0,20000).filter(x=>x&&typeof x==='object').map(SCHEMA[k]);});
-  const c=d.config&&typeof d.config==='object'?d.config:{};
-  out.config={taxPct:S.optNum(c.taxPct)??6,simTax:S.optNum(c.simTax),metaAno:S.optNum(c.metaAno),sample:S.bool(c.sample),
-    lastGen:S.re(c.lastGen,/^\d{4}-\d{2}$/),ultimaCopia:S.date(c.ultimaCopia),servicos:S.lista(c.servicos),servModelos:S.modelos(c.servModelos),catIn:S.lista(c.catIn),catOut:S.lista(c.catOut),empresa:S.empresa(c.empresa),appVer:S.int(c.appVer,0,999999999,0)};
-  out._rev=S.int(d._rev,0,1e9,0);
-  return out;
-}
-
-/* ================= NUVEM (Firestore) =================
-   Cada gravação leva um contador de versão (_rev). Se outro aparelho/aba gravou
-   depois que estes dados foram carregados, a gravação é recusada em vez de
-   apagar o que foi feito lá (as regras do Firestore conferem o mesmo). */
+/* ================= NUVEM (Firestore) ================= */
 function setSync(txt,cls){const el=document.getElementById('syncStatus');if(el){el.textContent=txt;el.className='sync '+(cls||'');}
   const m=document.getElementById('mSync');if(m){m.textContent=cls==='err'?'⚠':(/salvo/.test(txt)?'✓':'⋯');m.className='mt-sync'+(cls==='err'?' err':'');}}
-const docRef=()=>doc(db,'financeiro',currentUser.uid);
-const copiaRef=dia=>doc(db,'financeiro',currentUser.uid,'copias',dia);
-let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retryTimer=null;
-/* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
-   na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
-   Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261026;
-/* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
-   confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
-   o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
-const pendKey=()=>'ap_pendente_'+currentUser.uid;
-function guardarLocal(){try{if(currentUser&&state)localStorage.setItem(pendKey(),JSON.stringify({base:state._rev||0,em:new Date().toISOString(),dados:state}));}catch(e){}}
-function lerLocal(){try{return JSON.parse(localStorage.getItem(pendKey())||'null');}catch(e){return null;}}
-function limparLocal(){try{localStorage.removeItem(pendKey());}catch(e){}}
-function mostrarFalha(cod){
-  let b=document.getElementById('falhaBanner');
-  if(!b){b=document.createElement('div');b.id='falhaBanner';b.setAttribute('role','alert');
-    b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:9999;background:#b3261e;color:#fff;padding:10px 16px;font:600 14px/1.4 system-ui,sans-serif;text-align:center';
-    document.body.appendChild(b);}
-  b.textContent='⚠ NÃO FOI SALVO NA NUVEM ('+cod+'). Suas alterações estão guardadas neste aparelho e o sistema tenta de novo sozinho. Não limpe o navegador e avise o suporte se continuar.';
-}
-function esconderFalha(){const b=document.getElementById('falhaBanner');if(b)b.remove();}
-function mostrarVersaoAntiga(){
-  setSync('⚠ versão antiga do sistema','err');
-  const md=document.getElementById('modal');
-  md.innerHTML=`<h2>⚠ Versão antiga do sistema</h2>
-    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft)">Os dados na nuvem foram gravados por uma versão mais nova do que esta tela. Para não estragar nada, <b>esta tela não vai salvar</b>.</p>
-    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft);margin-top:10px">Recarregue a página (no computador: Ctrl+Shift+R). Se continuar aparecendo, o arquivo publicado no site está desatualizado: avise o suporte.</p>
-    <div class="modalbtns"><button class="btn btn-primary" onclick="location.reload()">Recarregar</button></div>`;
-  document.getElementById('overlay').classList.add('open');
-}
-function baixarPendente(){
-  const p=lerLocal();if(!p)return;
-  download('alteracoes-nao-salvas-'+p.em.slice(0,10)+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:p.em,dados:p.dados},null,2)],{type:'application/json'}));
-}
-function descartarPendente(){if(!confirm('Descartar as alterações não salvas deste aparelho? Baixe a cópia antes se tiver dúvida.'))return;limparLocal();closeModal();}
-let pendenteConflito=null;
-function mostrarPendente(){
-  const p=pendenteConflito;if(!p)return;
-  const md=document.getElementById('modal');
-  md.innerHTML=`<h2>⚠ Alterações não salvas neste aparelho</h2>
-    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft)">Encontramos alterações feitas aqui em ${esc(new Date(p.em).toLocaleString('pt-BR'))} que <b>não chegaram na nuvem</b>. Depois disso a nuvem foi atualizada por outro aparelho, então elas não foram aplicadas automaticamente.</p>
-    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft);margin-top:10px">Baixe a cópia para não perder nada (dá para conferir ou restaurar em Ajustes → Backup).</p>
-    <div class="modalbtns"><button class="btn btn-ghost" onclick="descartarPendente()">Descartar</button><button class="btn btn-primary" onclick="baixarPendente()">⤓ Baixar cópia</button></div>`;
-  document.getElementById('overlay').classList.add('open');
-}
-window.addEventListener('beforeunload',e=>{if(saveTimer||saving||falhou){e.preventDefault();e.returnValue='';}});
-window.addEventListener('online',()=>{if(falhou)persist();});
 async function loadData(){
-  const snap=await getDoc(docRef());
-  if(snap.exists()){state=sanitizeState(snap.data());}
-  else{state=sanitizeState(seed());await persist();}
-  if((state.config.appVer||0)>APP_VERSAO){versaoAntiga=true;carregarListas();return;}
-  // alterações deste aparelho que não chegaram na nuvem
-  const p=lerLocal();pendenteConflito=null;
-  if(p&&p.dados){
-    if((p.base||0)===(state._rev||0)){state=sanitizeState({...p.dados,_rev:state._rev});carregarListas();await persist();}
-    else pendenteConflito=p;
-  }
+  const snap=await getDoc(doc(db,'financeiro',currentUser.uid));
+  if(snap.exists()){state=snap.data();}
+  else{state=seed();await persist();}
+  // garante estruturas mínimas
+  ['entradas','saidas','contas','fornecedores','clientes','contratos','propostas'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];});
+  if(!state.config)state.config={taxPct:6,sample:false};
   carregarListas();
   if(gerarRecorrentes())await persist();
 }
@@ -666,95 +569,26 @@ function gerarRecorrentes(){
   return true;
 }
 async function persist(){
-  if(!currentUser||!state||conflito||versaoAntiga)return;
-  clearTimeout(retryTimer);retryTimer=null;
-  if(saving){dirty=true;return;} // já tem gravação em andamento: grava de novo ao terminar
-  saving=true;
   setSync('salvando…','ok');
   try{
-    do{
-      dirty=false;
-      const base=state._rev||0;
-      // JSON round-trip remove valores undefined, que o Firestore rejeita
-      const data=JSON.parse(JSON.stringify({...state,_rev:base+1}));
-      let copiou=null;
-      await runTransaction(db,async tx=>{
-        const snap=await tx.get(docRef());
-        const remoto=snap.exists()?(snap.data()._rev||0):0;
-        if(snap.exists()&&((snap.data().config||{}).appVer||0)>APP_VERSAO)throw Object.assign(new Error('versão antiga'),{code:'ap/versao-antiga'});
-        if(remoto!==base)throw Object.assign(new Error('conflito de versão'),{code:'ap/conflito'});
-        data.config.appVer=APP_VERSAO;
-        // cópia diária: no 1º salvamento do dia guarda os dados como estavam antes
-        // (as regras só permitem criar cópias, nunca alterar ou apagar; pula se o
-        // documento estiver perto do limite de 1 MB, para nunca travar o salvamento)
-        const hoje=today();
-        if(snap.exists()&&(snap.data().config||{}).ultimaCopia!==hoje&&JSON.stringify(snap.data()).length<900000){
-          const c=await tx.get(copiaRef(hoje));
-          if(!c.exists())tx.set(copiaRef(hoje),{feitaEm:new Date().toISOString(),rev:remoto,dados:snap.data()});
-          data.config.ultimaCopia=hoje;copiou=hoje;
-        }
-        tx.set(docRef(),data);
-      });
-      state._rev=base+1;
-      if(copiou)state.config.ultimaCopia=copiou;
-    }while(dirty);
-    if(!saveTimer)limparLocal();
-    falhou=false;esconderFalha();
+    // JSON round-trip remove valores undefined, que o Firestore rejeita
+    await setDoc(doc(db,'financeiro',currentUser.uid),JSON.parse(JSON.stringify(state)));
     setSync('✓ salvo na nuvem','ok');
   }catch(e){
     console.error(e);
-    if(e.code==='ap/conflito'){conflito=true;mostrarConflito();}
-    else if(e.code==='ap/versao-antiga'){versaoAntiga=true;mostrarVersaoAntiga();}
-    else{
-      falhou=true;
-      setSync('⚠ erro ao salvar ('+(e.code||'verifique a internet')+')','err');
-      mostrarFalha(e.code||'sem conexão');
-      retryTimer=setTimeout(persist,30000); // tenta de novo sozinho
-    }
-  }finally{
-    saving=false;
+    setSync('⚠ erro ao salvar ('+(e.code||'verifique a internet')+')','err');
   }
 }
 function save(){ // agrupa gravações rápidas em uma só
-  guardarLocal(); // já fica guardado no aparelho, antes mesmo de ir para a nuvem
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{saveTimer=null;persist();},400);
+  saveTimer=setTimeout(persist,400);
 }
-async function flushSave(){ // grava o que estiver pendente antes de sair
-  if(saveTimer){clearTimeout(saveTimer);saveTimer=null;await persist();}
-  for(let i=0;saving&&i<100;i++)await new Promise(r=>setTimeout(r,100));
-}
-function mostrarConflito(){
-  setSync('⚠ não salvo: recarregue a página','err');
-  const md=document.getElementById('modal');
-  md.innerHTML=`<h2>⚠ Dados alterados em outro aparelho</h2>
-    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft)">O sistema foi usado em outro aparelho ou aba depois que esta tela foi aberta.
-    Para não apagar o que foi feito lá, as últimas alterações feitas <b>aqui</b> não foram salvas.</p>
-    <p style="font-size:14px;line-height:1.6;color:var(--ink-soft);margin-top:10px">Recarregue para ver os dados atualizados e refaça a alteração. Se quiser, baixe antes uma cópia do que está nesta tela.</p>
-    <div class="modalbtns"><button class="btn btn-ghost" onclick="exportJSON()">⤓ Baixar cópia desta tela</button><button class="btn btn-primary" onclick="location.reload()">Recarregar</button></div>`;
-  document.getElementById('overlay').classList.add('open');
-}
-/* Ao voltar para a aba/app, puxa a versão mais nova se outro aparelho gravou */
-async function atualizarSeMudou(){
-  if(!currentUser||!state||saving||saveTimer||conflito)return;
-  if(document.getElementById('overlay').classList.contains('open'))return;
-  try{
-    const snap=await getDoc(docRef());
-    if(snap.exists()&&(snap.data()._rev||0)>(state._rev||0)&&!saving&&!saveTimer){state=sanitizeState(snap.data());carregarListas();render();}
-  }catch(e){console.error(e);}
-}
-
-/* ================= SESSÃO =================
-   O login fica lembrado no aparelho até clicar em "Sair" (sem logout por inatividade).
-   Ao voltar para a aba/app, puxa a versão mais nova se outro aparelho gravou. */
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')atualizarSeMudou();});
 
 /* ================= AUTENTICAÇÃO ================= */
 const ERR_PT={
   'auth/invalid-credential':'E-mail ou senha incorretos.',
   'auth/invalid-email':'E-mail inválido.',
-  'auth/user-not-found':'E-mail ou senha incorretos.',
-  'auth/user-disabled':'Este acesso está desativado.',
+  'auth/user-not-found':'Usuário não encontrado.',
   'auth/wrong-password':'E-mail ou senha incorretos.',
   'auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos.',
   'auth/network-request-failed':'Sem conexão. Verifique a internet.',
@@ -777,25 +611,14 @@ async function doLogin(){
 async function doReset(){
   const email=document.getElementById('loginEmail').value.trim();
   if(!email){loginError('Digite seu e-mail no campo acima e clique de novo em "Esqueci minha senha".');return;}
-  // mesma mensagem exista ou não a conta, para não revelar quais e-mails têm acesso
-  const ok='Se este e-mail tiver acesso, enviamos um link de redefinição para '+email+'. Confira a caixa de entrada (e o spam).';
   try{
     await sendPasswordResetEmail(auth,email);
-    loginError(ok);
-  }catch(e){
-    if(e.code==='auth/user-not-found')loginError(ok);
-    else loginError(ERR_PT[e.code]||'Não foi possível enviar o e-mail. ('+e.code+')');
-  }
-}
-async function encerrarSessao(msg){
-  await flushSave();
-  await signOut(auth);
-  closeModal();
-  if(msg)loginError(msg);
+    loginError('Enviamos um link de redefinição para '+email+'. Confira a caixa de entrada (e o spam).');
+  }catch(e){loginError(ERR_PT[e.code]||'Não foi possível enviar o e-mail. ('+e.code+')');}
 }
 function sair(){
   if(!confirm('Sair do sistema?'))return;
-  encerrarSessao();
+  signOut(auth);
 }
 
 /* ================= INICIALIZAÇÃO ================= */
@@ -825,7 +648,6 @@ if(!configOk){
   onAuthStateChanged(auth,async user=>{
     const boot=document.getElementById('bootScreen');if(boot)boot.style.display='none';
     if(user){
-      conflito=false;
       currentUser=user;
       document.getElementById('loginScreen').style.display='none';
       document.getElementById('appShell').classList.add('on');
@@ -835,8 +657,6 @@ if(!configOk){
         setSync('✓ salvo na nuvem','ok');
         render();
         showBoasVindas();
-        if(versaoAntiga)mostrarVersaoAntiga();
-        else if(pendenteConflito)mostrarPendente();
       }catch(e){
         console.error(e);
         setSync('⚠ erro ao carregar dados','err');
@@ -844,13 +664,6 @@ if(!configOk){
       }
     }else{
       currentUser=null;state=null;
-      clearTimeout(saveTimer);saveTimer=null;
-      Object.values(charts).forEach(c=>c.destroy());charts={};
-      // não deixa dados financeiros no HTML da página depois de sair
-      document.getElementById('main').innerHTML='';
-      document.getElementById('modal').innerHTML='';
-      document.getElementById('overlay').classList.remove('open');
-      document.getElementById('loginPass').value='';
       document.getElementById('loginScreen').style.display='flex';
       document.getElementById('appShell').classList.remove('on');
     }
@@ -859,40 +672,6 @@ if(!configOk){
 
 /* ================= HELPERS ================= */
 const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-
-/* ---------- OLHO: oculta os valores em R$ da tela ----------
-   Todo texto com "R$" que aparece na tela ou numa janela ganha a classe .val;
-   com o olho fechado o CSS borra esses textos e os gráficos. A escolha fica
-   lembrada neste aparelho. */
-const PRIV_KEY='ap_ocultarValores';
-const OLHO_ABERTO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
-const OLHO_FECHADO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
-function marcarValores(root){
-  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>
-    n.nodeValue.includes('R$')&&!n.parentElement.closest('.val,script,style,textarea,select,option')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
-  const nos=[];while(w.nextNode())nos.push(w.currentNode);
-  nos.forEach(n=>{const sp=document.createElement('span');sp.className='val';n.parentNode.insertBefore(sp,n);sp.appendChild(n);});
-}
-function aplicarPrivado(on){
-  document.body.classList.toggle('privado',on);
-  const rot=on?'Mostrar valores':'Ocultar valores';
-  const b=document.getElementById('eyeBtn');if(b)b.innerHTML=(on?OLHO_FECHADO:OLHO_ABERTO)+' '+rot.toUpperCase();
-  const m=document.getElementById('mEye');if(m){m.innerHTML=on?OLHO_FECHADO:OLHO_ABERTO;m.setAttribute('aria-label',rot);m.title=rot;}
-}
-function togglePrivado(){
-  const on=!document.body.classList.contains('privado');
-  aplicarPrivado(on);
-  try{localStorage.setItem(PRIV_KEY,on?'1':'0');}catch(e){}
-}
-{
-  let on=false;try{on=localStorage.getItem(PRIV_KEY)==='1';}catch(e){}
-  aplicarPrivado(on);
-  const obs=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{
-    if(n.nodeType===1)marcarValores(n);
-    else if(n.nodeType===3&&n.parentElement)marcarValores(n.parentElement);
-  })));
-  ['main','modal'].forEach(id=>{const el=document.getElementById(id);if(el){marcarValores(el);obs.observe(el,{childList:true,subtree:true});}});
-}
 const fdate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;};
 const today=()=>new Date().toISOString().slice(0,10);
 const ym=s=>s.slice(0,7);
@@ -927,13 +706,13 @@ const ICONS={
   anual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>'
 };
 const PAGES=[
-  ['dashboard','Dashboard','Início'],['entradas','Entradas'],['saidas','Saídas'],
-  ['contas','Contas a Pagar','Contas'],['propostas','Propostas'],['contratos','Contratos'],['fornecedores','Fornecedores','Fornec.'],['clientes','Clientes'],['precificacao','Precificação','Preços'],['relatorio','Relatório Mensal','Relatório'],['meta','Meta do Ano','Meta'],['anual','Fechamento Anual','Anual']
+  ['dashboard','Dashboard'],['entradas','Entradas'],['saidas','Saídas'],
+  ['contas','Contas a Pagar'],['propostas','Propostas'],['contratos','Contratos'],['fornecedores','Fornecedores'],['clientes','Clientes'],['precificacao','Precificação'],['relatorio','Relatório Mensal'],['meta','Meta do Ano'],['anual','Fechamento Anual']
 ];
 function renderNav(){
   const atras=state.contas.filter(c=>contaStatus(c)==='atrasado').length;
-  document.getElementById('nav').innerHTML=PAGES.map(([k,l,sh])=>
-    `<button class="${page===k?'active':''}" onclick="go('${k}')" aria-label="${l}">${ICONS[k]}<span class="lg">${l}</span><span class="sh">${sh||l}</span>${k==='contas'&&atras?`<span class="navbadge">${atras}</span>`:''}</button>`
+  document.getElementById('nav').innerHTML=PAGES.map(([k,l])=>
+    `<button class="${page===k?'active':''}" onclick="go('${k}')">${ICONS[k]}<span>${l}</span>${k==='contas'&&atras?`<span class="navbadge">${atras}</span>`:''}</button>`
   ).join('')
   +`<button class="mobileonly" onclick="openConfig()"><span style="font-size:18px;line-height:1">⚙</span><span>Ajustes</span></button>`
   +`<button class="mobileonly" onclick="sair()"><span style="font-size:18px;line-height:1">⏻</span><span>Sair</span></button>`;
@@ -1031,7 +810,7 @@ function rotularCelulas(){
 }
 function clearSample(){
   if(!confirm('Apagar TODOS os dados (lançamentos, contas, clientes e fornecedores) e começar do zero? Essa ação não tem desfazer.'))return;
-  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos||null,servModelos:state.config.servModelos||null,catIn:state.config.catIn||null,catOut:state.config.catOut||null,empresa:state.config.empresa||null,sample:false,lastGen:state.config.lastGen||null,ultimaCopia:state.config.ultimaCopia||null},_rev:state._rev||0};
+  state={entradas:[],saidas:[],contas:[],fornecedores:[],clientes:[],contratos:[],propostas:[],config:{taxPct:state.config.taxPct||6,simTax:state.config.simTax!=null?state.config.simTax:7.21,metaAno:state.config.metaAno!=null?state.config.metaAno:360000,servicos:state.config.servicos,catIn:state.config.catIn,catOut:state.config.catOut,empresa:state.config.empresa,sample:false}};
   carregarListas();save();closeModal();render();
 }
 
@@ -1055,17 +834,14 @@ function addListItem(tipo){
   setTimeout(()=>{const n=document.getElementById('novoItem_'+tipo);if(n)n.focus();},30);
 }
 function removeListItem(tipo,i){
-  servEdit=null;
   const arr=listaAtual(tipo).slice();
   const item=arr[i];
   if(!confirm('Remover "'+item+'" da lista? Lançamentos antigos com esse nome continuam intactos.'))return;
   arr.splice(i,1);
-  if(tipo==='serv'&&state.config.servModelos)state.config.servModelos=state.config.servModelos.filter(m=>m.nome.toLowerCase()!==item.toLowerCase());
   state.config[LISTA_MAP[tipo][0]]=arr;carregarListas();save();
   document.getElementById('listasBox').innerHTML=listasHTML();
 }
 function resetLista(tipo){
-  servEdit=null;
   if(!confirm('Restaurar a lista padrão? Suas personalizações desta lista serão perdidas.'))return;
   const def=tipo==='serv'?DEFAULT_SERVICOS:tipo==='catin'?DEFAULT_CAT_IN:DEFAULT_CAT_OUT;
   state.config[LISTA_MAP[tipo][0]]=[...def];carregarListas();save();
@@ -1080,67 +856,7 @@ function umaLista(tipo){
     <div style="display:flex;gap:8px"><input id="novoItem_${tipo}" placeholder="Adicionar…" style="flex:1;padding:9px 12px;border:1.5px solid var(--rose);border-radius:9px;background:#fff;outline:none" onkeydown="if(event.key==='Enter'){event.preventDefault();addListItem('${tipo}')}"><button class="btn btn-ghost btn-sm" onclick="addListItem('${tipo}')">+ Adicionar</button></div>
   </div>`;
 }
-function listasHTML(){return servicosHTML()+umaLista('catin')+umaLista('catout');}
-/* ---------- SERVIÇOS E TEXTOS DA PROPOSTA ---------- */
-let servEdit=null; // índice do serviço em edição; -1 = novo serviço
-function rerenderListas(){const b=document.getElementById('listasBox');if(b)b.innerHTML=listasHTML();}
-// texto que o serviço traria hoje sem personalização
-function textoPadraoServ(nome){
-  if(ASSISTENTES[nome]){const t=document.createElement('div');t.innerHTML=ASSISTENTES[nome].campos;return ASSISTENTES[nome].gerar(t);}
-  return detalhesFixos(nome);
-}
-function servicosHTML(){
-  const linha=(x,i)=>{
-    if(servEdit===i)return servEditorHTML(i);
-    const m=modeloServ(x);const txt=(m?m.detalhes:textoPadraoServ(x)).trim();
-    return `<div class="dueitem"><div class="who"><div class="n">${esc(x)}</div><div class="d" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${txt?esc(txt.split('\n')[0]):'Sem texto'}</div></div>
-      <button class="rowbtn" onclick="editServ(${i})" title="Editar" aria-label="Editar ${esc(x)}">✎</button><button class="rowbtn" onclick="removeListItem('serv',${i})" title="Remover" aria-label="Remover ${esc(x)}">✕</button></div>`;
-  };
-  return `<div style="margin-bottom:18px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline"><label style="font-size:12.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-soft)">Serviços e textos da proposta</label>
-      <button class="rowbtn" style="font-size:11.5px" onclick="resetLista('serv')">restaurar padrão</button></div>
-    <p style="font-size:12.5px;color:var(--ink-soft);margin-top:4px">Clique em ✎ para renomear um serviço ou editar o texto que entra na proposta quando ele é adicionado.</p>
-    <div class="duelist" style="margin:10px 0">${SERVICOS_SUGERIDOS.map(linha).join('')}${servEdit===-1?servEditorHTML(-1):''}</div>
-    ${servEdit===-1?'':'<button class="btn btn-ghost btn-sm" onclick="editServ(-1)">+ Novo serviço</button>'}
-  </div>`;
-}
-function servEditorHTML(i){
-  const nome=i>=0?SERVICOS_SUGERIDOS[i]:'';const m=i>=0?modeloServ(nome):null;
-  const txt=m?m.detalhes:(i>=0?textoPadraoServ(nome):'');
-  const assist=i>=0&&ASSISTENTES[nome];
-  return `<div id="servEditor" style="background:var(--rose-soft);border-radius:12px;padding:14px 16px">
-    <div class="field"><label>Nome do serviço</label><input id="se_nome" maxlength="120" value="${esc(nome)}" placeholder="Ex.: Google Meu Negócio"></div>
-    <div class="field"><label>Texto na proposta</label><textarea id="se_det" style="min-height:240px;line-height:1.5" maxlength="4000" placeholder="Um item por linha. Ex.: 1. Reunião de briefing: ...">${esc(txt)}</textarea></div>
-    ${assist?`<p style="font-size:12.5px;color:var(--ink-soft);margin:-4px 0 10px">${m?`Texto personalizado: entra na proposta exatamente como está. <button class="rowbtn" style="font-size:12px;text-decoration:underline" onclick="restaurarServAuto(${i})">Voltar ao texto automático</button>`:'Este texto é montado sozinho na proposta conforme as quantidades e plataformas escolhidas. Se você alterar e salvar, ele passa a entrar exatamente como escrito aqui.'}</p>`:''}
-    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="fecharServ()">Cancelar</button><button class="btn btn-primary btn-sm" onclick="salvarServ(${i})">Salvar</button></div>
-  </div>`;
-}
-function editServ(i){
-  servEdit=i;rerenderListas();
-  setTimeout(()=>{const ed=document.getElementById('servEditor');if(ed)ed.scrollIntoView({block:'nearest',behavior:'smooth'});const f=document.getElementById(i<0?'se_nome':'se_det');if(f)f.focus();},30);
-}
-function fecharServ(){servEdit=null;rerenderListas();}
-function salvarServ(i){
-  const nome=document.getElementById('se_nome').value.trim().slice(0,120);
-  const det=document.getElementById('se_det').value.replace(/\s+$/,'').slice(0,4000);
-  if(!nome){alert('Dê um nome ao serviço.');return;}
-  const arr=SERVICOS_SUGERIDOS.slice();const antigo=i>=0?arr[i]:null;
-  if(arr.some((x,j)=>j!==i&&x.toLowerCase()===nome.toLowerCase())){alert('"'+nome+'" já está na lista.');return;}
-  if(i>=0)arr[i]=nome;else arr.push(nome);
-  const lc=x=>x.toLowerCase();
-  const modelos=(state.config.servModelos||[]).filter(m=>lc(m.nome)!==lc(nome)&&(!antigo||lc(m.nome)!==lc(antigo)));
-  // serviço com texto automático salvo sem alteração: continua automático
-  if(!(ASSISTENTES[nome]&&det===textoPadraoServ(nome)))modelos.push({nome,detalhes:det});
-  state.config.servModelos=modelos;state.config.servicos=arr;
-  // renomeou: clientes que tinham o serviço marcado continuam com ele
-  if(antigo&&antigo!==nome)state.clientes.forEach(c=>{if(Array.isArray(c.servicos))c.servicos=c.servicos.map(x=>x===antigo?nome:x);});
-  carregarListas();save();servEdit=null;rerenderListas();
-}
-function restaurarServAuto(i){
-  const nome=SERVICOS_SUGERIDOS[i];if(nome==null)return;
-  state.config.servModelos=(state.config.servModelos||[]).filter(m=>m.nome.toLowerCase()!==nome.toLowerCase());
-  save();servEdit=i;rerenderListas();
-}
+function listasHTML(){return umaLista('serv')+umaLista('catin')+umaLista('catout');}
 
 /* ---------- DADOS DA EMPRESA (ficam no Firestore, nunca no código) ---------- */
 const EMP_CAMPOS=[
@@ -1156,9 +872,7 @@ const EMP_CAMPOS=[
   ['cpf','CPF do representante','000.000.000-00'],
   ['repEnd','Endereço residencial do representante','Rua, nº, bairro, CEP, cidade/UF'],
   ['pix','Chave Pix','CNPJ, e-mail ou telefone'],
-  ['banco','Dados bancários (boleto/transferência)','Banco, agência, conta, titular e CNPJ'],
-  ['whats','WhatsApp oficial','(47) 90000-0000'],
-  ['foro','Foro dos contratos','Itajaí/SC']
+  ['foro','Foro dos contratos','Itajaí (SC)']
 ];
 function emp(){
   const e=(state&&state.config&&state.config.empresa)||{};
@@ -1178,7 +892,6 @@ function salvarEmpresa(){
 
 /* ---------- CONFIGURAÇÕES / BACKUP ---------- */
 function openConfig(){
-  servEdit=null;
   const md=document.getElementById('modal');
   md.innerHTML=`<h2>Ajustes</h2>
     <div class="field"><label>Backup</label>
@@ -1195,10 +908,6 @@ function openConfig(){
       ${empresaHTML()}
       <div style="display:flex;gap:10px;align-items:center"><button class="btn btn-primary btn-sm" onclick="salvarEmpresa()">Salvar dados da empresa</button><span id="empOk" style="font-size:13px;color:var(--green,#4a7)"></span></div>
     </div>
-    <div class="field" style="margin-top:22px"><label>Cópias automáticas diárias</label>
-      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:10px">Todo dia, no primeiro salvamento, o sistema guarda na nuvem uma cópia de como os dados estavam. Essas cópias não podem ser alteradas nem apagadas.</p>
-      <div id="copiasBox"><button class="btn btn-ghost btn-sm" onclick="listarCopias()">Ver cópias</button></div>
-    </div>
     <div class="field" style="margin-top:22px"><label>Minhas listas</label>
       <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:12px">Gerencie os serviços e categorias que aparecem ao cadastrar clientes, entradas, saídas e propostas.</p>
       <div id="listasBox">${listasHTML()}</div>
@@ -1210,55 +919,20 @@ function openConfig(){
     <div class="modalbtns"><button class="btn btn-ghost" onclick="closeModal()">Fechar</button></div>`;
   document.getElementById('overlay').classList.add('open');
 }
-let copiasCache={};
-async function listarCopias(){
-  const box=document.getElementById('copiasBox');
-  box.innerHTML='<div style="font-size:13.5px;color:var(--ink-soft)">Carregando…</div>';
-  try{
-    const snap=await getDocs(query(collection(db,'financeiro',currentUser.uid,'copias'),orderBy(documentId(),'desc'),limit(15)));
-    copiasCache={};
-    snap.forEach(d=>{if(S.date(d.id))copiasCache[d.id]=d.data();});
-    const ids=Object.keys(copiasCache).sort().reverse();
-    box.innerHTML=ids.length?`<div class="duelist">${ids.map(id=>{
-      const dd=copiasCache[id].dados||{};
-      const n=(Array.isArray(dd.entradas)?dd.entradas.length:0)+(Array.isArray(dd.saidas)?dd.saidas.length:0);
-      return `<div class="dueitem"><div class="who"><div class="n">${fdate(id)}</div><div class="d">${n} lançamento(s)</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="baixarCopia('${id}')">⤓ Baixar</button>
-        <button class="btn btn-ghost btn-sm" onclick="restaurarCopia('${id}')">Restaurar</button></div>`;
-    }).join('')}</div>`:'<div style="font-size:13.5px;color:var(--ink-soft)">Nenhuma cópia ainda. A primeira é criada no próximo salvamento.</div>';
-  }catch(e){
-    console.error(e);
-    box.innerHTML='<div style="font-size:13.5px;color:var(--red)">Não foi possível carregar as cópias. Verifique a internet.</div>';
-  }
-}
-function baixarCopia(id){
-  const c=copiasCache[id];if(!c)return;
-  download('copia-financeiro-'+id+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:c.feitaEm,dados:c.dados},null,2)],{type:'application/json'}));
-}
-function restaurarCopia(id){
-  const c=copiasCache[id];if(!c)return;
-  if(!confirm('Restaurar a cópia de '+fdate(id)+' vai SUBSTITUIR os dados atuais. Antes, uma cópia dos dados atuais será baixada no seu aparelho. Continuar?'))return;
-  exportJSON();
-  const rev=state._rev||0,uc=state.config.ultimaCopia;
-  state=sanitizeState(c.dados);
-  state._rev=rev;state.config.ultimaCopia=uc;
-  carregarListas();save();closeModal();render();
-  alert('Cópia de '+fdate(id)+' restaurada.');
-}
 function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
 function exportJSON(){
   download('backup-financeiro-'+today()+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:new Date().toISOString(),dados:state},null,2)],{type:'application/json'}));
 }
 async function loadXLSX(){
   if(window.XLSX)return;
-  await new Promise((ok,err)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.integrity='sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA==';s.crossOrigin='anonymous';s.onload=ok;s.onerror=()=>err(new Error('Não foi possível baixar o gerador de Excel. Verifique a internet.'));document.head.appendChild(s);});
+  await new Promise((ok,err)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=()=>err(new Error('Não foi possível baixar o gerador de Excel. Verifique a internet.'));document.head.appendChild(s);});
 }
 async function exportExcel(){
   try{await loadXLSX();}catch(e){alert(e.message);return;}
   const wb=XLSX.utils.book_new();
   const add=(nome,rows)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{Aviso:'Sem registros'}]),nome);
-  add('Entradas',state.entradas.map(e=>({Data:fdate(e.data),'Descrição':e.descricao,Cliente:cliName(e.clienteId),Categoria:e.categoria,'Valor (R$)':e.valor,Status:e.status==='recebido'?'Recebido':'A receber','Forma':e.formaPgto||'','Prevista para':e.prevista?fdate(e.prevista):'','Nota fiscal':e.semNota?'Não':'Sim','Conferido no extrato':e.conferido?'Sim':'Não'})));
-  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor,'Contabilidade':s.semContab?'Não':'Sim','Conferido no extrato':s.conferido?'Sim':'Não'})));
+  add('Entradas',state.entradas.map(e=>({Data:fdate(e.data),'Descrição':e.descricao,Cliente:cliName(e.clienteId),Categoria:e.categoria,'Valor (R$)':e.valor,Status:e.status==='recebido'?'Recebido':'A receber','Forma':e.formaPgto||'','Prevista para':e.prevista?fdate(e.prevista):'','Nota fiscal':e.semNota?'Não':'Sim'})));
+  add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor,'Contabilidade':s.semContab?'Não':'Sim'})));
   add('Contas a pagar',state.contas.map(c=>({Vencimento:fdate(c.vencimento),Fornecedor:fornName(c.fornecedorId),'Descrição':c.descricao,'Valor (R$)':c.valor,Status:contaStatus(c)==='pago'?'Paga':contaStatus(c)==='atrasado'?'Atrasada':'Pendente','Paga em':c.pagoEm?fdate(c.pagoEm):''})));
   add('Fornecedores',state.fornecedores.map(f=>({Nome:f.nome,'Serviço':f.servico,Contato:f.contato})));
   add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Situação':c.status==='inativo'?'Inativo':'Ativo','Cliente desde':c.desde?fdate(c.desde):'','Saiu em':c.saidaEm?fdate(c.saidaEm):'','Nota fiscal':c.semNota?'Não':'Sim'})));
@@ -1275,10 +949,9 @@ function restoreBackup(file){
       const d=j.dados||j;
       if(!Array.isArray(d.entradas)||!Array.isArray(d.saidas))throw new Error('estrutura inválida');
       if(!confirm('Restaurar este backup vai SUBSTITUIR todos os dados atuais pelos do arquivo'+(j.geradoEm?' (gerado em '+fdate(j.geradoEm.slice(0,10))+')':'')+'. Continuar?'))return;
-      const rev=state._rev||0,uc=state.config.ultimaCopia;
-      state=sanitizeState(d);
-      state._rev=rev; // a versão é a da nuvem, não a do arquivo
-      state.config.ultimaCopia=uc;
+      state=d;
+      ['entradas','saidas','contas','fornecedores','clientes','contratos','propostas'].forEach(k=>{if(!Array.isArray(state[k]))state[k]=[];});
+      if(!state.config)state.config={taxPct:6,sample:false};
       carregarListas();save();closeModal();render();
       alert('Backup restaurado com sucesso!');
     }catch(e){alert('Arquivo de backup inválido: '+e.message);}
@@ -1399,11 +1072,9 @@ function drawDashCharts(){
 }
 
 /* ---------- ENTRADAS / SAÍDAS ---------- */
-let movFilter={mes:'',cat:'',q:'',conf:''};
+let movFilter={mes:'',cat:'',q:''};
 function setMovMes(v){movFilter.mes=v;render();}
 function setMovCat(v){movFilter.cat=v;render();}
-function setMovConf(v){movFilter.conf=v;render();}
-function conferir(kind,id){const x=state[kind].find(i=>i.id===id);if(x){x.conferido=!x.conferido;save();render();}}
 function setMovBusca(v){
   // atualiza SÓ a lista e o contador, sem redesenhar a página (preserva o foco no campo)
   movFilter.q=v;
@@ -1418,7 +1089,6 @@ function movComputeList(kind){
   const mt=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q);
   return (isIn?state.entradas:state.saidas)
     .filter(x=>(!movFilter.mes||ym(x.data)===movFilter.mes)&&(!movFilter.cat||x.categoria===movFilter.cat)
-      &&(!movFilter.conf||(movFilter.conf==='sim')===!!x.conferido)
       &&(!q||mt(x.descricao)||mt(x.categoria)||mt(String(x.valor))||mt(isIn?cliName(x.clienteId):fornName(x.fornecedorId))))
     .sort((a,b)=>b.data.localeCompare(a.data));
 }
@@ -1427,15 +1097,15 @@ function movListaHTML(kind){
   const list=movComputeList(kind);
   return list.length?`<table><thead><tr>
     <th>Data</th><th>Descrição</th><th>${isIn?'Cliente':'Fornecedor'}</th><th>Categoria</th><th>Valor</th>${isIn?'<th>Forma</th><th>Status</th>':''}<th></th></tr></thead>
-    <tbody>${list.map(x=>`<tr class="${x.conferido?'conferido':''}">
-      <td><span class="datacell"><button class="conf ${x.conferido?'on':''}" role="checkbox" aria-checked="${!!x.conferido}" aria-label="Conferido com o extrato" title="${x.conferido?'Conferido. Clique para desmarcar':'Marcar como conferido no extrato'}" onclick="conferir('${kind}','${x.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>${fdate(x.data)}</span></td>
+    <tbody>${list.map(x=>`<tr>
+      <td>${fdate(x.data)}</td>
       <td>${esc(x.descricao)}${isIn&&x.semNota?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">s/ nota</span>':''}${isIn&&!x.semNota&&x.nfEmitida===false?` <span class="pill bad" style="font-size:11px;cursor:pointer" title="Clique quando emitir a NF" onclick="marcarNF('${x.id}')">emitir NF ✓</span>`:''}${isIn&&!x.semNota&&x.nfEmitida===true?' <span class="pill ok" style="font-size:11px">NF ✓</span>':''}${!isIn&&x.semContab?' <span class="pill" style="background:var(--rose-soft);color:var(--terra-dark);font-size:11px">fora contab.</span>':''}</td>
       <td>${isIn?esc(cliName(x.clienteId)):esc(fornName(x.fornecedorId))}</td>
       <td>${esc(x.categoria)}</td>
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
       ${isIn?`<td>${esc(x.formaPgto||'—')}</td><td>${x.status==='recebido'?'<span class="pill ok">Recebido</span>':`${x.prevista&&x.prevista<today()?'<span class="pill bad">Atrasada</span>':'<span class="pill warn">A receber</span>'} <button class="rowbtn" title="Marcar como recebido" onclick="receber('${x.id}')">✓</button>${x.prevista?`<div class="desc-sub">prev. ${fdate(x.prevista)}</div>`:''}`}</td>`:''}
       <td><button class="rowbtn" onclick="openForm('${isIn?'entrada':'saida'}','${x.id}')">✎</button><button class="rowbtn" onclick="del('${kind}','${x.id}')">🗑</button></td>
-    </tr>`).join('')}</tbody></table>`:`<div class="empty">${movFilter.q?'Nenhum lançamento encontrado para "'+esc(movFilter.q)+'".':movFilter.conf?'Nenhum lançamento com esse filtro.':'Nenhum lançamento ainda. Clique em “+ Nova '+(isIn?'entrada':'saída')+'”.'}</div>`;
+    </tr>`).join('')}</tbody></table>`:`<div class="empty">${movFilter.q?'Nenhum lançamento encontrado para "'+esc(movFilter.q)+'".':'Nenhum lançamento ainda. Clique em “+ Nova '+(isIn?'entrada':'saída')+'”.'}</div>`;
 }
 function viewMov(kind){
   const isIn=kind==='entradas';
@@ -1443,20 +1113,14 @@ function viewMov(kind){
   const total=list.reduce((a,b)=>a+b.valor,0);
   const months=[...new Set((isIn?state.entradas:state.saidas).map(x=>ym(x.data)))].sort().reverse();
   const cats=isIn?CAT_IN:CAT_OUT;
-  const base=(isIn?state.entradas:state.saidas).filter(x=>(!movFilter.mes||ym(x.data)===movFilter.mes)&&(!movFilter.cat||x.categoria===movFilter.cat));
-  const nConf=base.filter(x=>x.conferido).length;
-  const falta=base.filter(x=>!x.conferido).reduce((a,b)=>a+b.valor,0);
-  const pct=base.length?Math.round(nConf/base.length*100):0;
   return `
   <div class="topbar"><div><h1>${isIn?'Entradas':'Saídas'}</h1><div class="sub" id="movSub">${list.length} lançamento(s) · total ${fmt(total)}</div></div>
     <button class="btn btn-primary" onclick="openForm('${isIn?'entrada':'saida'}')">+ Nova ${isIn?'entrada':'saída'}</button></div>
   <div class="filters">
     <select onchange="setMovMes(this.value)"><option value="">Todos os meses</option>${months.map(m=>`<option value="${m}" ${movFilter.mes===m?'selected':''}>${monthName(m)}</option>`).join('')}</select>
-    <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
-    <select onchange="setMovConf(this.value)"><option value="">Conferência: todos</option><option value="nao" ${movFilter.conf==='nao'?'selected':''}>Não conferidos</option><option value="sim" ${movFilter.conf==='sim'?'selected':''}>Conferidos</option></select>
+    <select onchange="setMovCat(this.value)"><option value="">Todas as categorias</option>${cats.map(c=>`<option ${movFilter.cat===c?'selected':''}>${c}</option>`).join('')}</select>
     <input id="movBusca" value="${esc(movFilter.q||'')}" placeholder="🔍 Buscar lançamento…" oninput="setMovBusca(this.value)" autocomplete="off" style="flex:1;min-width:180px">
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('movBusca').value='';setMovBusca('')">Limpar</button>
-    ${base.length?`<div class="confbar"><div class="track"><i style="width:${pct}%"></i></div>${nConf} de ${base.length} conferidos${falta?` · falta conferir ${fmt(falta)}`:''}</div>`:''}
   </div>
   <div class="panel" id="movListaWrap">${movListaHTML(kind)}</div>`;
 }
@@ -1622,485 +1286,220 @@ function dataExtenso(d){
   }
   return d.getDate()+' de '+MESES_EXT[d.getMonth()]+' de '+d.getFullYear();
 }
-/* Modelos oficiais (versão 2026-10): Tráfego Pago e Social Media.
-   O texto das cláusulas é o dos contratos aprovados; aqui só entram os dados do cliente. */
-const GC_TIPOS={
-  trafego:{nome:'Tráfego Pago',titulo:'CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE GESTÃO DE TRÁFEGO PAGO E MARKETING DIGITAL',
-    servicos:['Gestão de tráfego pago','Criação de criativos para anúncios','Gestão de redes sociais'],
-    plats:['Meta Ads (Facebook e Instagram)','Google Ads','LinkedIn Ads','TikTok Ads'],platsLabel:'Plataformas de anúncio'},
-  social:{nome:'Social Media',titulo:'CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE SOCIAL MEDIA E GESTÃO DE REDES SOCIAIS',
-    servicos:['Planejamento de conteúdo','Criação de artes e legendas','Roteiro, captação e edição de vídeos','Agendamento e publicação dos conteúdos'],
-    plats:['Instagram','Facebook','LinkedIn','TikTok'],platsLabel:'Redes sociais gerenciadas'}
-};
-const GC_STATUS=[['rascunho','Aguardando assinatura'],['ativo','Ativo'],['pausado','Pausado'],['encerrado','Encerrado']];
-let gcEditId=null;
-// 11 dígitos = CPF (pessoa física); 14 = CNPJ
-const ehCPF=v=>String(v||'').replace(/\D/g,'').length===11;
-function fmtDoc(v){const n=String(v||'').replace(/\D/g,'');
-  if(n.length===11)return n.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
-  if(n.length===14)return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
-  return v;}
-function gcVazio(){
-  return {tipo:'trafego',propostaId:'',clienteId:'',razao:'',cnpj:'',end:'',rep:'',cpf:'',email:'',
-    servicos:[],outros:'',plats:[],outrasRedes:'',pubs:'',meses:'',valor:'',dataProposta:'',
-    respNome:'',respCargo:'',respWhats:'',respEmail:'',data:today(),status:'rascunho',vencTipo:'assinatura',venc1:'',vencDia:''};
-}
-function nExt(n){return extenso(n).replace(/ reais?$/,'').replace(/^um real$/,'um');}
-function mesesTxt(n){n=parseInt(n,10);if(!n)return '';return n+' ('+nExt(n)+') '+(n===1?'mês':'meses');}
-function addMeses(iso,n){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||'')||!n)return null;
-  const [a,m,d]=iso.split('-').map(Number);
-  const ult=new Date(a,m-1+n+1,0).getDate();
-  const dt=new Date(a,m-1+n,Math.min(d,ult));
-  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-}
-/* Lê a proposta e sugere tipo, serviços, plataformas, publicações, valor e prazo */
-function gcDaProposta(doc,pid){
-  const p=state.propostas.find(x=>x.id===pid);if(!p)return doc;
-  const nomes=p.itens.map(i=>i.nome).join(' | ');
-  const det=p.itens.map(i=>i.detalhes||'').join('\n');
-  const tudo=nomes+'\n'+det;
-  const temTraf=/tr[áa]fego/i.test(nomes),temRedes=/redes|social/i.test(nomes);
-  const tipo=temTraf&&!temRedes?'trafego':temRedes&&!temTraf?'social':doc.tipo;
-  const T=GC_TIPOS[tipo];
-  const servicos=[];
-  if(tipo==='trafego'){
-    if(temTraf)servicos.push(T.servicos[0]);
-    if(/criativ/i.test(nomes))servicos.push(T.servicos[1]);
-    if(temRedes)servicos.push(T.servicos[2]);
-  }else{
-    servicos.push(T.servicos[0],T.servicos[1]);
-    if(/v[íi]deo/i.test(det)&&!/\b0 v[íi]deos?/i.test(det))servicos.push(T.servicos[2]);
-    servicos.push(T.servicos[3]);
-  }
-  const plats=T.plats.filter(pl=>new RegExp(pl.split(' (')[0].replace(/\s+/g,'\\s*'),'i').test(tudo));
-  const pubs=det.split('\n').map(l=>l.trim().replace(/^[-•]\s*/,''))
-    .filter(l=>/publica[çc][õo]es? (semana|seman)|v[íi]deos? por m[êe]s|publica[çc][ãa]o semanal/i.test(l)).join('; ');
-  const t=propTotais(p);
-  const cli=state.clientes.find(c=>c.nome.trim().toLowerCase()===p.nome.trim().toLowerCase());
-  return {...doc,tipo,propostaId:pid,servicos,plats:plats.length?plats:doc.plats,
-    pubs:pubs||doc.pubs,valor:t.mensal||doc.valor,
-    meses:p.duracao&&(p.duracaoUn||'meses')==='meses'?p.duracao:p.duracao&&p.duracaoUn==='anos'?p.duracao*12:doc.meses,
-    dataProposta:p.data||doc.dataProposta,razao:doc.razao||p.nome,clienteId:doc.clienteId||(cli?cli.id:'')};
-}
-function openGerarContrato(id,opts){
-  opts=opts||{};
-  const c=id?state.contratos.find(x=>x.id===id):null;
-  gcEditId=c?c.id:null;
-  let d=opts.doc||(c&&c.doc?{...gcVazio(),...c.doc,clienteId:c.clienteId||'',status:c.status,data:c.inicio||today()}:gcVazio());
-  if(opts.propostaId)d=gcDaProposta(d,opts.propostaId);
-  const T=GC_TIPOS[d.tipo]||GC_TIPOS.trafego;
-  const props=state.propostas.slice().sort((a,b)=>((a.status==='aceita'?0:1)-(b.status==='aceita'?0:1))||(b.data||'').localeCompare(a.data||''));
-  const inp=(id,v,ph,type)=>`<input id="${id}" ${type?`type="${type}"`:''} value="${esc(v??'')}" placeholder="${esc(ph||'')}">`;
-  const h3=t=>`<h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:16px 0 10px">${t}</h3>`;
-  const md=document.getElementById('modal');md.style.width='640px';
-  md.innerHTML=`<h2>${c?'Editar contrato':'Gerar contrato'}</h2>
+function openGerarContrato(){
+  const md=document.getElementById('modal');md.style.width='620px';
+  const hoje=new Date();const dataStr=dataExtenso(hoje);
+  const isoHoje=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  md.innerHTML=`<h2>Gerar contrato</h2>
+  <div class="field"><label>Tipo de contrato</label><select id="gc_tipo" onchange="gcToggle()">
+    <option value="redes">Gestão de Redes Sociais</option><option value="trafego">Tráfego Pago</option></select></div>
+  <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:6px 0 10px">Dados do contratante</h3>
+  <div class="field"><label>Nome / Razão social</label><input id="gc_nome" placeholder="Ex.: Clínica Bella Pele LTDA"></div>
   <div class="fieldrow">
-    <div class="field"><label>Modelo</label><select id="gc_tipo" onchange="gcRecarregar()">
-      ${Object.entries(GC_TIPOS).map(([k,t])=>`<option value="${k}" ${d.tipo===k?'selected':''}>${t.nome}</option>`).join('')}</select></div>
-    <div class="field"><label>Puxar dados da proposta</label><select id="gc_prop" onchange="gcRecarregar(this.value)">
-      <option value="">— Nenhuma —</option>
-      ${props.map(p=>`<option value="${p.id}" ${d.propostaId===p.id?'selected':''}>${esc(p.nome)} · ${fdate(p.data)}${p.status==='aceita'?' · aceita':''}</option>`).join('')}</select></div>
+    <div class="field"><label>Nome fantasia</label><input id="gc_fant" placeholder="Ex.: Bella Pele"></div>
+    <div class="field"><label>CNPJ / CPF</label><input id="gc_cnpj" placeholder="00.000.000/0000-00"></div>
   </div>
-  <div style="font-size:12.5px;color:var(--ink-soft);margin:-4px 0 6px">A proposta escolhida entra como Anexo I e preenche valor, prazo, serviços e plataformas. Confira antes de gerar.</div>
-  ${h3('Contratante')}
+  <div class="field"><label>Endereço da sede</label><input id="gc_end" placeholder="Rua, nº, bairro, cidade/UF"></div>
   <div class="fieldrow">
-    <div class="field"><label>Cliente no sistema (opcional)</label><select id="gc_cli"><option value="">— Nenhum —</option>${state.clientes.map(x=>`<option value="${x.id}" ${d.clienteId===x.id?'selected':''}>${esc(x.nome)}</option>`).join('')}</select></div>
-    <div class="field"><label id="gc_ldoc">${ehCPF(d.cnpj)?'CPF · pessoa física':'CNPJ ou CPF'}</label><input id="gc_cnpj" value="${esc(d.cnpj||'')}" placeholder="CNPJ ou CPF" oninput="gcPessoaToggle()" onblur="this.value=fmtDoc(this.value)"></div>
+    <div class="field"><label>CEP</label><input id="gc_cep" placeholder="00000-000"></div>
+    <div class="field"><label>E-mail</label><input id="gc_email" placeholder="email@cliente.com"></div>
   </div>
-  <div class="field"><label id="gc_lrazao">${ehCPF(d.cnpj)?'Nome completo':'Razão social'}</label>${inp('gc_razao',d.razao,'Ex.: Clínica Bella Pele LTDA')}</div>
-  <div class="field"><label id="gc_lend">${ehCPF(d.cnpj)?'Endereço residencial':'Endereço da sede'}</label>${inp('gc_end',d.end,'Rua, nº, bairro, CEP, cidade/UF')}</div>
-  <div class="fieldrow" id="gc_repbox" style="display:${ehCPF(d.cnpj)?'none':'grid'}">
-    <div class="field"><label>Representante legal</label>${inp('gc_rep',d.rep,'Nome completo')}</div>
-    <div class="field"><label>CPF do representante</label>${inp('gc_cpf',d.cpf,'000.000.000-00')}</div>
-  </div>
-  <div class="field"><label>E-mail</label>${inp('gc_email',d.email,'email@cliente.com')}</div>
-  ${h3('Quadro resumo')}
-  <div class="field"><label>Serviços contratados</label><div class="chips" id="gc_svcs">${T.servicos.map(s=>`<label class="chipchk"><input type="checkbox" value="${esc(s)}" ${d.servicos.includes(s)?'checked':''}>${esc(s)}</label>`).join('')}</div>
-    ${inp('gc_outros',d.outros,'Outros (opcional)')}</div>
-  <div class="field"><label>${T.platsLabel}</label><div class="chips" id="gc_plats">${T.plats.map(s=>`<label class="chipchk"><input type="checkbox" value="${esc(s)}" ${d.plats.includes(s)?'checked':''}>${esc(s)}</label>`).join('')}</div>
-    ${d.tipo==='social'?inp('gc_outrasRedes',d.outrasRedes,'Outras redes (opcional)'):''}</div>
-  ${d.tipo==='social'?`<div class="field"><label>Publicações contratadas</label>${inp('gc_pubs',d.pubs,'Ex.: 2 publicações semanais (post único e carrossel) e 4 vídeos por mês')}</div>`:''}
+  <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:14px 0 10px">Representante legal</h3>
+  <div class="field"><label>Nome do representante</label><input id="gc_rep" placeholder="Nome completo"></div>
   <div class="fieldrow">
-    <div class="field"><label>Valor mensal (R$)</label>${inp('gc_valor',d.valor,'0,00','number')}</div>
-    <div class="field"><label>Vigência (meses)</label>${inp('gc_meses',d.meses,'Ex.: 3','number')}</div>
+    <div class="field"><label>RG</label><input id="gc_rg" placeholder="0.000.000"></div>
+    <div class="field"><label>CPF</label><input id="gc_cpf" placeholder="000.000.000-00"></div>
+  </div>
+  <div class="field"><label>Endereço residencial do representante</label><input id="gc_repend" placeholder="Rua, nº, bairro, cidade/UF"></div>
+  <h3 style="font-family:'Playfair Display',serif;font-size:16px;color:var(--terra-deep);margin:14px 0 10px">Serviço e valores</h3>
+  <div class="field" id="gc_boxPlat"><label>Plataformas</label><div class="chips" id="gc_plats"></div></div>
+  <div class="fieldrow">
+    <div class="field"><label>Vigência (meses)</label><input type="number" id="gc_vig" value="3" min="1"></div>
+    <div class="field"><label>Valor total (R$)</label><input type="number" step="0.01" id="gc_valor" placeholder="0,00" oninput="gcPrefillPag()"></div>
   </div>
   <div class="fieldrow">
-    <div class="field"><label>Data da proposta</label>${inp('gc_dprop',d.dataProposta,'','date')}</div>
-    <div class="field"><label>Data do contrato</label>${inp('gc_data',d.data,'','date')}</div>
+    <div class="field"><label>Data da entrada / 1º pagamento</label><input type="date" id="gc_dtent" value="${isoHoje}" onchange="gcPrefillPag()"></div>
+    <div class="field"><label>Vencimento das demais (dia)</label><input type="number" id="gc_diaven" min="1" max="31" value="10" oninput="gcPrefillPag()"></div>
   </div>
-  <div class="field"><label>Vencimentos</label><select id="gc_vtipo" onchange="gcVencToggle()">
-    <option value="assinatura" ${d.vencTipo!=='dia'?'selected':''}>1ª mensalidade na assinatura, demais no mesmo dia (padrão do modelo)</option>
-    <option value="dia" ${d.vencTipo==='dia'?'selected':''}>Dia fixo de pagamento</option></select></div>
-  <div class="fieldrow" id="gc_vbox" style="display:${d.vencTipo==='dia'?'grid':'none'}">
-    <div class="field"><label>1ª mensalidade em</label>${inp('gc_venc1',d.venc1,'','date')}</div>
-    <div class="field"><label>Demais todo dia</label>${inp('gc_vdia',d.vencDia,'Ex.: 10','number')}</div>
-  </div>
-  ${h3('Responsável designado pelo cliente')}
+  <div class="field"><label>Forma de pagamento (edite como quiser)</label><textarea id="gc_pag" style="min-height:90px"></textarea></div>
   <div class="fieldrow">
-    <div class="field"><label>Nome</label>${inp('gc_rnome',d.respNome,'Nome')}</div>
-    <div class="field"><label>Cargo</label>${inp('gc_rcargo',d.respCargo,'Ex.: Sócia')}</div>
+    <div class="field"><label>Cidade</label><input id="gc_cidade" value="${esc((state.config.empresa||{}).cidade||'')}"></div>
+    <div class="field"><label>Data do contrato</label><input id="gc_data" value="${dataStr}"></div>
   </div>
-  <div class="fieldrow">
-    <div class="field"><label>WhatsApp</label>${inp('gc_rwhats',d.respWhats,'(47) 90000-0000')}</div>
-    <div class="field"><label>E-mail</label>${inp('gc_remail',d.respEmail,'email@cliente.com')}</div>
-  </div>
-  <button class="btn btn-ghost btn-sm" onclick="gcRespDoRep()">Usar dados do representante</button>
-  <div class="field" style="margin-top:14px"><label>Situação</label><select id="gc_status">${GC_STATUS.map(([k,l])=>`<option value="${k}" ${d.status===k?'selected':''}>${l}</option>`).join('')}</select></div>
-  <div style="font-size:12.5px;color:var(--ink-soft)">Campos em branco saem em vermelho no PDF, como no modelo, para preencher depois.</div>
   ${empIncompleta()?'<p style="font-size:13px;color:var(--red);margin:6px 0">⚠ Dados da empresa incompletos. Preencha em Ajustes para o contrato sair completo.</p>':''}
   <div class="modalbtns">
     <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-    <button class="btn btn-ghost" onclick="gcSalvar(false)">Salvar</button>
-    <button class="btn btn-primary" onclick="gcSalvar(true)">Salvar e gerar PDF</button>
+    <button class="btn btn-primary" onclick="gerarContratoPDF()">Gerar contrato ✦</button>
   </div>`;
   document.getElementById('overlay').classList.add('open');
+  gcToggle();
 }
-function gcLer(){
+function gcToggle(){
+  const t=document.getElementById('gc_tipo').value;
+  const plats=t==='redes'?['Instagram','Facebook','LinkedIn','TikTok','YouTube']:['Meta Ads (Facebook/Instagram)','Google Ads','LinkedIn Ads','TikTok Ads'];
+  document.getElementById('gc_plats').innerHTML=plats.map((p,i)=>`<label class="chipchk"><input type="checkbox" value="${p}" ${i<(t==='redes'?3:1)?'checked':''}>${p}</label>`).join('');
+  gcPrefillPag();
+}
+function gcPrefillPag(){
+  const t=document.getElementById('gc_tipo').value;
+  const v=parseFloat(document.getElementById('gc_valor').value)||0;
+  const ta=document.getElementById('gc_pag');
+  if(ta.dataset.touched==='1')return;
+  const dt=dataExtenso(document.getElementById('gc_dtent')?.value||'');
+  const dia=parseInt(document.getElementById('gc_diaven')?.value,10)||10;
+  if(t==='trafego'){
+    const ent=v?v/3:0,saldo=v-ent;
+    ta.value=v?`A) Entrada de ${fmtExt(ent)} no dia ${dt};\nB) Saldo de ${fmtExt(saldo)} em 2 (duas) parcelas iguais e fixas, com vencimento todo dia ${dia} dos meses subsequentes;\nC) Pagamentos via Chave PIX ${emp().pix} ou boleto enviado com 3 dias de antecedência.`:'';
+  }else{
+    ta.value=v?`A) Entrada de ${fmtExt(v)} no dia ${dt};\nB) Demais pagamentos com vencimento todo dia ${dia} de cada mês;\nC) Pagamentos via Chave PIX ${emp().pix} ou boleto enviado com 3 dias de antecedência.`:'';
+  }
+}
+function gerarContratoPDF(){
   const g=id=>(document.getElementById(id)?.value||'').trim();
-  const marc=box=>[...document.querySelectorAll('#'+box+' input:checked')].map(x=>x.value);
-  return {tipo:g('gc_tipo')||'trafego',propostaId:g('gc_prop'),clienteId:g('gc_cli'),razao:g('gc_razao'),cnpj:fmtDoc(g('gc_cnpj')),end:g('gc_end'),
-    rep:g('gc_rep'),cpf:g('gc_cpf'),email:g('gc_email'),servicos:marc('gc_svcs'),outros:g('gc_outros'),plats:marc('gc_plats'),
-    outrasRedes:g('gc_outrasRedes'),pubs:g('gc_pubs'),meses:parseInt(g('gc_meses'),10)||'',valor:parseFloat(g('gc_valor'))||'',
-    dataProposta:g('gc_dprop'),respNome:g('gc_rnome'),respCargo:g('gc_rcargo'),respWhats:g('gc_rwhats'),respEmail:g('gc_remail'),
-    data:g('gc_data')||today(),status:g('gc_status')||'rascunho',
-    vencTipo:g('gc_vtipo')||'assinatura',venc1:g('gc_venc1'),vencDia:Math.min(Math.max(parseInt(g('gc_vdia'),10)||0,0),31)||''};
-}
-function gcRecarregar(pid){
-  const d=gcLer();
-  if(pid===undefined){ // trocou o modelo: serviços e plataformas são de outra lista
-    const T=GC_TIPOS[d.tipo];d.servicos=d.servicos.filter(s=>T.servicos.includes(s));d.plats=d.plats.filter(s=>T.plats.includes(s));
-    openGerarContrato(gcEditId,{doc:d});
-  }else openGerarContrato(gcEditId,{doc:d,propostaId:pid||null});
-}
-function gcPessoaToggle(){
-  const pf=ehCPF(document.getElementById('gc_cnpj').value);
-  document.getElementById('gc_ldoc').textContent=pf?'CPF · pessoa física':'CNPJ ou CPF';
-  document.getElementById('gc_lrazao').textContent=pf?'Nome completo':'Razão social';
-  document.getElementById('gc_lend').textContent=pf?'Endereço residencial':'Endereço da sede';
-  document.getElementById('gc_repbox').style.display=pf?'none':'grid';
-}
-function gcVencToggle(){
-  const dia=document.getElementById('gc_vtipo').value==='dia';
-  document.getElementById('gc_vbox').style.display=dia?'grid':'none';
-  const cli=state.clientes.find(c=>c.id===document.getElementById('gc_cli').value);
-  const vd=document.getElementById('gc_vdia');if(dia&&cli&&!vd.value&&cli.diaCobranca)vd.value=cli.diaCobranca;
-}
-function gcRespDoRep(){
-  const s=(a,b)=>{const el=document.getElementById(a);if(el&&!el.value)el.value=document.getElementById(b).value;};
-  s('gc_rnome',ehCPF(document.getElementById('gc_cnpj').value)?'gc_razao':'gc_rep');s('gc_remail','gc_email');
-}
-function gcSalvar(gerar){
-  const d=gcLer();
-  const T=GC_TIPOS[d.tipo];
-  const {clienteId,status,...doc}=d;
-  const obj={clienteId:clienteId||null,titulo:'Contrato de '+T.nome+(d.razao?' · '+d.razao:''),valor:parseFloat(d.valor)||0,periodicidade:'mensal',
-    inicio:d.data,fim:addMeses(d.data,parseInt(d.meses,10)||0),status,doc};
-  let cid=gcEditId;
-  if(cid){Object.assign(state.contratos.find(x=>x.id===cid),obj);}
-  else{cid=uid();state.contratos.push({id:cid,obs:'',...obj});}
-  save();closeModal();render();
-  if(gerar)gerarContratoPDF(cid);
-}
-function gerarContratoPDF(id){
-  const c=state.contratos.find(x=>x.id===id);if(!c||!c.doc)return;
-  const html=empTokens(contratoDocHTML({...gcVazio(),...c.doc}));
-  const w=window.open('','_blank');if(!w){alert('O navegador bloqueou a janela do contrato. Permita pop-ups para este site.');return;}
+  document.getElementById('gc_pag').dataset.touched='1';
+  const t=document.getElementById('gc_tipo').value;
+  const plats=[...document.querySelectorAll('#gc_plats input:checked')].map(c=>c.value);
+  const nome=g('gc_nome')||'NOME DO CLIENTE';
+  const valor=parseFloat(g('gc_valor'))||0;
+  const vig=g('gc_vig')||'3';
+  const d={nome,fant:g('gc_fant')||'—',cnpj:g('gc_cnpj')||'—',end:g('gc_end')||'—',cep:g('gc_cep')||'—',email:g('gc_email')||'—',
+    rep:g('gc_rep')||'—',rg:g('gc_rg')||'—',cpf:g('gc_cpf')||'—',repend:g('gc_repend')||g('gc_end')||'—',
+    plats:plats.length?listaE(plats):'—',vig,valorTxt:valor?fmtExt(valor):'R$ ___',pag:g('gc_pag')||'—',cidade:g('gc_cidade')||emp().cidade,data:g('gc_data')||''};
+  const corpo=t==='redes'?contratoRedes(d):contratoTrafego(d);
+  const titulo=t==='redes'?'Gestão de Redes Sociais':'Tráfego Pago';
+  const html=contratoWrapper(titulo,d,corpo);
+  const w=window.open('','_blank');if(!w){alert('Permita pop-ups para este site.');return;}
   w.document.write(html);w.document.close();
 }
-/* ---------- montagem do documento ---------- */
-/* Dado da empresa para o contrato: em branco sai como {{campo}} em vermelho */
-function empC(k,t){const v=(((state.config&&state.config.empresa)||{})[k]||'').trim();return v?esc(v):`<span class="ph">{{${t}}}</span>`;}
-const cssStr=v=>String(v||'').replace(/["\\\n]/g,'');
-/* As cláusulas são montadas no carregamento; os dados da empresa entram aqui, na hora do PDF */
-function empTokens(html){return html.replace(/§WHATS§/g,empC('whats','WhatsApp')).replace(/§EMAIL§/g,empC('email','e-mail')).replace(/§FORO§/g,empC('foro','cidade/UF'));}
-function contratoDocHTML(d){
-  const T=GC_TIPOS[d.tipo]||GC_TIPOS.trafego;
-  const ph=t=>`<span class="ph">{{${t}}}</span>`;
-  const F=(v,t)=>v?esc(v):ph(t);
-  const pf=ehCPF(d.cnpj);
-  const razao=d.razao?esc(d.razao):`<span class="ph">${pf?'DEFINIR NOME':'DEFINIR RAZÃO SOCIAL'}</span>`;
-  const razaoCab=d.razao?esc(d.razao):(pf?'DEFINIR NOME':'DEFINIR RAZÃO SOCIAL');
-  const box=(lista,marcados)=>lista.map(s=>`${marcados.includes(s)?'☒':'☐'} ${esc(s)}`).join('<br>');
-  const outro=(rot,v)=>v?`<br>☒ ${rot}: ${esc(v)}`:''; // sem "Outros" preenchido, a linha não aparece
-  const valor=parseFloat(d.valor)>0?esc(fmtExt(parseFloat(d.valor))):ph('definir');
-  const prazo=mesesTxt(d.meses)?esc(mesesTxt(d.meses)):ph('definir');
-  const dprop=d.dataProposta?fdate(d.dataProposta):ph('dd/mm/aaaa');
-  const resp=`Nome: ${F(d.respNome,'definir')}<br>Cargo: ${F(d.respCargo,'definir')}<br>WhatsApp: ${F(d.respWhats,'definir')}<br>E-mail: ${F(d.respEmail,'definir')}`;
-  const row=(l,v)=>`<tr><td class="ql">${l}</td><td>${v}</td></tr>`;
-  const vDia=parseInt(d.vencDia,10)||0;
-  const venc=d.vencTipo==='dia'
-    ?`1ª mensalidade em ${d.venc1?fdate(d.venc1):ph('dd/mm/aaaa')}; demais todo dia ${vDia?vDia+' ('+esc(nExt(vDia))+')':ph('dia')} dos meses subsequentes, salvo condição diversa na Proposta Comercial.`
-    :'1ª mensalidade na data da assinatura deste Contrato; demais no mesmo dia dos meses subsequentes, salvo condição diversa na Proposta Comercial.';
-  const pag=`PIX (chave ${empC('pix','chave Pix')}) ou boleto bancário emitido pela CONTRATADA. ${empC('banco','banco, agência, conta, titular e CNPJ')}.`;
-  const multa='30% (trinta por cento) sobre o saldo restante do Contrato, quando vigente por prazo determinado. Após esse período, somente aviso prévio de 20 (vinte) dias.';
-  const canais=`WhatsApp ${empC('whats','WhatsApp')} e respectivos grupos criados para o projeto; e-mail ${empC('email','e-mail')}.`;
-  const quadro=d.tipo==='social'?[
-    d.propostaId?row('Proposta Comercial vinculada (Anexo I)',`Proposta Comercial emitida em ${dprop}, aceita pela CONTRATANTE, que define o escopo, as redes sociais, as quantidades, os formatos, os entregáveis, o valor e o prazo deste Contrato.`):'',
-    row('Serviços contratados',box(T.servicos,d.servicos)+outro('Outros',d.outros)+'<br>Escopo e entregáveis: exclusivamente os descritos na Proposta Comercial.'),
-    row('Redes sociais gerenciadas',box(T.plats,d.plats)+outro('Outras',d.outrasRedes)),
-    row('Publicações contratadas',`${d.pubs?esc(d.pubs):ph('quantidade e formatos por semana/mês')}, conforme a Proposta Comercial.`),
-    row('Valor mensal',valor),row('Prazo de vigência',prazo),row('Vencimentos',venc),row('Forma de pagamento',pag),
-    row('Prazos de aprovação (Trello)','Planejamento de conteúdo: 5 (cinco) dias úteis.<br>Artes, legendas, roteiros e vídeos: 2 (dois) dias úteis.<br>Contados da postagem no Trello. Sem manifestação no prazo, o conteúdo será considerado aprovado (aprovação tácita).'),
-    row('Impulsionamento e anúncios','<b>Não incluídos.</b> A gestão de tráfego pago e a verba de mídia dependem de contratação própria.'),
-    row('Multa rescisória',multa),row('Canais oficiais da CONTRATADA',canais),
-    row('Responsável designado pela CONTRATANTE (ponto focal único)',resp)
-  ]:[
-    d.propostaId?row('Proposta Comercial vinculada (Anexo I)',`Proposta Comercial emitida em ${dprop}, aceita pela CONTRATANTE, que define o escopo, as quantidades, os entregáveis, o valor e o prazo deste Contrato.`):'',
-    row('Serviços contratados',box(T.servicos,d.servicos)+outro('Outros',d.outros)+'<br>Escopo e entregáveis: exclusivamente os descritos na Proposta Comercial.'),
-    row('Plataformas de anúncio',box(T.plats,d.plats)),
-    row('Valor mensal',valor),row('Prazo de vigência',prazo),row('Vencimentos',venc),row('Forma de pagamento',pag),
-    row('Verba de anúncios (mídia)','<b>Não incluída.</b> Paga diretamente pela CONTRATANTE às plataformas de anúncio.'),
-    row('Multa rescisória',multa),row('Canais oficiais da CONTRATADA',canais),
-    row('Responsável designado pela CONTRATANTE (ponto focal único)',resp)
-  ];
-  const contratantePF=`<p><span class="lb">CONTRATANTE:</span> <b>${razao}</b>, pessoa física, inscrita no CPF sob o nº ${esc(d.cnpj)}, residente e domiciliada na ${F(d.end,'endereço completo, nº, bairro, CEP, cidade/UF')}, correio eletrônico ${F(d.email,'e-mail')}, doravante denominada simplesmente CONTRATANTE.</p>`;
-  const contratantePJ=`<p><span class="lb">CONTRATANTE:</span> <b>${razao}</b>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${F(d.cnpj,'00.000.000/0000-00')}, com sede na ${F(d.end,'endereço completo, nº, bairro, CEP, cidade/UF')}, neste ato representada por seu(sua) representante legal, ${F(d.rep,'nome completo')}, inscrito(a) no CPF sob o nº ${F(d.cpf,'000.000.000-00')}, correio eletrônico ${F(d.email,'e-mail')}, doravante denominada simplesmente CONTRATANTE.</p>`;
-  const partes=(pf?contratantePF:contratantePJ)+`
-  <p><span class="lb">CONTRATADA:</span> <b>${empC('razao','razão social')}</b>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${empC('cnpj','CNPJ')}, com sede na ${empC('sede','endereço da sede')}, CEP ${empC('cep','CEP')}, ${empC('cidade','cidade/UF')}, neste ato representada por sua representante legal, ${empC('rep','representante legal')}, inscrita no CPF sob o nº ${empC('cpf','CPF')}, correio eletrônico ${empC('email','e-mail')}, doravante denominada simplesmente CONTRATADA.</p>
-  <p>CONTRATANTE e CONTRATADA acima qualificadas, quando referidas de forma isolada como Parte e quando em conjunto Partes, celebram o presente Contrato na melhor forma do direito e mediante as cláusulas e condições a seguir:</p>`;
-  const clausulas=d.tipo==='social'?CLAUSULAS_SOCIAL:CLAUSULAS_TRAFEGO;
-  const p=d.propostaId?state.propostas.find(x=>x.id===d.propostaId):null;
-  const anexo=p?anexoProposta(p):'';
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Contrato ${esc(T.nome)} · ${esc(d.razao||'definir')}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-  :root{--terra:#8A4B41;--rose:#E2C2B8;--rose2:#EBD3CB;--ink:#1F1A19}
+function contratoWrapper(titulo,d,corpo){
+  const E=emp();
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Contrato · ${esc(d.nome)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>:root{--terra:#8A4B41;--deep:#5F332B;--rose:#EDCFC6;--soft:#F5E4DD;--ink:#3E2B26;--muted:#7A5F58}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:Calibri,Carlito,'Segoe UI',Arial,sans-serif;color:var(--ink);font-size:10.5pt;line-height:1.38;background:#ddd}
-  .folha{width:210mm;margin:16px auto;background:#fff;padding:12mm 18mm 16mm;box-shadow:0 2px 12px rgba(0,0,0,.15)}
-  table.pg{width:100%;border-collapse:collapse}
-  table.pg>thead td,table.pg>tbody>tr>td{padding:0}
-  .cab{display:flex;margin-bottom:9mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .cab .esq{width:34%;background:var(--terra);color:#F3DED7;padding:10px 0 8px 22px}
-  .cab .mono{font-family:'Playfair Display',Georgia,serif;font-size:30px;letter-spacing:-6px;line-height:1}
-  .cab .nm{font-size:7.5pt;letter-spacing:3.5px;margin-top:6px}
-  .cab .dir{flex:1;background:var(--rose);color:var(--terra);padding:10px 16px;font-size:7.5pt;line-height:1.35}
-  .cab .dir b{font-weight:700}
-  h1{color:var(--terra);font-size:10.5pt;text-align:center;font-weight:700;margin:2mm 0 5mm}
-  p{text-align:justify;margin:0 0 3.2mm}
-  .lb{color:var(--terra);font-weight:700}
-  .ph{color:#E30613}
-  table.q{width:100%;border-collapse:collapse;margin:3mm 0 4mm;font-size:9.6pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  table.q th{background:var(--terra);color:#fff;font-weight:700;padding:5px;text-align:center}
-  table.q td{background:var(--rose);padding:3px 6px;border:1px solid #fff;vertical-align:middle;text-align:justify}
-  table.q td.ql{width:36%;text-align:left}
-  table.q tr{break-inside:avoid}
-  h2{font-size:10.5pt;font-weight:700;margin:4.5mm 0 1.2mm;break-after:avoid}
-  h2 span{display:inline-block;min-width:24mm}
-  .it b.n{display:inline-block;min-width:11mm}
-  .rom{margin:0 0 1.2mm 14mm;text-align:justify;display:flex;gap:6mm}
-  .rom i{min-width:8mm;text-align:right}
-  .data{text-align:right;margin-top:8mm}
-  .ass{margin:16mm auto 0;width:96mm;text-align:center;break-inside:avoid}
-  .ass .ln{border-top:1.3px solid #000;padding-top:2px;font-weight:700}
-  .fim{break-inside:avoid}
-  .anexo{break-before:page;page-break-before:always}
-  .anexo h1{margin-top:4mm}
-  .ax td{background:#fff;border-bottom:1px solid var(--rose2)}
-  .ax ul{margin:3px 0 0 16px}
-  .printbar{position:fixed;top:14px;right:14px;z-index:5}
-  .printbar button{font-family:inherit;background:var(--terra);color:#F3DED7;border:none;border-radius:99px;padding:11px 24px;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(95,51,43,.3)}
-  @page{size:A4;margin:10mm 18mm 16mm;
-    @bottom-left{content:"${cssStr(emp().razao)}\\A CNPJ ${cssStr(emp().cnpj)}  |  ${cssStr(emp().cidade)}";white-space:pre;font-family:Calibri,Carlito,Arial,sans-serif;font-size:7.5pt;color:#8A4B41}
-    @bottom-right{content:"Página " counter(page) " | " counter(pages);font-family:Calibri,Carlito,Arial,sans-serif;font-size:7.5pt;color:#8A4B41}}
+  body{font-family:'Jost',sans-serif;color:var(--ink);font-size:12.5px;line-height:1.6}
+  .page{max-width:820px;margin:0 auto;padding:0 0 40px}
+  .cab{background:var(--terra);color:var(--rose);padding:26px 48px;display:flex;align-items:center;justify-content:space-between}
+  .cab .mono{font-family:'Playfair Display',serif;font-size:40px;letter-spacing:-8px;line-height:1}
+  .cab .nm{font-size:10px;letter-spacing:4px;margin-top:2px}
+  .cab .r{text-align:right;font-size:11px;line-height:1.5;opacity:.9}
+  .cabline{height:3px;background:var(--rose)}
+  .body{padding:32px 48px}
+  h1{font-family:'Playfair Display',serif;font-weight:500;font-size:20px;color:var(--deep);text-align:center;margin-bottom:4px}
+  .subt{text-align:center;color:var(--muted);font-size:12px;margin-bottom:22px;text-transform:uppercase;letter-spacing:2px}
+  h2{font-family:'Jost';font-weight:600;font-size:13px;color:var(--terra);margin:16px 0 6px;letter-spacing:.3px}
+  p{margin:6px 0;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+  .dtline{margin-top:34px!important}
+  .ass{margin-top:54px;display:flex;gap:50px}
+  .ass div{flex:1;border-top:1.2px solid var(--ink);padding-top:6px;text-align:center;font-size:11.5px}
+  .test{margin-top:26px;font-size:11.5px;color:var(--muted)}
+  .foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--rose);font-size:10.5px;color:var(--muted);text-align:center}
+  .printbar{position:fixed;top:14px;right:14px}.printbar button{font-family:'Jost';background:var(--terra);color:var(--rose);border:none;border-radius:99px;padding:11px 24px;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(95,51,43,.3)}
+  .fim{break-inside:avoid;page-break-inside:avoid}
   @media print{
-    body{background:#fff}
-    .folha{width:auto;margin:0;padding:0;box-shadow:none}
     .printbar{display:none}
+    @page{margin:13mm 15mm}
+    body{font-size:11px;line-height:1.5}
+    .page{max-width:none;padding:0}
+    .cab{-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:15px 22px;margin-bottom:4px}
+    .cab .mono{font-size:31px;letter-spacing:-6px}
+    .cab .nm{font-size:9px;letter-spacing:3px}
+    .cab .r{font-size:9.5px;line-height:1.45}
+    .body{padding:16px 4px 0}
+    h1{font-size:17px;margin-bottom:3px}
+    .subt{font-size:10px;letter-spacing:1.8px;margin-bottom:14px}
+    h2{font-size:11.2px;margin:13px 0 3px;break-after:avoid;page-break-after:avoid}
+    p{margin:4px 0;orphans:3;widows:3}
+    .dtline{margin-top:44px!important}
+    .ass{margin-top:60px;gap:48px}
+    .ass div{font-size:10.5px;padding-top:7px}
+    .test{margin-top:26px;font-size:10.5px}
+    .foot{margin-top:22px;padding-top:9px;font-size:9.5px}
   }
-  </style></head><body>
+</style></head><body>
   <div class="printbar"><button onclick="window.print()">🖨 Imprimir / Salvar em PDF</button></div>
-  <div class="folha"><table class="pg">
-    <thead><tr><td><div class="cab">
-      <div class="esq"><div class="mono">AP</div><div class="nm">AMANDA PINHEIRO</div></div>
-      <div class="dir"><b>${T.titulo}</b><br><b>Contratante:</b> ${esc(razaoCab)}<br><b>Contratada:</b> ${empC('razao','razão social')}</div>
-    </div></td></tr></thead>
-    <tbody><tr><td>
-      <h1>${T.titulo}</h1>
-      ${partes}
-      <table class="q"><tr><th colspan="2">QUADRO RESUMO DO CONTRATO</th></tr>${quadro.join('')}</table>
-      ${clausulas}
+  <div class="page">
+    <div class="cab"><div><div class="mono">AP</div><div class="nm">AMANDA PINHEIRO</div></div>
+      <div class="r">${esc(E.razao)}<br>CNPJ ${esc(E.cnpj)}<br>${esc(E.cidade)} · ${esc(E.email)}</div></div>
+    <div class="cabline"></div>
+    <div class="body">
+      <h1>Contrato Particular de Prestação de Serviços</h1>
+      <div class="subt">${esc(titulo)}</div>
+      ${corpo}
       <div class="fim">
-        <p class="data">${empC('cidade','cidade/UF')}, ${esc(dataExtenso(d.data))}.</p>
-        <div class="ass"><div class="ln">AP MARKETING DIGITAL LTDA</div>CONTRATADA</div>
-        <div class="ass"><div class="ln">${razao}</div>CONTRATANTE</div>
+        <p class="dtline">${esc(d.cidade)}, ${esc(d.data)}.</p>
+        <div class="ass"><div>CONTRATANTE<br>${esc(d.nome)}</div><div>CONTRATADA<br>${esc(E.rep)}</div></div>
+        <div class="test">Testemunha 1: ______________________________  Testemunha 2: ______________________________</div>
+        <div class="foot">${esc(E.razao)} · CNPJ ${esc(E.cnpj)} · ${esc(E.cidade)}</div>
       </div>
-      <div class="anexo"><h1>ANEXO I – PROPOSTA COMERCIAL</h1>${anexo}</div>
-    </td></tr></tbody>
-  </table></div></body></html>`;
+    </div>
+  </div></body></html>`;
 }
-function anexoProposta(p){
-  const t=propTotais(p);
-  const linhas=p.itens.map(i=>`<tr><td>${esc(i.nome)}${i.detalhes?`<ul>${i.detalhes.split('\n').map(x=>x.trim().replace(/^[-•]\s*/,'')).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</td><td style="text-align:right;white-space:nowrap;vertical-align:top"><b>${fmt(i.valor)}</b>${i.tipo==='mensal'?'/mês':' (único)'}</td></tr>`).join('');
-  return `<p>Proposta Comercial emitida em ${fdate(p.data)} para <b>${esc(p.nome)}</b>${durTxt(p)?`, com tempo de contrato de ${esc(durTxt(p))}`:''}${p.validade?`, válida até ${fdate(p.validade)}`:''}.</p>
-  <table class="q ax"><tr><th>Serviço e itens inclusos</th><th style="width:30%">Valor</th></tr>${linhas}
-  ${t.mensal?`<tr><td><b>Investimento mensal</b></td><td style="text-align:right"><b>${fmt(t.mensal)}</b>/mês</td></tr>`:''}
-  ${t.unico?`<tr><td><b>Investimento único</b></td><td style="text-align:right"><b>${fmt(t.unico)}</b></td></tr>`:''}
-  ${p.desconto?`<tr><td>Desconto</td><td style="text-align:right">− ${fmt(p.desconto)}</td></tr>`:''}</table>
-  ${p.obs?`<p><b>Condições:</b></p><p style="white-space:pre-line">${esc(p.obs)}</p>`:''}`;
+function contratoPartes(d){
+  const E=emp();
+  return `<h2>DA IDENTIFICAÇÃO DAS PARTES</h2>
+  <p><b>CONTRATANTE:</b> ${esc(d.nome)}, com sede em ${esc(d.end)} – CEP ${esc(d.cep)}, inscrita no CNPJ/CPF sob o número ${esc(d.cnpj)}, com o nome fantasia ${esc(d.fant)}, com endereço de e-mail: ${esc(d.email)}, neste ato representado por ${esc(d.rep)}, portador da carteira de identidade ${esc(d.rg)}, CPF ${esc(d.cpf)}, residente e domiciliado em ${esc(d.repend)}.</p>
+  <p><b>CONTRATADA:</b> ${esc(E.razao)}, inscrita no CNPJ sob o número ${esc(E.cnpj)}, com sede em ${esc(E.sede)}, CEP ${esc(E.cep)} – ${esc(E.cidade)}, endereço de e-mail: ${esc(E.email)}, neste ato representado por ${esc(E.rep)}, ${esc(E.qualif)}, portadora da carteira de identidade ${esc(E.rg)}, CPF ${esc(E.cpf)}, residente e domiciliada em ${esc(E.repEnd)}.</p>
+  <h2>CONSIDERAÇÕES PRELIMINARES</h2>
+  <p>A leitura e a aceitação das cláusulas abaixo são indispensáveis para a contratação dos serviços oferecidos pela CONTRATADA. O CONTRATANTE, por estes termos, concorda que recebeu o contrato, fez a leitura, compreendeu e aprovou seu conteúdo, especificações e condições impostas para uso dos serviços estabelecidos neste contrato.</p>`;
 }
-/* helpers de texto: cláusula, item numerado e incisos */
-const _cl=(n,t)=>`<h2><span>Cláusula ${n} –</span>${t}</h2>`;
-const _it=(n,t)=>`<p class="it"><b class="n">${n}</b>${t}</p>`;
-const _rom=l=>l.map(([r,t])=>`<div class="rom"><i>${r}</i><span>${t}</span></div>`).join('');
-
-const CLAUSULAS_TRAFEGO=
-_cl('1ª','DO OBJETO E DA VINCULAÇÃO À PROPOSTA COMERCIAL')+
-_it('1.1.','O presente Contrato tem por objeto a prestação, pela CONTRATADA à CONTRATANTE, de serviços de marketing digital, em especial a gestão de campanhas de tráfego pago, <b>nos exatos termos da Proposta Comercial aceita pela CONTRATANTE, que integra este instrumento como Anexo I</b>.')+
-_it('1.2.','<b>O objeto deste Contrato é definido exclusivamente pela Proposta Comercial</b>, que estabelece os serviços, as plataformas, as quantidades, os entregáveis, o valor e o prazo. Aquilo que nela não estiver expressamente previsto não integra o objeto nem poderá ser exigido da CONTRATADA, sendo tratado como Serviço Extra (Cláusula 9ª). Salvo previsão na Proposta, não estão incluídos a verba de mídia, a produção de criativos, a gestão de redes sociais, a criação ou manutenção de sites e landing pages, o atendimento aos leads e ferramentas de terceiros.')+
-_it('1.3.','Havendo divergência, a Proposta Comercial prevalecerá quanto ao escopo, às quantidades, ao valor e ao prazo, e este Contrato quanto às demais condições. As Cláusulas 7ª e 8ª somente se aplicam quando os respectivos serviços constarem expressamente da Proposta.')+
-_cl('2ª','DA EXECUÇÃO DOS SERVIÇOS E DA ESTRATÉGIA')+
-_it('2.1.','A CONTRATADA iniciará os serviços em até 5 (cinco) dias úteis contados da assinatura deste Contrato e da disponibilização dos requisitos técnicos da Cláusula 3ª, o que ocorrer por último, executando, em dias úteis e horário comercial, as etapas previstas na Proposta, tais como estudo do produto e do público-alvo, definição de objetivos, criação da estratégia e dos anúncios, instalação de pixel e tags, análise de dados e otimização das campanhas.')+
-_it('2.2.','As estratégias são definidas pela CONTRATADA, com autonomia técnica, incluindo públicos, estrutura das campanhas, palavras-chave, textos, formatos e distribuição da verba entre campanhas. Sugestões da CONTRATANTE serão avaliadas, prevalecendo a orientação técnica da CONTRATADA. Caso a CONTRATANTE determine, por escrito, providência contrária a essa orientação, assumirá responsabilidade exclusiva por seus efeitos.')+
-_it('2.3.','A definição da otimização do tráfego pago terá sempre por base a orientação técnica da CONTRATADA e, quando disponível, o relatório ou a indicação da própria plataforma, especialmente quando sugerido o aumento do investimento financeiro. A decisão sobre a verba de mídia é exclusiva da CONTRATANTE, que reconhece que a recusa ou a demora em acolher a recomendação técnica impacta os resultados e não poderá ser imputada à CONTRATADA.')+
-_it('2.4.','A verba de mídia é paga diretamente pela CONTRATANTE às plataformas, que definem com exclusividade suas políticas, a aprovação, o leilão, o posicionamento e os custos dos anúncios. Interrupções por falta de saldo, bem como reprovações, restrições ou bloqueios decorrentes dessas políticas, do segmento ou do histórico da conta da CONTRATANTE, não são imputáveis à CONTRATADA, cooperando as Partes na reformulação das campanhas.')+
-_it('2.5.','As contas de anúncio, páginas, pixel e dados de audiência pertencem à CONTRATANTE, e as campanhas nelas permanecem ao término do Contrato. A metodologia, o know-how e os modelos de trabalho pertencem à CONTRATADA. Alterações realizadas pela CONTRATANTE nas campanhas sem alinhamento prévio eximem a CONTRATADA de responsabilidade por seus efeitos.')+
-_cl('3ª','DOS REQUISITOS TÉCNICOS E DOS ACESSOS')+
-_it('3.1.','A CONTRATANTE deverá disponibilizar à CONTRATADA, <b>em até 5 (cinco) dias úteis da assinatura deste Contrato</b>, conforme os serviços contratados:')+
-_rom([['I.','a inclusão da CONTRATADA como administradora das contas das plataformas contratadas (Meta Ads, Google Ads, LinkedIn Ads e/ou TikTok Ads);'],
-  ['II.','forma de pagamento válida cadastrada nas contas de anúncio;'],
-  ['III.','a instalação, no site ou landing page, do pixel e das tags enviados pela CONTRATADA, ou o acesso necessário para que ela própria os instale;'],
-  ['IV.','as informações e os materiais de marca necessários à elaboração da estratégia.']])+
-_it('3.2.','O funcionamento, a hospedagem e a adequação legal do site ou landing page são de responsabilidade exclusiva da CONTRATANTE. Enquanto não disponibilizados os requisitos, ou se revogados os acessos, os prazos da CONTRATADA ficarão suspensos, <b>sem suspensão ou redução das mensalidades</b>. Persistindo a pendência por mais de 15 (quinze) dias após notificação, a CONTRATADA poderá rescindir o Contrato por culpa da CONTRATANTE, nos termos da Cláusula 13ª.')+
-_it('3.3.','<b>Acesso por login pessoal.</b> A regra é o acesso da CONTRATADA como administradora. Quando, por motivos técnicos, for indispensável o acesso com login e senha pessoais da CONTRATANTE, este dependerá de autorização pelos canais oficiais e será utilizado exclusivamente para a finalidade técnica. <b>A gestão, a guarda e a alteração da senha e da autenticação em dois fatores são de responsabilidade exclusiva da CONTRATANTE</b>, que deverá alterá-la ao fim do procedimento, não respondendo a CONTRATADA por acessos indevidos, bloqueios ou perdas de conta a que não tenha dado causa.')+
-_cl('4ª','DOS RELATÓRIOS E DAS REUNIÕES')+
-_it('4.1.','A CONTRATADA enviará à CONTRATANTE: (i) <b>relatório semanal</b> simplificado, pelo WhatsApp, em regra às segundas-feiras, com os principais indicadores da semana anterior; e (ii) <b>relatório mensal</b> consolidado, em PDF, em até 10 (dez) dias úteis após o encerramento de cada ciclo mensal.')+
-_it('4.2.','A critério da CONTRATANTE, o relatório mensal poderá ser apresentado em reunião, presencial ou virtual, agendada com antecedência mínima de 3 (três) dias úteis. Não havendo interesse ou comparecimento da CONTRATANTE, o envio do relatório supre a obrigação.')+
-_it('4.3.','Os relatórios demonstram o andamento das campanhas com base nos dados apurados pelas plataformas e subsidiam eventual reorientação da estratégia, <b>prevalecendo a orientação técnica da CONTRATADA</b>, não constituindo promessa de resultados futuros.')+
-_cl('5ª','DA COMUNICAÇÃO E DO RESPONSÁVEL DESIGNADO')+
-_it('5.1.','São canais oficiais da CONTRATADA o WhatsApp <b>§WHATS§</b>, os respectivos grupos criados para o projeto e o e-mail §EMAIL§, este destinado a contratos, boletos, notas fiscais e comunicações formais; e, da CONTRATANTE, os contatos do Responsável designado no Quadro Resumo. As comunicações por esses canais são válidas para todos os fins, exceto a resilição e a rescisão, que deverão ser feitas por e-mail.')+
-_it('5.2.','<b>A CONTRATANTE deverá designar um único Responsável</b>, com poderes para aprovar, solicitar alterações, criativos adicionais e serviços extras em seu nome, a fim de evitar orientações conflitantes e retrabalho. Manifestações de outras pessoas, inclusive nos grupos, são meramente opinativas. A substituição do Responsável deverá ser comunicada por escrito, e sua ausência ou indisponibilidade não suspende os prazos deste Contrato.')+
-_it('5.3.','Os únicos dados bancários válidos da CONTRATADA são os do Quadro Resumo, e sua alteração jamais será solicitada por mensagem. O pagamento realizado em conta diversa não extingue a obrigação da CONTRATANTE.')+
-_cl('6ª','DA AUSÊNCIA DE GARANTIA DE RESULTADOS')+
-_it('6.1.','A obrigação da CONTRATADA é de meio, e não de resultado. A CONTRATADA não garante, em nenhuma hipótese, resultado específico, tal como número de leads, vendas, faturamento, retorno sobre o investimento, custo por clique ou por lead, alcance, seguidores ou posicionamento dos anúncios. Projeções ou estimativas eventualmente apresentadas têm caráter meramente ilustrativo.')+
-_it('6.2.','Os resultados dependem de fatores alheios à CONTRATADA, como os algoritmos e o leilão das plataformas, a concorrência, a sazonalidade, a verba de mídia, o preço e a atratividade da oferta e o site da CONTRATANTE. O atendimento e a conversão dos leads em clientes são de responsabilidade exclusiva da CONTRATANTE.')+
-_it('6.3.','O tráfego pago exige período de aprendizado, testes e ajustes, razão pela qual se recomenda período mínimo de 3 (três) meses de execução. Resultados iniciais aquém das expectativas não configuram inadimplemento.')+
-_it('6.4.','A remuneração é fixa e devida independentemente de resultados, sem comissão ou parcela variável, salvo previsão na Proposta. A insatisfação com os resultados não autoriza retenção, abatimento ou restituição de valores, sendo tratada por meio da reorientação da estratégia.')+
-_cl('7ª','DOS CRIATIVOS (APLICÁVEL SE PREVISTOS E CONTRATADOS NA PROPOSTA)')+
-_it('7.1.','A CONTRATADA produzirá mensalmente a quantidade e os formatos de criativos previstos na Proposta, a partir dos materiais fornecidos pela CONTRATANTE, cujos prazos de entrega somente fluem após seu recebimento. Quantidades não utilizadas por motivo imputável à CONTRATANTE não se acumulam. Cabe à CONTRATANTE fornecer, em tempo hábil e pelos canais oficiais, as informações e os materiais necessários à produção dos criativos, tais como manual de marca, logotipos, fontes, fotos, vídeos e dados atualizados sobre produtos/serviços, ofertas e preços, bem como participar, pessoalmente ou por meio das pessoas que indicar, das gravações e captações previstas na Proposta, aplicando-se à sua falta o disposto no item 3.2.')+
-_it('7.2.','A aprovação e o acompanhamento dos criativos serão realizados exclusivamente pelo Trello, sendo de responsabilidade da CONTRATANTE o seu acompanhamento. Para aprovar, a CONTRATANTE inserirá a etiqueta de aprovação; para solicitar alteração, a etiqueta de alteração acompanhada de comentário explicativo, sem o qual a solicitação não será considerada.')+
-_it('7.3.','A CONTRATANTE terá 2 (dois) dias úteis, contados da postagem no Trello, para se manifestar. Decorrido o prazo sem manifestação válida, o criativo será considerado aprovado.')+
-_it('7.4.','Cada peça e cada planejamento admitem 1 (uma) revisão. A revisão da peça limita-se a ajustes visuais, como layout, cores, tipografia, posicionamento de elementos e, nos vídeos, cortes e edição, e não abrange o conteúdo em si (tema, pauta, mensagem e informações), já definido e aprovado no planejamento de conteúdo. A revisão do planejamento limita-se a ajustes do conteúdo apresentado. A versão revisada será entregue em até 2 (dois) dias úteis, no caso das peças, e em até 5 (cinco) dias úteis, no caso do planejamento, reabrindo-se o prazo de 2 (dois) dias úteis para aprovação, sob pena de aprovação tácita. Novas alterações, bem como pedidos de alteração do conteúdo já aprovado no planejamento, serão tratados como post adicional (Cláusula 9ª).')+
-_it('7.5.','A CONTRATANTE responde pela veracidade das ofertas e informações dos criativos aprovados e pelos direitos autorais, marcas e imagens dos materiais que fornecer, mantendo a CONTRATADA indene. Arquivos editáveis não serão entregues, salvo previsão na Proposta, e a CONTRATADA poderá divulgar os trabalhos em seu portfólio, salvo oposição expressa.')+
-_it('7.6.','Atrasada a entrega de criativo previsto na Proposta por motivo exclusivamente imputável à CONTRATADA, esta será notificada pelo Responsável e terá 3 (três) dias úteis para regularizar a entrega. Não regularizada no prazo, a CONTRATANTE fará jus a abatimento na mensalidade seguinte, conforme a duração do atraso após esse prazo: (i) até 5 (cinco) dias úteis, 3% (três por cento); (ii) de 6 (seis) a 15 (quinze) dias úteis, 5% (cinco por cento); e (iii) superior a 15 (quinze) dias úteis ou não entrega no ciclo mensal, 10% (dez por cento). O abatimento é limitado a 10% (dez por cento) da mensalidade e constitui a única penalidade pelo atraso, não se aplicando quando o atraso decorrer de fato da CONTRATANTE, inclusive falta de materiais, de aprovação ou de pagamento, ou de força maior.')+
-_cl('8ª','DA GESTÃO DE REDES SOCIAIS (APLICÁVEL SE PREVISTOS E CONTRATADOS NA PROPOSTA)')+
-_it('8.1.','Quando prevista na Proposta, a gestão de redes sociais observará o escopo nela descrito, e a CONTRATANTE deverá, no prazo do item 3.1, incluir a CONTRATADA como administradora da Página do Facebook vinculada ao Instagram, da Página do LinkedIn e das demais redes contratadas. Não estando o Instagram vinculado, suas credenciais serão fornecidas apenas para esse fim, aplicando-se o item 3.3. Inexistindo página em rede contratada, a CONTRATADA poderá criá-la em nome da CONTRATANTE.')+
-_it('8.2.','O planejamento de conteúdo deverá ser aprovado em até 5 (cinco) dias úteis, e as peças em até 2 (dois) dias úteis, contados da postagem no Trello, observado o disposto nos itens 7.2 a 7.4. Sem manifestação no prazo, haverá aprovação tácita. Atrasos da CONTRATANTE não obrigam a CONTRATADA a compensar ou acumular publicações.')+
-_it('8.3.','É de responsabilidade exclusiva da CONTRATANTE obter, previamente e por escrito, as autorizações de uso de imagem, voz e nome das pessoas que figurarem nos conteúdos, inclusive nas captações realizadas pela CONTRATADA e, no caso de menores, de seus responsáveis legais, respondendo por quaisquer reclamações. A CONTRATADA poderá recusar a publicação sem a comprovação das autorizações.')+
-_it('8.4.','Salvo previsão na Proposta, não estão incluídos a resposta a mensagens e comentários e a gestão de crises. O relatório de redes sociais será mensal.')+
-_cl('9ª','DOS CRIATIVOS ADICIONAIS E DOS SERVIÇOS EXTRAS')+
-_it('9.1.','<b>Criativos adicionais</b> serão solicitados pelo Responsável designado, pelo WhatsApp, e observarão o valor unitário indicado na Proposta, sendo faturados com o vencimento do mês subsequente.')+
-_it('9.2.','Demandas não previstas na Proposta, como materiais gráficos, landing pages, identidade visual ou novas plataformas, são <b>Serviços Extras</b>: serão solicitadas pelo WhatsApp e terão proposta e aceitação próprias, somente sendo executadas após o aceite expresso da CONTRATANTE e, salvo condição diversa, faturadas com o vencimento do mês subsequente.')+
-_cl('10ª','DA REMUNERAÇÃO E DO PAGAMENTO')+
-_it('10.1.','A CONTRATANTE pagará o valor mensal previsto na Proposta, independentemente de qualquer resultado, nos vencimentos indicados no Quadro Resumo, por PIX ou por boleto enviado com 3 (três) dias de antecedência, sempre em favor da conta ali indicada. A verba de mídia não está incluída no valor contratado.')+
-_it('10.2.','O atraso sujeitará a CONTRATANTE a multa de 2% (dois por cento), juros de 1% (um por cento) ao mês pro rata die e correção monetária pelo IPCA/IBGE. A inadimplência superior a 7 (sete) dias implicará, à critério da CONTRATADA, a suspensão imediata dos serviços, cessando o monitoramento e a otimização das campanhas, cuja manutenção passará a ser de responsabilidade da CONTRATANTE, sem prejuízo da cobrança das mensalidades.')+
-_it('10.3.','Em vigências superiores a 12 (doze) meses, os valores serão reajustados anualmente pelo IPCA/IBGE. É vedada à CONTRATANTE a retenção ou a compensação unilateral de valores.')+
-_cl('11ª','DOS TRIBUTOS E DA REFORMA TRIBUTÁRIA')+
-_it('11.1.','O valor contratado foi fixado com base na carga tributária vigente na data da Proposta. A CONTRATANTE declara ciência de que a Reforma Tributária (EC nº 132/2023 e LC nº 214/2025) substituirá gradualmente tributos pelo IBS e pela CBS, podendo alterar a carga tributária, o regime de apuração e as regras de creditamento.')+
-_it('11.2.','<b>O valor contratado acompanhará o custo tributário e as regras de creditamento aplicáveis</b>, sendo ajustado, para mais ou para menos, na exata medida do impacto de qualquer alteração tributária, independentemente de aditivo, mediante comunicação com 30 (trinta) dias de antecedência, acompanhada de demonstrativo.')+
-_it('11.3.','O aproveitamento de créditos pela CONTRATANTE observará a legislação aplicável ao seu próprio regime, sem garantia da CONTRATADA, e sua eventual impossibilidade, bem como a adoção de mecanismos como o <i>split payment</i>, não autoriza a redução do valor líquido devido.')+
-_cl('12ª','DAS RESPONSABILIDADES DAS PARTES')+
-_it('12.1.','A CONTRATANTE responde com exclusividade pela licitude dos produtos, serviços e ofertas anunciados, inclusive perante a legislação consumerista e regulatória, pelo uso de marcas e informações de terceiros e pela atualização de seus dados cadastrais.')+
-_it('12.2.','A CONTRATADA executará os serviços com diligência, utilizará acessos e informações exclusivamente para este Contrato e poderá valer-se de colaboradores de sua confiança, por quem responde, sem vínculo empregatício com a CONTRATANTE. A CONTRATADA não responde por falhas de hospedagem, do site, das plataformas ou por atos da CONTRATANTE e de terceiros.')+
-_it('12.3.','Salvo dolo, a responsabilidade da CONTRATADA limita-se aos danos diretos comprovados, até o valor do Contrato, excluídos lucros cessantes e danos indiretos.')+
-_cl('13ª','DA VIGÊNCIA E DA RESCISÃO')+
-_it('13.1.','A vigência é a prevista na Proposta, contada da assinatura. A prorrogação depende de aceite expresso das Partes, por nova Proposta, novo contrato ou aditivo; mantidos os serviços e os pagamentos após o termo final sem formalização, o Contrato vigorará por prazo indeterminado.')+
-_it('13.2.','Em caso de infração, a Parte infratora será notificada para regularizá-la em 5 (cinco) dias úteis, sob pena de rescisão.')+
-_it('13.3.','Na rescisão por infração ou na resilição imotivada, nessa última hipótese quando vigente por prazo determinado, a Parte que lhe der causa pagará multa de 30% (trinta por cento) sobre o saldo restante do Contrato, assim entendido o valor das mensalidades vincendas até o término da vigência prevista na Proposta.')+
-_it('13.4.','Permanecem devidos os valores dos serviços prestados, do mês em curso e dos adicionais já aceitos. Encerrado o Contrato, a CONTRATADA cessará a gestão, cabendo à CONTRATANTE revogar os acessos, alterar senhas compartilhadas e decidir sobre as campanhas ativas.')+
-_it('13.5.','Encerrado o Contrato, por qualquer causa, a CONTRATANTE terá o prazo de 10 (dez) dias para copiar ou exportar o conteúdo do painel do Trello do projeto, como criativos aprovados, planejamentos e comentários. Decorrido esse prazo, a CONTRATADA poderá arquivar ou excluir o painel, sem obrigação de guarda ou de nova disponibilização.')+
-_it('13.6.','Nenhuma das Partes responderá por descumprimento decorrente de caso fortuito ou força maior (art. 393 do Código Civil), devendo a Parte afetada comunicá-lo de imediato à outra.')+
-_cl('14ª','DA CONFIDENCIALIDADE E DA PROTEÇÃO DE DADOS')+
-_it('14.1.','As Partes manterão sigilo sobre as informações, estratégias, condições comerciais, acessos e senhas obtidos em razão deste Contrato, durante sua vigência e por 2 (dois) anos após o seu término, ressalvadas as informações públicas, previamente conhecidas, autorizadas por escrito ou exigidas por lei ou ordem judicial. O descumprimento sujeitará a Parte infratora a multa de 60% (sessenta por cento) do valor global do Contrato, ou de 3 (três) mensalidades se vigente por prazo indeterminado, sem prejuízo das perdas e danos excedentes observadas as limitações de responsabilidade aplicáveis.')+
-_it('14.2.','Em relação aos dados pessoais de leads, clientes e públicos, a CONTRATANTE atua como Controladora e a CONTRATADA como Operadora, nos termos da Lei nº 13.709/2018 (LGPD). Cabe à CONTRATANTE assegurar a base legal do tratamento, inclusive para uso de pixel, cookies e listas de clientes, e à CONTRATADA adotar medidas de segurança e comunicar incidentes relevantes em até 48 (quarenta e oito) horas.')+
-_cl('15ª','DAS DISPOSIÇÕES GERAIS E DO FORO')+
-_it('15.1.','Este Contrato e a Proposta Comercial constituem o acordo integral entre as Partes e somente poderão ser alterados por escrito, resolvendo-se os casos omissos por aditivo. A tolerância não implica novação, a invalidade de uma disposição não afeta as demais e a cessão depende de anuência escrita da outra Parte.')+
-_it('15.2.','A CONTRATANTE autoriza, desde já e a título gratuito, a CONTRATADA a divulgar a parceria e os trabalhos realizados como case, em seu site, portfólio, redes sociais e materiais institucionais, podendo utilizar o nome, a marca e o logotipo da CONTRATANTE e os resultados gerais das campanhas. A divulgação não incluirá informações sigilosas (Cláusula 14ª) nem dados pessoais de leads e clientes, e não implica cessão de direitos de propriedade intelectual. A autorização vigora durante o Contrato e, após o término, quanto aos materiais já publicados, podendo a CONTRATANTE revogá-la, por e-mail, para novas divulgações.')+
-_it('15.3.','A CONTRATANTE declara conhecer o funcionamento dos serviços de tráfego pago e que a CONTRATADA gerenciará contas de sua titularidade. As Partes declaram, ainda, que este Contrato é paritário e simétrico (art. 421-A do Código Civil), não constituindo contrato de adesão, e que seu conteúdo foi previamente analisado e livremente negociado por ambas, razão pela qual, nos termos do art. 113, § 2º, do Código Civil, afastam expressamente a regra de interpretação prevista no inciso IV do § 1º do mesmo artigo, de modo que nenhuma disposição será interpretada em favor ou em desfavor de qualquer das Partes pelo fato de ter sido redigida por uma delas, prevalecendo a boa-fé, os usos do negócio e a intenção comum das Partes, extraída da Proposta Comercial e do conjunto deste instrumento.')+
-_it('15.4.','Este Contrato constitui título executivo extrajudicial (art. 784, III e § 4º, do CPC) e poderá ser assinado física ou eletronicamente, com ou sem certificado ICP-Brasil, inclusive em vias e momentos distintos. As Partes reconhecem, nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020, a validade, a autenticidade e a integridade da assinatura eletrônica realizada por meio de plataforma de assinatura digital, admitindo-a como meio hábil de comprovação da autoria e da manifestação de vontade, e renunciam ao direito de impugná-la por esse fundamento. Na assinatura eletrônica, fica dispensada a assinatura de testemunhas, nos termos do art. 784, § 4º, do CPC, e considera-se como data de assinatura a do último signatário, conforme o registro da plataforma.')+
-_it('15.5.','Fica eleito o Foro da Comarca de §FORO§ para dirimir quaisquer controvérsias oriundas deste Contrato, com renúncia a qualquer outro, por mais privilegiado que seja.');
-
-const CLAUSULAS_SOCIAL=
-_cl('1ª','DO OBJETO E DA VINCULAÇÃO À PROPOSTA COMERCIAL')+
-_it('1.1.','O presente Contrato tem por objeto a prestação, pela CONTRATADA à CONTRATANTE, de serviços de social media e gestão de redes sociais, compreendendo, conforme contratado, o planejamento de conteúdo, a criação de artes e legendas, a roteirização, a captação e a edição de vídeos e o agendamento e a publicação dos conteúdos nos perfis da CONTRATANTE, nos exatos termos da Proposta Comercial aceita pela CONTRATANTE, que integra este instrumento como Anexo I.')+
-_it('1.2.','O objeto deste Contrato é definido exclusivamente pela Proposta Comercial, que estabelece os serviços, as redes sociais gerenciadas, a quantidade, a periodicidade e os formatos das publicações, as captações, os entregáveis, o valor e o prazo. Aquilo que nela não estiver expressamente previsto não integra o objeto nem poderá ser exigido da CONTRATADA, sendo tratado como post adicional ou Serviço Extra (Cláusula 9ª). Não estão incluídos a gestão de tráfego pago e o impulsionamento de publicações, a verba de mídia, a resposta a mensagens e comentários, a gestão de crises de imagem, materiais gráficos e impressos, a criação ou revisão de identidade visual, a criação ou manutenção de sites e landing pages e a contratação de influenciadores, modelos, locações ou ferramentas de terceiros.')+
-_it('1.3.','Havendo divergência, a Proposta Comercial prevalecerá quanto ao escopo, às quantidades, ao valor e ao prazo, e este Contrato quanto às demais condições. A Cláusula 5ª somente se aplica quando a produção de vídeos constar expressamente da Proposta, e a gestão de tráfego pago, se contratada, será regida por instrumento próprio.')+
-_cl('2ª','DA EXECUÇÃO DOS SERVIÇOS E DO CRONOGRAMA')+
-_it('2.1.','A CONTRATADA iniciará os serviços em até 5 (cinco) dias úteis contados da assinatura deste Contrato e da disponibilização dos requisitos técnicos da Cláusula 3ª, o que ocorrer por último, com a realização de reunião de briefing destinada ao estudo do produto ou serviço, do público-alvo e dos objetivos da CONTRATANTE nas redes sociais, informações indispensáveis ao planejamento de conteúdo. Os serviços serão executados em dias úteis e horário comercial, ressalvadas as publicações agendadas.')+
-_it('2.2.','A execução observará ciclos mensais, compostos das seguintes etapas: (i) apresentação do planejamento de conteúdo do período, com temas, formatos e calendário de publicações; (ii) após sua aprovação, produção das artes, das legendas e, quando contratados, dos roteiros e vídeos; e (iii) após a aprovação das peças, agendamento e publicação nas redes contratadas. O planejamento do primeiro ciclo será apresentado em até 5 (cinco) dias úteis após o briefing, e os dos ciclos seguintes antes do início do período a que se referem.')+
-_it('2.3.','O conteúdo aprovado será publicado em todas as redes contratadas, com as adaptações de formato e dimensão próprias de cada uma, não constituindo conteúdo distinto por rede social, salvo previsão diversa na Proposta.')+
-_it('2.4.','A linha editorial, os formatos, a distribuição das publicações dentro do quantitativo contratado, os horários de publicação e as demais definições estratégicas competem à CONTRATADA, com autonomia técnica e respeito à identidade da marca da CONTRATANTE. Sugestões da CONTRATANTE serão avaliadas, prevalecendo a orientação técnica da CONTRATADA. Caso a CONTRATANTE determine, por escrito, providência contrária a essa orientação, assumirá responsabilidade exclusiva por seus efeitos.')+
-_it('2.5.','O cronograma poderá ser ajustado em razão da complexidade das solicitações da CONTRATANTE, mediante comunicação prévia da CONTRATADA. Quando o conteúdo for produzido pela própria CONTRATANTE, deverá ser entregue com antecedência mínima de 7 (sete) dias úteis da data prevista para a publicação, para avaliação, eventual criação de layout e ajustes necessários.')+
-_it('2.6.','As redes sociais definem com exclusividade seus algoritmos, políticas de uso e critérios de alcance e distribuição. Oscilações de alcance ou engajamento, remoções de conteúdo, restrições, bloqueios, invasões ou suspensões de perfil decorrentes dessas políticas, de falhas das plataformas ou de atos da CONTRATANTE e de terceiros não são imputáveis à CONTRATADA, cooperando as Partes na adoção das providências cabíveis.')+
-_it('2.7.','Os perfis, páginas, contas, seguidores e conteúdos publicados pertencem à CONTRATANTE e nela permanecem ao término do Contrato. A metodologia, o know-how, os modelos de trabalho e os templates pertencem à CONTRATADA. Publicações, exclusões ou alterações realizadas pela CONTRATANTE nos perfis sem alinhamento prévio eximem a CONTRATADA de responsabilidade por seus efeitos.')+
-_it('2.8.','Atrasada a entrega de planejamento ou de publicação prevista na Proposta por motivo exclusivamente imputável à CONTRATADA, esta será notificada pelo Responsável e terá 3 (três) dias úteis para regularizar a entrega. Não regularizada no prazo, a CONTRATANTE fará jus a abatimento na mensalidade seguinte, conforme a duração do atraso após esse prazo: (i) até 5 (cinco) dias úteis, 3% (três por cento); (ii) de 6 (seis) a 15 (quinze) dias úteis, 5% (cinco por cento); e (iii) superior a 15 (quinze) dias úteis ou não entrega no ciclo mensal, 10% (dez por cento). O abatimento é limitado a 10% (dez por cento) da mensalidade e constitui a única penalidade pelo atraso, não se aplicando quando o atraso decorrer de fato da CONTRATANTE, inclusive falta de materiais, de acessos, de aprovação ou de pagamento, ou de força maior.')+
-_cl('3ª','DOS REQUISITOS TÉCNICOS E DOS ACESSOS')+
-_it('3.1.','A CONTRATANTE deverá disponibilizar à CONTRATADA, em até 5 (cinco) dias úteis da assinatura deste Contrato, conforme as redes contratadas:')+
-_rom([['I.','a inclusão da CONTRATADA como administradora da Página do Facebook vinculada ao Instagram, por meio do gerenciador de negócios da Meta, da Página do LinkedIn e dos demais perfis contratados;'],
-  ['II.','a vinculação do perfil do Instagram à Página do Facebook ou, não sendo possível, as credenciais necessárias exclusivamente a esse fim, aplicando-se o item 3.3;'],
-  ['III.','os materiais de marca, tais como manual de marca, logotipos, tipografia, paleta de cores, fotos, vídeos e demais arquivos exclusivos da marca;'],
-  ['IV.','as informações atualizadas sobre produtos, serviços, ofertas, preços e datas relevantes, bem como a participação na reunião de briefing.']])+
-_it('3.2.','Inexistindo perfil ou página em rede contratada, a CONTRATADA poderá criá-lo em nome e sob a titularidade da CONTRATANTE. Enquanto não disponibilizados os requisitos, ou se revogados os acessos, os prazos da CONTRATADA ficarão suspensos, sem suspensão ou redução das mensalidades. Persistindo a pendência por mais de 15 (quinze) dias após notificação, a CONTRATADA poderá rescindir o Contrato por culpa da CONTRATANTE, nos termos da Cláusula 14ª.')+
-_it('3.3.','Acesso por login pessoal. A regra é o acesso da CONTRATADA como administradora. Quando, por motivos técnicos, for indispensável o acesso com login e senha pessoais da CONTRATANTE, este dependerá de autorização pelos canais oficiais e será utilizado exclusivamente para a finalidade técnica. A gestão, a guarda e a alteração da senha e da autenticação em dois fatores são de responsabilidade exclusiva da CONTRATANTE, que deverá alterá-la ao fim do procedimento, não respondendo a CONTRATADA por acessos indevidos, bloqueios ou perdas de conta a que não tenha dado causa.')+
-_cl('4ª','DA APROVAÇÃO DOS CONTEÚDOS')+
-_it('4.1.','<b>A aprovação e o acompanhamento dos conteúdos serão realizados exclusivamente pelo Trello</b>, pelo Responsável designado (item 7.2), sendo de responsabilidade da CONTRATANTE o seu acompanhamento, inclusive das notificações de postagem enviadas pela plataforma ao seu e-mail. Para aprovar, a CONTRATANTE inserirá a etiqueta de aprovação; para solicitar alteração, a etiqueta de alteração acompanhada de comentário explicativo, sem o qual a solicitação não será considerada.')+
-_it('4.2.','A CONTRATANTE terá os seguintes prazos, contados da postagem no Trello, para se manifestar: (i) 5 (cinco) dias úteis para o planejamento de conteúdo; e (ii) 2 (dois) dias úteis para as artes, legendas, roteiros e vídeos. Decorrido o prazo sem manifestação válida, o conteúdo será considerado aprovado (aprovação tácita), podendo a CONTRATADA prosseguir com as etapas seguintes, inclusive o agendamento e a publicação.')+
-_it('4.3.','Cada peça e cada planejamento admitem 1 (uma) revisão. A revisão da peça limita-se a ajustes visuais, como layout, cores, tipografia, posicionamento de elementos e, nos vídeos, cortes e edição, e não abrange o conteúdo em si (tema, pauta, mensagem e informações), já definido e aprovado no planejamento de conteúdo. A revisão do planejamento limita-se a ajustes do conteúdo apresentado. A versão revisada será entregue em até 2 (dois) dias úteis, no caso das peças, e em até 5 (cinco) dias úteis, no caso do planejamento, reabrindo-se o prazo de 2 (dois) dias úteis para aprovação, sob pena de aprovação tácita. Novas alterações, bem como pedidos de alteração do conteúdo já aprovado no planejamento, serão tratados como post adicional (Cláusula 9ª).')+
-_it('4.4.','Uma vez aprovado, de forma expressa ou tácita, o conteúdo não admitirá novas alterações, e eventual solicitação posterior será tratada como post adicional. Erros materiais, como grafia ou dado incorreto em relação às informações fornecidas pela CONTRATANTE, serão corrigidos pela CONTRATADA sem custo.')+
-_it('4.5.','Atrasos da CONTRATANTE no envio de materiais, na aprovação ou na realização de captações <b>não obrigam a CONTRATADA a compensar ou acumular publicações</b>, nem a reorganizar sua agenda. Os conteúdos aprovados com atraso serão publicados na primeira data disponível no cronograma da CONTRATADA, e as quantidades não utilizadas no ciclo por motivo imputável à CONTRATANTE não se acumulam para os ciclos seguintes.')+
-_cl('5ª','DAS CAPTAÇÕES E DOS VÍDEOS (APLICÁVEL SE PREVISTOS E CONTRATADOS NA PROPOSTA)')+
-_it('5.1.','Quando prevista na Proposta, a produção de vídeos compreenderá o roteiro, a captação e a edição, na quantidade e nos formatos ali indicados. Os roteiros serão submetidos à aprovação da CONTRATANTE nos termos da Cláusula 4ª.')+
-_it('5.2.','As captações serão agendadas entre as Partes com antecedência mínima de 3 (três) dias úteis, cabendo à CONTRATANTE assegurar a disponibilidade do local, dos produtos e das pessoas que delas participarão. O cancelamento ou a remarcação pela CONTRATANTE com menos de 24 (vinte e quatro) horas de antecedência, ou sua ausência, autoriza o reagendamento conforme a disponibilidade da agenda da CONTRATADA, sem obrigação de compensação no mesmo ciclo, aplicando-se o item 4.5. Eventuais custos de deslocamento, quando aplicáveis, constarão da Proposta.')+
-_it('5.3.','Os arquivos brutos das captações e os arquivos editáveis não serão entregues, salvo previsão na Proposta.')+
-_cl('6ª','DOS RELATÓRIOS E DAS REUNIÕES')+
-_it('6.1.','A CONTRATADA enviará à CONTRATANTE <b>relatório mensal</b> consolidado, em PDF, pelo WhatsApp, em até 10 (dez) dias úteis após o encerramento de cada ciclo mensal, com os principais indicadores dos perfis gerenciados, tais como alcance, engajamento e evolução de seguidores.')+
-_it('6.2.','A critério da CONTRATANTE, o relatório mensal poderá ser apresentado em reunião, presencial ou virtual, agendada com antecedência mínima de 3 (três) dias úteis. Não havendo interesse ou comparecimento da CONTRATANTE, o envio do relatório supre a obrigação.')+
-_it('6.3.','Os relatórios demonstram o desempenho dos perfis com base nos dados apurados pelas plataformas e subsidiam eventual reorientação da estratégia, <b>prevalecendo a orientação técnica da CONTRATADA</b>, não constituindo promessa de resultados futuros.')+
-_cl('7ª','DA COMUNICAÇÃO E DO RESPONSÁVEL DESIGNADO')+
-_it('7.1.','São canais oficiais da CONTRATADA o WhatsApp <b>§WHATS§</b>, os respectivos grupos criados para o projeto e o e-mail §EMAIL§, este destinado a contratos, boletos, notas fiscais e comunicações formais; e, da CONTRATANTE, os contatos do Responsável designado no Quadro Resumo. As comunicações por esses canais são válidas para todos os fins, ressalvadas a aprovação de conteúdos, que observará a Cláusula 4ª, e a resilição e a rescisão, que deverão ser feitas por e-mail.')+
-_it('7.2.','<b>A CONTRATANTE deverá designar um único Responsável</b>, com poderes para aprovar conteúdos e solicitar alterações, posts adicionais e serviços extras em seu nome, a fim de evitar orientações conflitantes e retrabalho. Manifestações de outras pessoas, inclusive nos grupos e no Trello, são meramente opinativas. A substituição do Responsável deverá ser comunicada por escrito, e sua ausência ou indisponibilidade não suspende os prazos deste Contrato, inclusive os de aprovação.')+
-_it('7.3.','Os únicos dados bancários válidos da CONTRATADA são os do Quadro Resumo, e sua alteração jamais será solicitada por mensagem. O pagamento realizado em conta diversa não extingue a obrigação da CONTRATANTE.')+
-_cl('8ª','DA AUSÊNCIA DE GARANTIA DE RESULTADOS')+
-_it('8.1.','A obrigação da CONTRATADA é de meio, e não de resultado. A CONTRATADA não garante, em nenhuma hipótese, resultado específico, tal como número de seguidores, alcance, visualizações, curtidas, comentários, compartilhamentos, engajamento, mensagens, leads, vendas ou faturamento. Projeções ou estimativas eventualmente apresentadas têm caráter meramente ilustrativo.')+
-_it('8.2.','Os resultados dependem de fatores alheios à CONTRATADA, como os algoritmos e as políticas das plataformas, a concorrência, a sazonalidade, a existência de impulsionamento, a qualidade dos materiais fornecidos e a pontualidade das aprovações pela CONTRATANTE. O atendimento das mensagens, dos comentários e dos contatos gerados, bem como sua conversão em clientes, são de responsabilidade exclusiva da CONTRATANTE, salvo previsão diversa na Proposta.')+
-_it('8.3.','A construção de presença digital exige consistência e período de maturação, razão pela qual se recomenda período mínimo de 3 (três) meses de execução. Resultados iniciais aquém das expectativas não configuram inadimplemento.')+
-_it('8.4.','A remuneração é fixa e devida independentemente de resultados, sem comissão ou parcela variável, salvo previsão na Proposta. A insatisfação com os resultados não autoriza retenção, abatimento ou restituição de valores, sendo tratada por meio da reorientação da estratégia.')+
-_cl('9ª','DOS POSTS ADICIONAIS E DOS SERVIÇOS EXTRAS')+
-_it('9.1.','<b>Posts adicionais</b>, assim entendidas as publicações que excedam o quantitativo da Proposta, serão solicitados pelo Responsável designado, pelo WhatsApp, e observarão o valor unitário indicado na Proposta para cada formato (post único, carrossel ou vídeo), sendo faturados com o vencimento do mês subsequente. Sua produção observará a disponibilidade da agenda da CONTRATADA e as regras de aprovação da Cláusula 4ª.')+
-_it('9.2.','Demandas não previstas na Proposta, como cartões de visita, banners, panfletos e outros materiais gráficos ou impressos, apresentações, identidade visual, landing pages, novas redes sociais ou gestão de tráfego pago, são <b>Serviços Extras</b>: serão solicitadas pelo WhatsApp e terão proposta e aceitação próprias, somente sendo executadas após o aceite expresso da CONTRATANTE e, salvo condição diversa, faturadas com o vencimento do mês subsequente.')+
-_cl('10ª','DA REMUNERAÇÃO E DO PAGAMENTO')+
-_it('10.1.','A CONTRATANTE pagará o valor mensal previsto na Proposta, independentemente de qualquer resultado, nos vencimentos indicados no Quadro Resumo, por PIX ou por boleto enviado com 3 (três) dias de antecedência, sempre em favor da conta ali indicada. O impulsionamento de publicações e a verba de mídia não estão incluídos no valor contratado.')+
-_it('10.2.','O atraso sujeitará a CONTRATANTE a multa de 2% (dois por cento), juros de 1% (um por cento) ao mês pro rata die e correção monetária pelo IPCA/IBGE. A inadimplência superior a 7 (sete) dias implicará, a critério da CONTRATADA, a suspensão imediata dos serviços, cessando o planejamento, a produção e a publicação de conteúdos, sem prejuízo da cobrança das mensalidades.')+
-_it('10.3.','Em vigências superiores a 12 (doze) meses, os valores serão reajustados anualmente pelo IPCA/IBGE. É vedada à CONTRATANTE a retenção ou a compensação unilateral de valores.')+
-_cl('11ª','DOS TRIBUTOS E DA REFORMA TRIBUTÁRIA')+
-_it('11.1.','O valor contratado foi fixado com base na carga tributária vigente na data da Proposta. A CONTRATANTE declara ciência de que a Reforma Tributária (EC nº 132/2023 e LC nº 214/2025) substituirá gradualmente tributos pelo IBS e pela CBS, podendo alterar a carga tributária, o regime de apuração e as regras de creditamento.')+
-_it('11.2.','<b>O valor contratado acompanhará o custo tributário e as regras de creditamento aplicáveis</b>, sendo ajustado, para mais ou para menos, na exata medida do impacto de qualquer alteração tributária, independentemente de aditivo, mediante comunicação com 30 (trinta) dias de antecedência, acompanhada de demonstrativo.')+
-_it('11.3.','O aproveitamento de créditos pela CONTRATANTE observará a legislação aplicável ao seu próprio regime, sem garantia da CONTRATADA, e sua eventual impossibilidade, bem como a adoção de mecanismos como o split payment, não autoriza a redução do valor líquido devido.')+
-_cl('12ª','DA PROPRIEDADE INTELECTUAL E DO DIREITO DE IMAGEM')+
-_it('12.1.','Quitados os valores devidos, a CONTRATANTE poderá utilizar os conteúdos aprovados e publicados em seus canais próprios de comunicação, inclusive após o término do Contrato, vedada sua venda, cessão ou licenciamento a terceiros sem anuência expressa da CONTRATADA. Os layouts e templates, os roteiros e conteúdos não publicados, os arquivos editáveis e os brutos de captação permanecem de titularidade da CONTRATADA, que poderá divulgar os trabalhos em seu portfólio, salvo oposição expressa.')+
-_it('12.2.','A CONTRATANTE responde pelos direitos autorais, marcas, imagens e demais materiais que fornecer, bem como pelo uso de marcas e informações de terceiros por ela solicitado, mantendo a CONTRATADA indene.')+
-_it('12.3.','É de responsabilidade exclusiva da CONTRATANTE obter, previamente e por escrito, as autorizações de uso de imagem, voz e nome das pessoas que figurarem nos conteúdos, inclusive nas captações realizadas pela CONTRATADA e, no caso de menores, de seus responsáveis legais, respondendo por quaisquer reclamações.')+
-_cl('13ª','DAS RESPONSABILIDADES DAS PARTES')+
-_it('13.1.','A CONTRATANTE responde com exclusividade pela veracidade das informações e ofertas constantes dos conteúdos aprovados e pela licitude dos produtos e serviços divulgados, inclusive perante a legislação consumerista, as normas de publicidade aplicáveis ao seu segmento e as regras de conselhos e entidades profissionais, bem como pela atualização de seus dados cadastrais.')+
-_it('13.2.','A CONTRATADA executará os serviços com diligência, utilizará acessos e informações exclusivamente para este Contrato e poderá valer-se de colaboradores de sua confiança, por quem responde, sem vínculo empregatício com a CONTRATANTE. A CONTRATADA não responde por falhas das plataformas, do site ou de hospedagem, nem por atos da CONTRATANTE e de terceiros, inclusive publicações e interações realizadas diretamente nos perfis.')+
-_it('13.3.','Salvo dolo, a responsabilidade da CONTRATADA limita-se aos danos diretos comprovados, até o valor do Contrato.')+
-_cl('14ª','DA VIGÊNCIA E DA RESCISÃO')+
-_it('14.1.','A vigência é a prevista na Proposta, contada da assinatura. A prorrogação depende de aceite expresso das Partes, por nova Proposta, novo contrato ou aditivo; mantidos os serviços e os pagamentos após o termo final sem formalização, o Contrato vigorará por prazo indeterminado.')+
-_it('14.2.','Em caso de infração, a Parte infratora será notificada para regularizá-la em 5 (cinco) dias úteis, sob pena de rescisão.')+
-_it('14.3.','Na rescisão por infração ou na resilição imotivada, nessa última hipótese quando vigente por prazo determinado, a Parte que lhe der causa pagará multa de 30% (trinta por cento) sobre o saldo restante do Contrato, assim entendido o valor das mensalidades vincendas até o término da vigência prevista na Proposta.')+
-_it('14.4.','Permanecem devidos os valores dos serviços prestados, do mês em curso e dos posts adicionais e serviços extras já aceitos. Encerrado o Contrato, a CONTRATADA cessará a gestão e cancelará as publicações agendadas ainda não veiculadas, salvo orientação diversa da CONTRATANTE, cabendo a esta revogar os acessos e alterar as senhas compartilhadas.')+
-_it('14.5.','Encerrado o Contrato, por qualquer causa, a CONTRATANTE terá o prazo de 10 (dez) dias para copiar ou exportar o conteúdo do painel do Trello do projeto, como criativos aprovados, planejamentos e comentários. Decorrido esse prazo, a CONTRATADA poderá arquivar ou excluir o painel, sem obrigação de guarda ou de nova disponibilização.')+
-_it('14.6.','Nenhuma das Partes responderá por descumprimento decorrente de caso fortuito ou força maior (art. 393 do Código Civil), devendo a Parte afetada comunicá-lo de imediato à outra.')+
-_cl('15ª','DA CONFIDENCIALIDADE E DA PROTEÇÃO DE DADOS')+
-_it('15.1.','As Partes manterão sigilo sobre as informações, estratégias, condições comerciais, acessos e senhas obtidos em razão deste Contrato, durante sua vigência e por 2 (dois) anos após o seu término, ressalvadas as informações públicas, previamente conhecidas, autorizadas por escrito ou exigidas por lei ou ordem judicial. O descumprimento sujeitará a Parte infratora a multa de 60% (sessenta por cento) do valor global do Contrato, ou de 3 (três) mensalidades se vigente por prazo indeterminado, sem prejuízo das perdas e danos excedentes, observadas as limitações de responsabilidade aplicáveis.')+
-_it('15.2.','Em relação aos dados pessoais de seguidores, clientes e pessoas que figurem nos conteúdos ou interajam com os perfis, a CONTRATANTE atua como Controladora e a CONTRATADA como Operadora, nos termos da Lei nº 13.709/2018 (LGPD). Cabe à CONTRATANTE assegurar a base legal do tratamento, inclusive quanto ao uso de imagens e depoimentos, e à CONTRATADA adotar medidas de segurança e comunicar incidentes relevantes em até 48 (quarenta e oito) horas.')+
-_cl('16ª','DAS DISPOSIÇÕES GERAIS E DO FORO')+
-_it('16.1.','Este Contrato e a Proposta Comercial constituem o acordo integral entre as Partes e somente poderão ser alterados por escrito, resolvendo-se os casos omissos por aditivo. A tolerância não implica novação, a invalidade de uma disposição não afeta as demais e a cessão depende de anuência escrita da outra Parte.')+
-_it('16.2.','A CONTRATANTE autoriza, desde já e a título gratuito, a CONTRATADA a divulgar a parceria e os trabalhos realizados como case, em seu site, portfólio, redes sociais e materiais institucionais, podendo utilizar o nome, a marca e o logotipo da CONTRATANTE e os resultados gerais das campanhas. A divulgação não incluirá informações sigilosas (Cláusula 14ª) nem dados pessoais de leads e clientes, e não implica cessão de direitos de propriedade intelectual. A autorização vigora durante o Contrato e, após o término, quanto aos materiais já publicados, podendo a CONTRATANTE revogá-la, por e-mail, para novas divulgações.')+
-_it('16.3.','A CONTRATANTE declara conhecer o funcionamento dos serviços de gestão de redes sociais e que a CONTRATADA gerenciará perfis de sua titularidade. As Partes declaram, ainda, que este Contrato é paritário e simétrico (art. 421-A do Código Civil), não constituindo contrato de adesão, e que seu conteúdo foi previamente analisado e livremente negociado por ambas, razão pela qual, nos termos do art. 113, § 2º, do Código Civil, afastam expressamente a regra de interpretação prevista no inciso IV do § 1º do mesmo artigo, de modo que nenhuma disposição será interpretada em favor ou em desfavor de qualquer das Partes pelo fato de ter sido redigida por uma delas, prevalecendo a boa-fé, os usos do negócio e a intenção comum das Partes, extraída da Proposta Comercial e do conjunto deste instrumento.')+
-_it('16.4.','Este Contrato constitui título executivo extrajudicial (art. 784, III e § 4º, do CPC) e poderá ser assinado física ou eletronicamente, com ou sem certificado ICP-Brasil, inclusive em vias e momentos distintos. As Partes reconhecem, nos termos do art. 10, § 2º, da Medida Provisória nº 2.200-2/2001 e da Lei nº 14.063/2020, a validade, a autenticidade e a integridade da assinatura eletrônica realizada por meio de plataforma de assinatura digital, admitindo-a como meio hábil de comprovação da autoria e da manifestação de vontade, e renunciam ao direito de impugná-la por esse fundamento. Na assinatura eletrônica, fica dispensada a assinatura de testemunhas, nos termos do art. 784, § 4º, do CPC, e considera-se como data de assinatura a do último signatário, conforme o registro da plataforma.')+
-_it('16.5.','Fica eleito o Foro da Comarca de §FORO§ para dirimir quaisquer controvérsias oriundas deste Contrato, com renúncia a qualquer outro, por mais privilegiado que seja.');
+function contratoRedes(d){
+  return contratoPartes(d)+`
+  <h2>CLÁUSULA PRIMEIRA – DO OBJETO</h2>
+  <p><b>Parágrafo primeiro –</b> A CONTRATADA fará o gerenciamento das páginas comerciais da empresa CONTRATANTE nas seguintes plataformas: ${esc(d.plats)}.</p>
+  <p><b>Parágrafo segundo –</b> Os serviços serão realizados de acordo com o plano escolhido pela CONTRATANTE.</p>
+  <h2>CLÁUSULA SEGUNDA – DA VIGÊNCIA</h2>
+  <p>O prazo de vigência deste contrato é de ${esc(d.vig)} meses, contados a partir da assinatura. A prorrogação se dará mediante aceitação expressa das partes, por novo contrato ou termo aditivo, podendo ser prorrogado por tempo indefinido, caso em que poderá ser rescindido mediante comunicação formal (e-mail).</p>
+  <h2>CLÁUSULA TERCEIRA – DO VALOR E FORMA DE PAGAMENTO</h2>
+  <p><b>Parágrafo primeiro –</b> Pelos serviços profissionais prestados, assistirá à CONTRATADA, independentemente de qualquer resultado e devido de imediato, o valor líquido e certo de ${esc(d.valorTxt)}, a ser pago da seguinte forma:</p>
+  <p style="white-space:pre-line;margin-left:14px">${esc(d.pag)}</p>
+  <p><b>Parágrafo segundo –</b> Na hipótese de atraso, incidirá multa de 2% (dois por cento) do valor mensal, acrescidos de juros moratórios de 1% (um por cento) ao mês sobre o valor da parcela inadimplente.</p>
+  <p><b>Parágrafo terceiro –</b> Caso a CONTRATANTE se torne inadimplente por mais de 7 (sete) dias do vencimento, haverá imediata suspensão dos serviços.</p>
+  <p><b>Parágrafo quarto –</b> Os valores em forma de mensalidade serão reajustados anualmente conforme a variação do IGP-M (FGV), ou índice que vier a substituí-lo, em caso de renovação.</p>
+  <h2>CLÁUSULA QUARTA – DO CRONOGRAMA</h2>
+  <p>Assinado o contrato, a CONTRATADA agendará em até 3 (três) dias o briefing para coleta de informações. Em até 5 (cinco) dias realizará o planejamento do conteúdo, cabendo à CONTRATANTE aprovar em até 3 (três) dias. Aprovado, a CONTRATADA apresentará em até 5 (cinco) dias as artes e legendas, que deverão ser aprovadas em até 3 (três) dias. Uma vez aprovado o conteúdo, arte ou vídeo, não será mais passível de alterações. Caso o conteúdo seja criado pela CONTRATANTE, este deverá entregá-lo com 07 (sete) dias úteis de antecedência.</p>
+  <h2>CLÁUSULA QUINTA – DAS OBRIGAÇÕES DA CONTRATANTE</h2>
+  <p>Remunerar a CONTRATADA conforme a Cláusula Terceira; disponibilizar textos, fotos, logos e demais materiais; responsabilizar-se por qualquer infração legal sobre o conteúdo publicado; fornecer acesso integral às páginas e à identidade visual da marca; oferecer feedback e aprovar as tarefas; manter o servidor/hospedagem e o acesso às ferramentas necessárias; assumir responsabilidade pelo uso de marcas de terceiros; informar quaisquer alterações de dados; e receber relatórios periódicos.</p>
+  <h2>CLÁUSULA SEXTA – DAS OBRIGAÇÕES DA CONTRATADA</h2>
+  <p>Iniciar a prestação do serviço em até 3 (três) dias úteis após a assinatura; restringir-se às atividades descritas, não respondendo por questões de hospedagem/site ou ações de terceiros; emitir e enviar relatórios periódicos; não divulgar dados do CONTRATANTE; e cumprir fielmente o cronograma, prestando o suporte necessário.</p>
+  <h2>CLÁUSULA SÉTIMA – DA RESCISÃO</h2>
+  <p>Em caso de infração, cabe à parte não infratora notificar o infrator, que deverá regularizar de imediato sob pena de rescisão. Na hipótese de rescisão, incorrerá a parte infratora em multa de 50% (cinquenta por cento) sobre o valor das parcelas vincendas. Casos fortuitos ou de força maior, nos termos do art. 393 do Código Civil, eximem as partes, devendo a parte impossibilitada informar a outra de imediato.</p>
+  <h2>CLÁUSULA OITAVA – DA CONFIDENCIALIDADE</h2>
+  <p>As partes comprometem-se a não divulgar informações confidenciais a que tiverem acesso, respondendo civil e criminalmente pela divulgação indevida, ficando estipulado valor indenizatório de 60% deste contrato (ou 3 meses, em caso de prazo indefinido), além do ressarcimento de perdas e danos.</p>
+  <h2>CLÁUSULA NONA – DAS DISPOSIÇÕES GERAIS</h2>
+  <p>Este contrato só poderá ser alterado por escrito e mediante assinatura das partes. Não se estabelece qualquer vínculo empregatício entre as partes. O Direito Autoral da produção é da CONTRATADA, não podendo a CONTRATANTE ceder o serviço a terceiros sem anuência formal. Casos omissos serão acordados em aditivo.</p>
+  <h2>CLÁUSULA DÉCIMA – DO FORO</h2>
+  <p>As partes elegem o foro da Comarca de ${esc(emp().foro)} para dirimir quaisquer dúvidas, renunciando a qualquer outro. E, por estarem assim justas e acordadas, assinam o presente instrumento em 02 (duas) vias de igual teor, na presença de duas testemunhas.</p>`;
+}
+function contratoTrafego(d){
+  return contratoPartes(d)+`
+  <h2>CLÁUSULA PRIMEIRA – DO OBJETO</h2>
+  <p>A CONTRATADA, de acordo com o plano contratado, irá gerenciar as campanhas de tráfego patrocinadas na(s) plataforma(s): ${esc(d.plats)}, de modo que o anúncio do CONTRATANTE seja exibido conforme o plano de serviço contratado.</p>
+  <p><b>Parágrafo primeiro –</b> A gestão se dará da seguinte forma: A) iniciada em até 5 (cinco) dias úteis após a assinatura; B) a campanha criada será de titularidade exclusiva da CONTRATADA; C) o CONTRATANTE acompanhará os resultados por relatório em PDF a cada 30 (trinta) dias, com feedbacks semanais em grupo de WhatsApp.</p>
+  <p><b>Parágrafo segundo –</b> O contrato NÃO representa garantia de posição do anúncio, definida pela tecnologia das plataformas. A CONTRATADA responde apenas pela criação e gerenciamento, não pelo sucesso da campanha.</p>
+  <p><b>Parágrafo terceiro –</b> Caso a plataforma não autorize a campanha, as partes reformularão os termos até a aprovação. <b>Parágrafo quarto –</b> A CONTRATADA não se responsabiliza pela conversão do lead em cliente.</p>
+  <h2>CLÁUSULA SEGUNDA – DAS OBRIGAÇÕES DA CONTRATANTE</h2>
+  <p>Oferecer feedback e aprovar as tarefas; os gastos investidos em tráfego NÃO estão incluídos no valor deste contrato, sendo de inteira responsabilidade da CONTRATANTE.</p>
+  <p><b>Do valor –</b> Pelos serviços prestados, independentemente de qualquer resultado, é devido de imediato o valor líquido e certo de ${esc(d.valorTxt)}, a ser pago da seguinte forma:</p>
+  <p style="white-space:pre-line;margin-left:14px">${esc(d.pag)}</p>
+  <p>Na hipótese de atraso, multa de 2% (dois por cento) e juros de 1% (um por cento) ao mês. Inadimplência superior a 7 (sete) dias suspende os serviços. A CONTRATANTE deve manter acesso às ferramentas necessárias, assumir responsabilidade pelo uso de marcas de terceiros e informar alterações de dados.</p>
+  <h2>CLÁUSULA TERCEIRA – DAS OBRIGAÇÕES DA CONTRATADA</h2>
+  <p>Iniciar o serviço em até 5 (cinco) dias úteis após a assinatura; restringir-se às atividades descritas; emitir e enviar relatórios periódicos conforme a Cláusula Primeira.</p>
+  <h2>CLÁUSULA QUARTA – DA VIGÊNCIA E RENOVAÇÃO</h2>
+  <p>O prazo de vigência é de ${esc(d.vig)} meses, contados da assinatura, prorrogável por aceitação expressa das partes, por novo contrato ou termo aditivo, podendo vigorar por tempo indefinido.</p>
+  <h2>CLÁUSULA QUINTA – DA RESCISÃO</h2>
+  <p>Em caso de infração, a parte não infratora notificará o infrator para regularização imediata, sob pena de rescisão e multa de 50% (cinquenta por cento) sobre as parcelas vincendas. Após 2 (dois) meses de vigência, não haverá multa, bastando aviso prévio de 20 (vinte) dias. Casos fortuitos ou de força maior (art. 393 do Código Civil) eximem as partes.</p>
+  <h2>CLÁUSULA SEXTA – DEMAIS OBRIGAÇÕES</h2>
+  <p>O contrato só poderá ser alterado por escrito e assinatura das partes. Não se estabelece vínculo empregatício entre as partes.</p>
+  <h2>CLÁUSULA SÉTIMA – DA CONFIDENCIALIDADE</h2>
+  <p>As partes comprometem-se a não divulgar informações confidenciais, respondendo civil e criminalmente pela divulgação indevida, com valor indenizatório de 60% do contrato (ou 3 meses, em prazo indefinido), além de perdas e danos.</p>
+  <h2>CLÁUSULA OITAVA – DA NÃO CONTEMPLAÇÃO</h2>
+  <p>Eventuais alterações ou casos omissos serão acordados em aditivo, conforme a legislação vigente.</p>
+  <h2>CLÁUSULA NONA – DA DECLARAÇÃO DO CONTRATANTE</h2>
+  <p>O CONTRATANTE declara ter conhecimento do funcionamento do serviço de tráfego pago e de que a CONTRATADA gerenciará conta já existente, sendo o manuseio das informações crucial para a execução do objeto.</p>
+  <h2>CLÁUSULA DÉCIMA – DO FORO</h2>
+  <p>As partes elegem o foro da Comarca de ${esc(emp().foro)}, renunciando a qualquer outro. E, por estarem assim justas e acordadas, assinam o presente instrumento em 02 (duas) vias de igual teor, na presença de duas testemunhas.</p>`;
+}
 
 /* ---------- CONTRATOS ---------- */
 function viewContratos(){
@@ -2122,31 +1521,14 @@ function viewContratos(){
       <td class="money">${fmt(c.valor)}<div class="desc-sub">${c.periodicidade==='projeto'?'projeto único':'por mês'}</div></td>
       <td>${fdate(c.inicio)}</td>
       <td>${c.fim?fdate(c.fim):'—'}${vencendo?' <span class="pill warn" style="font-size:11px">renova em breve</span>':''}${vencido?' <span class="pill bad" style="font-size:11px">vencido</span>':''}</td>
-      <td>${c.status==='rascunho'?'<span class="pill warn">Aguardando assinatura</span>':c.status==='ativo'?'<span class="pill ok">Ativo</span>':c.status==='pausado'?'<span class="pill warn">Pausado</span>':'<span class="pill bad">Encerrado</span>'}</td>
-      <td style="white-space:nowrap">${c.doc?`<button class="btn btn-ghost btn-sm" onclick="gerarContratoPDF('${c.id}')">⤓ PDF</button> `:''}<button class="rowbtn" onclick="${c.doc?`openGerarContrato('${c.id}')`:`openForm('contrato','${c.id}')`}">✎</button><button class="rowbtn" onclick="del('contratos','${c.id}')">🗑</button></td>
+      <td>${c.status==='ativo'?'<span class="pill ok">Ativo</span>':c.status==='pausado'?'<span class="pill warn">Pausado</span>':'<span class="pill bad">Encerrado</span>'}</td>
+      <td><button class="rowbtn" onclick="openForm('contrato','${c.id}')">✎</button><button class="rowbtn" onclick="del('contratos','${c.id}')">🗑</button></td>
     </tr>`;}).join('')}</tbody></table>`:`<div class="empty">Nenhum contrato cadastrado. Clique em "+ Novo contrato".</div>`}</div>`;
 }
 
 /* ---------- PROPOSTAS ---------- */
 let SERVICOS_SUGERIDOS=[...DEFAULT_SERVICOS];
-const SERVICO_DETALHES={
-  'Site / Landing page':[
-    '1. Reunião de briefing: levantamento de informações sobre a empresa, público-alvo, objetivos, produtos ou serviços e diferenciais competitivos.',
-    '2. Planejamento e estruturação da página: organização estratégica das seções e definição da jornada do usuário, com foco na conversão.',
-    '3. Copywriting comercial: desenvolvimento dos textos da landing page, com base nas informações coletadas durante o briefing, utilizando técnicas de escrita persuasiva e direcionadas ao objetivo da página.',
-    '4. Aprovação da copy: o cliente terá direito a uma rodada de ajustes nos textos apresentados. Após a aprovação do conteúdo textual, será iniciada a etapa de design e desenvolvimento visual.',
-    '5. Design responsivo: desenvolvimento da identidade visual da página, adaptada para computadores, tablets e dispositivos móveis.',
-    '6. Aprovação do design: o cliente terá direito a uma rodada de ajustes no design apresentado, antes da aprovação e entrega definitiva.',
-    '7. Integração de contato: inclusão de botão de WhatsApp ou formulário para captação de leads, conforme a necessidade do projeto.',
-    '8. Configuração básica de conversões: implementação dos recursos de mensuração previamente definidos, conforme a plataforma utilizada e os acessos disponibilizados pelo cliente.'
-  ].join('\n')
-};
-// escopo padrão também para serviços renomeados (ex.: "Landing page", "Site")
-const detalhesFixos=nome=>SERVICO_DETALHES[nome]||(/landing|landpage|\bsite\b/i.test(nome||'')?SERVICO_DETALHES['Site / Landing page']:'');
-// modelo salvo em Ajustes tem prioridade sobre o texto fixo acima
-const modeloServ=nome=>{const n=String(nome||'').trim().toLowerCase();return ((state&&state.config.servModelos)||[]).find(m=>m.nome.toLowerCase()===n)||null;};
-const detalhesPadrao=nome=>{const m=modeloServ(nome);return m?m.detalhes:detalhesFixos(nome);};
-
+const SERVICO_DETALHES={};
 function listaE(a){return a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:(a[0]||'');}
 /* Assistentes de detalhamento: campos rápidos que montam os "itens inclusos" sozinhos */
 const ASSISTENTES={
@@ -2164,7 +1546,6 @@ const ASSISTENTES={
      if(vids>0){l.push(vids+(vids===1?' vídeo':' vídeos')+' por mês');l.push('Roteiro para os vídeos, captação e edição');}
      if(plats.length)l.push('Publicação dos conteúdos no '+listaE(plats));
      l.push('Reunião de relatório e de alinhamento mensal');
-     l.push('Na hipótese de solicitação de peças adicionais que excedam a quantidade prevista no escopo contratado, será devido valor adicional por peça produzida, conforme valor previamente ajustado entre as partes.');
      return l.map(x=>'- '+x).join('\n');
    }
  },
@@ -2221,7 +1602,7 @@ function viewPropostas(){
         <option value="aceita" ${p.status==='aceita'?'selected':''}>Aceita ✓</option>
         <option value="recusada" ${p.status==='recusada'?'selected':''}>Recusada</option>
       </select></td>
-      <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="gerarPropostaPDF('${p.id}')">⤓ PDF</button> <button class="btn btn-ghost btn-sm" title="Gerar contrato a partir desta proposta" onclick="openGerarContrato(null,{propostaId:'${p.id}'})">Contrato</button> <button class="rowbtn" onclick="openProposta('${p.id}')">✎</button><button class="rowbtn" onclick="del('propostas','${p.id}')">🗑</button></td>
+      <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="gerarPropostaPDF('${p.id}')">⤓ PDF</button> <button class="rowbtn" onclick="openProposta('${p.id}')">✎</button><button class="rowbtn" onclick="del('propostas','${p.id}')">🗑</button></td>
     </tr>`;}).join('')}</tbody></table>`:`<div class="empty">Nenhuma proposta ainda. Clique em "+ Nova proposta" para montar a primeira.</div>`}</div>`;
 }
 function setPropStatus(id,v){const p=state.propostas.find(x=>x.id===id);if(p){p.status=v;save();render();}}
@@ -2236,11 +1617,9 @@ function propRowHTML(i){
     <textarea class="pi-det" placeholder="Itens inclusos — um por linha (aparecem como tópicos no PDF)" style="display:${i.detalhes?'block':'none'}">${esc(i.detalhes||'')}</textarea>
   </div>`;
 }
-function addPropSug(i){if(SERVICOS_SUGERIDOS[i]!=null)addPropItem(SERVICOS_SUGERIDOS[i]);}
 function addPropItem(nome,valor,tipo,detalhes){
-  // texto personalizado em Ajustes substitui o assistente
-  const svc=ASSISTENTES[nome||'']&&!modeloServ(nome)?nome:'';
-  const det=detalhes!=null?detalhes:detalhesPadrao(nome);
+  const svc=ASSISTENTES[nome||'']?nome:'';
+  const det=detalhes!=null?detalhes:(SERVICO_DETALHES[nome]||'');
   const box=document.getElementById('propItens');
   box.insertAdjacentHTML('beforeend',propRowHTML({nome:nome||'',valor:valor||'',tipo:tipo||'mensal',detalhes:det,svc}));
   if(svc){
@@ -2260,7 +1639,7 @@ function openProposta(id){
     <div class="field"><label>Contato (opcional)</label><input id="pr_contato" value="${p?esc(p.contato||''):''}" placeholder="E-mail ou WhatsApp"></div>
   </div>
   <div class="field"><label>Serviços da proposta</label>
-    <div class="chips">${SERVICOS_SUGERIDOS.map((s,i)=>`<button class="chip" onclick="addPropSug(${i})">+ ${esc(s)}</button>`).join('')}</div>
+    <div class="chips">${SERVICOS_SUGERIDOS.map(s=>`<button class="chip" onclick="addPropItem('${s.replace(/'/g,"\\'")}')">+ ${s}</button>`).join('')}</div>
     <div id="propItens">${(p?p.itens:[{nome:'',valor:'',tipo:'mensal'}]).map(propRowHTML).join('')}</div>
     <button class="btn btn-ghost btn-sm" onclick="addPropItem()">+ Adicionar serviço em branco</button>
   </div>
@@ -2809,7 +2188,7 @@ function del(coll,id){
 function openForm(type,id){
   const ov=document.getElementById('overlay');const md=document.getElementById('modal');
   const opt=(list,sel,none)=>`<option value="">${none}</option>`+list.map(x=>`<option value="${x.id}" ${sel===x.id?'selected':''}>${esc(x.nome)}</option>`).join('');
-  const cats=(arr,sel)=>arr.map(c=>`<option ${sel===c?'selected':''}>${esc(c)}</option>`).join('');
+  const cats=(arr,sel)=>arr.map(c=>`<option ${sel===c?'selected':''}>${c}</option>`).join('');
   let html='';
   if(type==='entrada'){
     const e=id?state.entradas.find(x=>x.id===id):null;
@@ -2867,7 +2246,7 @@ function openForm(type,id){
       <div class="field"><label>Início</label><input type="date" id="f_ini" value="${c?c.inicio:today()}"></div>
       <div class="field"><label>Término (opcional)</label><input type="date" id="f_fim" value="${c&&c.fim?c.fim:''}"></div>
     </div>
-    <div class="field"><label>Status</label><select id="f_st2"><option value="rascunho" ${c&&c.status==='rascunho'?'selected':''}>Aguardando assinatura</option><option value="ativo" ${!c||c.status==='ativo'?'selected':''}>Ativo</option><option value="pausado" ${c&&c.status==='pausado'?'selected':''}>Pausado</option><option value="encerrado" ${c&&c.status==='encerrado'?'selected':''}>Encerrado</option></select></div>
+    <div class="field"><label>Status</label><select id="f_st2"><option value="ativo" ${!c||c.status==='ativo'?'selected':''}>Ativo</option><option value="pausado" ${c&&c.status==='pausado'?'selected':''}>Pausado</option><option value="encerrado" ${c&&c.status==='encerrado'?'selected':''}>Encerrado</option></select></div>
     <div class="field"><label>Observações</label><input id="f_obs" value="${c?esc(c.obs||''):''}" placeholder="Ex.: reajuste anual em janeiro"></div>`;
   }
   if(type==='fornecedor'){
@@ -2885,7 +2264,7 @@ function openForm(type,id){
     html=`<h2>${c?'Editar':'Novo'} cliente</h2>
     <div class="field"><label>Nome</label><input id="f_nome" value="${c?esc(c.nome):''}" placeholder="Ex.: Clínica Bella Pele"></div>
     <div class="field"><label>Serviços contratados (marque quantos quiser)</label>
-      <div class="chips" id="f_svcbox">${SERVICOS_SUGERIDOS.map(s=>`<label class="chipchk"><input type="checkbox" value="${esc(s)}" ${marcado(s)?'checked':''}>${esc(s)}</label>`).join('')}</div>
+      <div class="chips" id="f_svcbox">${SERVICOS_SUGERIDOS.map(s=>`<label class="chipchk"><input type="checkbox" value="${esc(s)}" ${marcado(s)?'checked':''}>${s}</label>`).join('')}</div>
       <input id="f_servx" value="${esc(extras)}" placeholder="Outros serviços (separe por vírgula)">
     </div>
     <div class="fieldrow">
