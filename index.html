@@ -238,6 +238,11 @@ tr.conferido td.money{opacity:.65}
 .nav .mobileonly{display:none!important}
 .nav .sh{display:none}
 .mtopbar{display:none}
+/* olho: esconde valores da tela (PDFs e relatórios gerados não mudam) */
+body.privado .val{filter:blur(6px);user-select:none}
+body.privado #main canvas{filter:blur(10px)}
+.mt-eye{background:none;border:none;color:inherit;padding:4px;cursor:pointer;flex:none;display:flex;margin-left:auto}
+.mt-eye svg,.sairbtn svg{width:18px;height:18px;vertical-align:-4px}
 @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.panelrow,.report-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
   /* ---------- BARRA SUPERIOR (app bar) ---------- */
@@ -374,6 +379,7 @@ setTimeout(function(){
     <nav class="nav" id="nav"></nav>
     <div class="sidefoot" id="sidefoot">
       <span class="sync" id="syncStatus"></span>
+      <button class="sairbtn" id="eyeBtn" onclick="togglePrivado()"></button>
       <button class="sairbtn" onclick="openConfig()">⚙ AJUSTES</button>
       <button class="sairbtn" onclick="sair()">SAIR</button>
       <div>MARKETING &amp; ESTRATÉGIA</div>
@@ -382,6 +388,7 @@ setTimeout(function(){
   <header class="mtopbar">
     <span class="mono">A<span class="p">P</span></span>
     <span class="mt-title" id="mtitle">Dashboard</span>
+    <button class="mt-eye" id="mEye" onclick="togglePrivado()"></button>
     <span class="mt-sync" id="mSync">✓</span>
   </header>
   <main class="main" id="main"></main>
@@ -432,7 +439,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto});
+Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -571,7 +578,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261021;
+const APP_VERSAO=20261026;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -852,6 +859,40 @@ if(!configOk){
 
 /* ================= HELPERS ================= */
 const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+/* ---------- OLHO: oculta os valores em R$ da tela ----------
+   Todo texto com "R$" que aparece na tela ou numa janela ganha a classe .val;
+   com o olho fechado o CSS borra esses textos e os gráficos. A escolha fica
+   lembrada neste aparelho. */
+const PRIV_KEY='ap_ocultarValores';
+const OLHO_ABERTO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const OLHO_FECHADO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+function marcarValores(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>
+    n.nodeValue.includes('R$')&&!n.parentElement.closest('.val,script,style,textarea,select,option')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
+  const nos=[];while(w.nextNode())nos.push(w.currentNode);
+  nos.forEach(n=>{const sp=document.createElement('span');sp.className='val';n.parentNode.insertBefore(sp,n);sp.appendChild(n);});
+}
+function aplicarPrivado(on){
+  document.body.classList.toggle('privado',on);
+  const rot=on?'Mostrar valores':'Ocultar valores';
+  const b=document.getElementById('eyeBtn');if(b)b.innerHTML=(on?OLHO_FECHADO:OLHO_ABERTO)+' '+rot.toUpperCase();
+  const m=document.getElementById('mEye');if(m){m.innerHTML=on?OLHO_FECHADO:OLHO_ABERTO;m.setAttribute('aria-label',rot);m.title=rot;}
+}
+function togglePrivado(){
+  const on=!document.body.classList.contains('privado');
+  aplicarPrivado(on);
+  try{localStorage.setItem(PRIV_KEY,on?'1':'0');}catch(e){}
+}
+{
+  let on=false;try{on=localStorage.getItem(PRIV_KEY)==='1';}catch(e){}
+  aplicarPrivado(on);
+  const obs=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{
+    if(n.nodeType===1)marcarValores(n);
+    else if(n.nodeType===3&&n.parentElement)marcarValores(n.parentElement);
+  })));
+  ['main','modal'].forEach(id=>{const el=document.getElementById(id);if(el){marcarValores(el);obs.observe(el,{childList:true,subtree:true});}});
+}
 const fdate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;};
 const today=()=>new Date().toISOString().slice(0,10);
 const ym=s=>s.slice(0,7);
