@@ -59,6 +59,22 @@ export function preverConta(conta, hoje = dataBrasilia()) {
   }
 }
 
+/* Cor do cartão: vermelho hoje, amanhã ou zerado; amarelo 2 ou 3 dias; verde mais de 3. */
+export function faixaConta(p) {
+  if (p.semConsumo) return p.saldoEstimado <= 0 ? 'vermelho' : 'neutro';
+  return p.diasRestantes <= 1 ? 'vermelho' : p.diasRestantes <= 3 ? 'amarelo' : 'verde';
+}
+
+/* Calculadora: quanto tempo dura um valor, com o gasto atual e os términos já cadastrados. */
+export const diasComValor = (conta, valor, hoje = dataBrasilia()) => preverConta({ ...conta, saldo: valor, saldoEm: '' }, hoje);
+
+/* Calculadora inversa: quanto recarregar para a conta durar X dias a partir de hoje. */
+export function quantoRecarregar(conta, dias, hoje = dataBrasilia()) {
+  let total = 0;
+  for (let i = 0; i < Math.min(dias, 3650); i++) total += gastoCentavos(conta, somarDias(hoje, i));
+  return { necessario: reais(total), recarregar: reais(Math.max(0, total - saldoEstimadoCentavos(conta, hoje))) };
+}
+
 /* Recarga soma ao saldo estimado (não ao informado) e reinicia a contagem: conta zerada
    há dias não pode "dever" o gasto desses dias depois de recarregada. */
 export function registrarRecarga(conta, { id, valor, data, obs = '' }, agora = new Date()) {

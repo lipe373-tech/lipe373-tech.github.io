@@ -1,7 +1,7 @@
 // Rodar com: node --test
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { preverConta, saldoEstimado, gastoDiario, registrarRecarga, atualizarSaldo, sanitizarConta, dataBrasilia } from './trafego-calc.mjs';
+import { preverConta, saldoEstimado, gastoDiario, registrarRecarga, atualizarSaldo, sanitizarConta, dataBrasilia, faixaConta, diasComValor, quantoRecarregar } from './trafego-calc.mjs';
 
 const HOJE = '2026-11-04';
 const camp = (valorDia, extra = {}) => ({ id: String(valorDia), nome: 'c', valorDia, fim: '', status: 'ativa', ...extra });
@@ -104,4 +104,29 @@ test('sanitizarConta aplica padrões e descarta campos desconhecidos', () => {
   assert.equal('invasor' in c, false);
   assert.deepEqual(c.campanhas, [{ id: '', nome: 'x', valorDia: 0, fim: '', status: 'ativa' }]);
   assert.equal(sanitizarConta({ alertaDias: 0 }).alertaDias, 0);
+});
+
+test('cores seguem os dias restantes', () => {
+  const dias = d => faixaConta({ semConsumo: false, diasRestantes: d, saldoEstimado: 10 });
+  assert.deepEqual([0, 1, 2, 3, 4].map(dias), ['vermelho', 'vermelho', 'amarelo', 'amarelo', 'verde']);
+  assert.equal(faixaConta({ semConsumo: true, saldoEstimado: 0 }), 'vermelho');
+  assert.equal(faixaConta({ semConsumo: true, saldoEstimado: 50 }), 'neutro');
+});
+
+test('calculadora: quantos dias dura um valor, ignorando o saldo atual', () => {
+  const conta = { saldo: 9999, saldoEm: '2026-11-01T12:00:00-03:00', gastoDiario: 60 };
+  assert.equal(diasComValor(conta, 500, HOJE).diasRestantes, 8);
+});
+
+test('calculadora: quanto recarregar para durar X dias', () => {
+  const conta = { saldo: 100, gastoDiario: 60 };
+  const r = quantoRecarregar(conta, 5, HOJE);
+  assert.deepEqual(r, { necessario: 300, recarregar: 200 });
+  assert.equal(preverConta({ ...conta, saldo: 100 + r.recarregar }, HOJE).diasRestantes, 5);
+  assert.equal(quantoRecarregar({ saldo: 1000, gastoDiario: 60 }, 5, HOJE).recarregar, 0);
+});
+
+test('calculadora: recarga respeita o término das campanhas', () => {
+  const conta = { saldo: 0, campanhas: [camp(10, { fim: '2026-11-05' }), camp(20)] };
+  assert.equal(quantoRecarregar(conta, 3, HOJE).recarregar, 30 + 30 + 20);
 });

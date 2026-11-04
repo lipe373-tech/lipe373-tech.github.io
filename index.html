@@ -138,6 +138,37 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .panel h3{font-family:'Playfair Display',serif;font-weight:500;font-size:18px;color:var(--terra-deep);margin-bottom:16px}
 .chartbox{position:relative;height:260px}
 
+/* ---------- TRÁFEGO ---------- */
+.tgrid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:20px}
+.tcard{background:var(--cream);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
+.tcard-abrir{display:block;width:100%;border:none;background:none;text-align:left;font:inherit;color:inherit;padding:16px 16px 10px;border-radius:var(--radius) var(--radius) 0 0}
+.tcard-abrir:hover .tcard-nome{color:var(--terra)}
+.tcard-abrir:focus-visible{outline:2px solid var(--terra);outline-offset:-2px}
+.tcard-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.tcard-nome{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--terra-deep);overflow-wrap:anywhere}
+.tcard-topo .pill{flex:none;white-space:nowrap}
+.pill.neutro{background:var(--rose-soft);color:var(--ink-soft)}
+.tdados{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tdados>span{display:block;min-width:0}
+.tdados>span>span{display:block;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:2px}
+.tdados b{font-weight:500;font-size:14.5px;white-space:nowrap}
+.torigem{display:block;font-size:12px;color:var(--ink-soft);margin-top:10px}
+.tcard-acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 14px;margin-top:auto}
+.tcard-acoes .btn{padding-left:8px;padding-right:8px}
+.tsec{margin-top:22px;padding-top:16px;border-top:1px solid var(--rose)}
+.tsec h3{font-family:'Playfair Display',serif;font-weight:500;font-size:16.5px;color:var(--terra-deep);margin-bottom:10px}
+.tsec-vazio{font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;line-height:1.5}
+.tlinha{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--rose-soft);font-size:14px}
+.tlinha small{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px}
+.tlinha>div:first-child{min-width:0;overflow-wrap:anywhere}
+.tlinha-acoes{display:flex;flex:none;align-items:center}
+.tcalc-res{font-size:14px;color:var(--terra-deep);font-weight:500;margin:-6px 0 14px;min-height:20px}
+@media(min-width:801px){
+  .cards.traf-resumo{grid-template-columns:repeat(3,1fr)}
+  .tgrid{grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+}
+@media(max-width:800px){.traf-resumo .card:last-child{grid-column:1/-1}}
+
 /* ---------- TABLES ---------- */
 table{width:100%;border-collapse:collapse}
 th{font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);font-weight:500;text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--rose)}
@@ -466,7 +497,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao});
+Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -605,7 +636,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261026;
+const APP_VERSAO=20261104;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -870,7 +901,7 @@ if(!configOk){
         document.getElementById('main').innerHTML='<div class="empty">Não foi possível carregar os dados.<br>Verifique a internet e as regras do Firestore, e recarregue a página.</div>';
       }
     }else{
-      currentUser=null;state=null;
+      currentUser=null;state=null;trafContas=null;
       clearTimeout(saveTimer);saveTimer=null;
       Object.values(charts).forEach(c=>c.destroy());charts={};
       // não deixa dados financeiros no HTML da página depois de sair
@@ -951,6 +982,7 @@ const ICONS={
   precificacao:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 6h6M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 15h.01M9 19h6"/></svg>',
   propostas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
   meta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>',
+  trafego:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5v3l13 5V5.5z"/><path d="M16 9a3.5 3.5 0 0 1 0 6"/><path d="M7 15v4.5h3.2V16.3"/></svg>',
   anual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>'
 };
 const GRUPOS_NAV={dinheiro:'Dinheiro',pessoas:'Clientes e vendas',analise:'Acompanhamento'};
@@ -964,6 +996,7 @@ const PAGES=[
   ['propostas','Propostas',null,'pessoas'],
   ['contratos','Contratos',null,'pessoas'],
   ['precificacao','Precificação','Preços','pessoas'],
+  ['trafego','Tráfego',null,'analise'],
   ['relatorio','Relatório Mensal','Relatório','analise'],
   ['meta','Meta do Ano','Meta','analise'],
   ['anual','Fechamento Anual','Anual','analise']
@@ -986,7 +1019,7 @@ function renderNav(){
     try{at.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});}catch(e){}
   }
 }
-function go(p){page=p;busca='';movFilter.q='';render();}
+function go(p){page=p;busca='';movFilter.q='';if(p==='trafego'){trafContas=null;trafErro=false;}render();}
 
 /* ---------- BUSCA GLOBAL ---------- */
 let busca='';
@@ -1048,6 +1081,7 @@ function render(){
   if(page==='precificacao')el.innerHTML=sample+viewPrecificacao();
   if(page==='meta')el.innerHTML=sample+viewMeta();
   if(page==='anual')el.innerHTML=sample+viewAnual();
+  if(page==='trafego')el.innerHTML=sample+viewTrafego();
   if(page==='busca')el.innerHTML=viewBusca();
   if(page==='dashboard')drawDashCharts();
   if(page==='relatorio')drawRelCharts();
@@ -1317,8 +1351,12 @@ function restaurarCopia(id){
   alert('Cópia de '+fdate(id)+' restaurada.');
 }
 function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
-function exportJSON(){
-  download('backup-financeiro-'+today()+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:new Date().toISOString(),dados:state},null,2)],{type:'application/json'}));
+async function exportJSON(){
+  // falha ao ler o Tráfego nunca impede o backup do financeiro
+  let trafego=[],semTrafego=false;
+  try{trafego=await trafLerTudo();}catch(e){console.error(e);semTrafego=true;}
+  download('backup-financeiro-'+today()+'.json',new Blob([JSON.stringify({app:'ap-financeiro',versao:1,geradoEm:new Date().toISOString(),dados:state,trafego},null,2)],{type:'application/json'}));
+  if(semTrafego)alert('Backup baixado, mas sem as contas de Tráfego: não foi possível lê-las agora.');
 }
 async function loadXLSX(){
   if(window.XLSX)return;
@@ -1574,6 +1612,266 @@ function pagarConta(id){
 }
 
 /* ---------- FORNECEDORES / CLIENTES ---------- */
+/* ---------- TRÁFEGO: saldo das contas de anúncio ----------
+   Fica em financeiro/{uid}/trafego_contas, fora do documento principal: nada aqui mexe em
+   state nem em _rev. O módulo de cálculo carrega só quando preciso, para uma falha nele
+   nunca derrubar o resto do sistema. */
+let TC=null,trafContas=null,trafErro=false,trafCarregando=false,trafSalvando=false,trafVerArq=false;
+const trafRef=id=>doc(db,'financeiro',currentUser.uid,'trafego_contas',id);
+const trafAchar=id=>(trafContas||[]).find(c=>c.id===id);
+async function trafLerTudo(){
+  TC=TC||await import('./trafego-calc.mjs?v='+APP_VERSAO);
+  const snap=await getDocs(collection(db,'financeiro',currentUser.uid,'trafego_contas'));
+  return snap.docs.filter(d=>/^[\w-]{1,60}$/.test(d.id)).map(d=>({...TC.sanitizarConta(d.data()),id:d.id}));
+}
+async function trafCarregar(){
+  if(trafCarregando)return;
+  trafCarregando=true;trafErro=false;
+  const dono=currentUser&&currentUser.uid;
+  try{const lista=await trafLerTudo();if(currentUser&&currentUser.uid===dono)trafContas=lista;}
+  catch(e){console.error(e);trafErro=true;}
+  trafCarregando=false;
+  if(page==='trafego'&&currentUser)render();
+}
+function trafTentarDeNovo(){trafErro=false;render();}
+/* Lê a versão mais nova da conta antes de alterar, para um aparelho desatualizado não
+   apagar o que outro gravou. trafSalvando evita recarga em dobro com toque duplo. */
+async function trafMudar(id,fn){
+  if(trafSalvando)return null;
+  trafSalvando=true;
+  try{
+    const nova=await runTransaction(db,async tx=>{
+      const s=await tx.get(trafRef(id));
+      const n=TC.sanitizarConta(fn(s.exists()?TC.sanitizarConta(s.data()):{}));
+      tx.set(trafRef(id),n);
+      return n;
+    });
+    const c={...nova,id},i=trafContas.findIndex(x=>x.id===id);
+    if(i>=0)trafContas[i]=c;else trafContas.push(c);
+    return c;
+  }catch(e){
+    console.error(e);
+    alert('Não foi possível salvar. Verifique a internet e tente de novo. Nada foi alterado.');
+    return null;
+  }finally{trafSalvando=false;}
+}
+const trafNome=c=>{const k=c.clienteId&&state.clientes.find(x=>x.id===c.clienteId);return k?k.nome:c.clienteNome;};
+const trafPill=p=>{
+  const cls={vermelho:'bad',amarelo:'warn',verde:'ok',neutro:'neutro'}[TC.faixaConta(p)];
+  const txt=p.saldoEstimado<=0?'Zerado':p.semConsumo?(p.gastoDiario>0?'Saldo sobra':'Sem consumo'):p.diasRestantes===0?'Acaba hoje':p.diasRestantes===1?'Acaba amanhã':p.diasRestantes+' dias';
+  return `<span class="pill ${cls}">${txt}</span>`;
+};
+const trafPrevisao=p=>p.semConsumo?(p.gastoDiario>0?'Não acaba':'Sem consumo'):p.dataPrevista?fdate(p.dataPrevista):'—';
+const trafQuando=iso=>{if(!iso)return'—';const d=new Date(iso);return isNaN(d)?'—':d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});};
+const trafOrigem=c=>(c.origem==='meta'?'Meta':'Manual')+' · saldo informado em '+trafQuando(c.saldoEm);
+function trafOrdem(p){return p.semConsumo?(p.saldoEstimado<=0?-1:Infinity):p.diasRestantes;}
+function viewTrafego(){
+  const topo=sub=>`<div class="topbar"><div><h1>Tráfego</h1><div class="sub">${sub}</div></div>${trafContas?`<button class="btn btn-primary" onclick="trafForm()">+ Nova conta</button>`:''}</div>`;
+  if(trafErro)return topo('Saldo das contas de anúncio')+`<div class="panel"><div class="empty" role="alert">Não foi possível carregar as contas de anúncio. O resto do sistema continua funcionando.<br><br><button class="btn btn-ghost btn-sm" onclick="trafTentarDeNovo()">Tentar de novo</button></div></div>`;
+  if(!trafContas){trafCarregar();return topo('Saldo das contas de anúncio')+'<div class="panel"><div class="empty" role="status">Carregando contas…</div></div>';}
+  const hoje=TC.dataBrasilia();
+  const ativas=trafContas.filter(c=>c.status==='ativa').map(c=>({c,p:TC.preverConta(c,hoje)}));
+  ativas.sort((a,b)=>(trafOrdem(a.p)-trafOrdem(b.p))||trafNome(a.c).localeCompare(trafNome(b.c),'pt-BR'));
+  const arquivadas=trafContas.filter(c=>c.status==='arquivada');
+  const urgentes=ativas.filter(x=>!x.p.semConsumo&&x.p.diasRestantes<=1).length;
+  const soma=ativas.reduce((t,x)=>t+x.p.saldoEstimado,0);
+  return topo('Saldo das contas de anúncio')+`
+  <div class="cards traf-resumo">
+    <div class="card"><div class="lbl">Contas ativas</div><div class="val">${ativas.length}</div></div>
+    <div class="card"><div class="lbl">Acabam hoje ou amanhã</div><div class="val ${urgentes?'neg':''}">${urgentes}</div></div>
+    <div class="card"><div class="lbl">Soma dos saldos</div><div class="val">${fmt(soma)}</div></div>
+  </div>
+  ${ativas.length?`<div class="tgrid">${ativas.map(({c,p})=>`<article class="tcard">
+    <button class="tcard-abrir" onclick="trafDetalhe('${c.id}')" aria-label="Ver detalhes de ${esc(trafNome(c))}">
+      <span class="tcard-topo"><span class="tcard-nome">${esc(trafNome(c))}</span>${trafPill(p)}</span>
+      <span class="tdados">
+        <span><span>Saldo</span><b>${fmt(p.saldoEstimado)}</b></span>
+        <span><span>Por dia</span><b>${fmt(p.gastoDiario)}</b></span>
+        <span><span>Acaba em</span><b>${trafPrevisao(p)}</b></span>
+      </span>
+      <span class="torigem">${esc(trafOrigem(c))}</span>
+    </button>
+    <div class="tcard-acoes">
+      <button class="btn btn-primary btn-sm" onclick="trafRecargaForm('${c.id}')">Registrar recarga</button>
+      <button class="btn btn-ghost btn-sm" onclick="trafSaldoForm('${c.id}')">Atualizar saldo</button>
+    </div>
+  </article>`).join('')}</div>`:`<div class="panel"><div class="empty">${arquivadas.length?'Nenhuma conta ativa.':'Nenhuma conta cadastrada. Toque em “+ Nova conta” para começar.'}</div></div>`}
+  ${arquivadas.length?`<div class="filters"><button class="chip" aria-expanded="${trafVerArq}" onclick="trafAlternarArq()">${trafVerArq?'Esconder':'Ver'} arquivadas (${arquivadas.length})</button></div>
+    ${trafVerArq?`<div class="panel">${arquivadas.map(c=>`<div class="tlinha"><div>${esc(trafNome(c))}</div><div class="tlinha-acoes"><button class="btn btn-ghost btn-sm" onclick="trafArquivar('${c.id}')">Reativar</button></div></div>`).join('')}</div>`:''}`:''}`;
+}
+function trafAlternarArq(){trafVerArq=!trafVerArq;render();}
+function trafAbrir(html,largo){
+  const md=document.getElementById('modal');
+  md.style.width=largo?'560px':'';
+  md.innerHTML=html;md.scrollTop=0;
+  document.getElementById('overlay').classList.add('open');
+}
+function trafDetalhe(id){
+  const c=trafAchar(id);if(!c)return;
+  const hoje=TC.dataBrasilia(),p=TC.preverConta(c,hoje);
+  const camps=c.campanhas.map(k=>{
+    const encerrada=k.fim&&k.fim<hoje;
+    return `<div class="tlinha"><div><b style="font-weight:500">${esc(k.nome)}</b>
+      <small>${fmt(k.valorDia)} por dia${k.fim?' · até '+fdate(k.fim):''} · ${encerrada?'encerrada':k.status==='pausada'?'pausada':'ativa'}</small></div>
+      <div class="tlinha-acoes">
+        <button class="rowbtn" aria-label="${k.status==='pausada'?'Reativar':'Pausar'} ${esc(k.nome)}" title="${k.status==='pausada'?'Reativar':'Pausar'}" onclick="trafCampPausar('${id}','${esc(k.id)}')">${k.status==='pausada'?'▶':'⏸'}</button>
+        <button class="rowbtn" aria-label="Editar ${esc(k.nome)}" title="Editar" onclick="trafCampForm('${id}','${esc(k.id)}')">✎</button>
+        <button class="rowbtn" aria-label="Remover ${esc(k.nome)}" title="Remover" onclick="trafCampRemover('${id}','${esc(k.id)}')">🗑</button>
+      </div></div>`;
+  }).join('');
+  const recargas=c.recargas.slice().reverse().map(r=>`<div class="tlinha"><div>${fdate(r.data)}${r.obs?`<small>${esc(r.obs)}</small>`:''}</div><b style="font-weight:500">${fmt(r.valor)}</b></div>`).join('');
+  trafAbrir(`<h2>${esc(trafNome(c))}</h2>
+    <div class="tcard-topo" style="margin-bottom:12px">${trafPill(p)}</div>
+    <div class="tdados">
+      <span><span>Saldo</span><b>${fmt(p.saldoEstimado)}</b></span>
+      <span><span>Por dia</span><b>${fmt(p.gastoDiario)}</b></span>
+      <span><span>Acaba em</span><b>${trafPrevisao(p)}</b></span>
+    </div>
+    <small class="torigem">${esc(trafOrigem(c))}</small>
+    <div class="tcard-acoes" style="padding:14px 0 0">
+      <button class="btn btn-primary btn-sm" onclick="trafRecargaForm('${id}')">Registrar recarga</button>
+      <button class="btn btn-ghost btn-sm" onclick="trafSaldoForm('${id}')">Atualizar saldo</button>
+    </div>
+    <div class="tsec"><h3>Campanhas</h3>
+      ${camps||`<p class="tsec-vazio">Sem campanhas cadastradas. Vale o gasto digitado de ${fmt(c.gastoDiario)} por dia.</p>`}
+      <button class="chip" style="margin-top:10px" onclick="trafCampForm('${id}')">+ Adicionar campanha</button>
+    </div>
+    <div class="tsec"><h3>Calculadora</h3>
+      <div class="field"><label for="t_cval">Quantos dias dura este valor (R$)</label><input type="number" step="0.01" min="0" id="t_cval" inputmode="decimal" oninput="trafCalc('${id}')"></div>
+      <p class="tcalc-res" id="t_cvalRes" aria-live="polite"></p>
+      <div class="field"><label for="t_cdias">Quanto recarregar para durar (dias)</label><input type="number" step="1" min="1" max="3650" id="t_cdias" inputmode="numeric" oninput="trafCalc('${id}')"></div>
+      <p class="tcalc-res" id="t_cdiasRes" aria-live="polite"></p>
+    </div>
+    <div class="tsec"><h3>Histórico de recargas</h3>${recargas||'<p class="tsec-vazio">Nenhuma recarga registrada.</p>'}</div>
+    <div class="tsec"><h3><label for="t_obs">Observações</label></h3>
+      <div class="field"><textarea id="t_obs" maxlength="4000">${esc(c.obs)}</textarea></div>
+      <button class="btn btn-ghost btn-sm" onclick="trafObsSalvar('${id}')">Salvar observações</button>
+    </div>
+    <div class="modalbtns">
+      <button class="btn btn-ghost" onclick="trafArquivar('${id}')">Arquivar</button>
+      <button class="btn btn-ghost" onclick="trafForm('${id}')">Editar conta</button>
+      <button class="btn btn-primary" onclick="closeModal()">Fechar</button>
+    </div>`,true);
+}
+function trafCalc(id){
+  const c=trafAchar(id);if(!c)return;
+  const hoje=TC.dataBrasilia();
+  const v=parseFloat(gv('t_cval')),d=parseInt(gv('t_cdias'),10);
+  let r1='';
+  if(v>0){const p=TC.diasComValor(c,v,hoje);r1=p.semConsumo?'Sem consumo: esse valor não acaba com o gasto atual.':'Dura '+p.diasRestantes+(p.diasRestantes===1?' dia':' dias')+(p.dataPrevista?', até '+fdate(p.dataPrevista):'')+'.';}
+  document.getElementById('t_cvalRes').textContent=r1;
+  let r2='';
+  if(d>0&&d<=3650){const q=TC.quantoRecarregar(c,d,hoje);r2=q.recarregar>0?'Recarregar '+fmt(q.recarregar)+' (gasto previsto de '+fmt(q.necessario)+').':'Não precisa recarregar: o saldo já cobre esse período.';}
+  document.getElementById('t_cdiasRes').textContent=r2;
+}
+function trafForm(id){
+  const c=id?trafAchar(id):null;
+  const clientes=state.clientes.filter(k=>k.status!=='inativo'||(c&&k.id===c.clienteId));
+  const temCamp=c&&c.campanhas.length;
+  trafAbrir(`<h2>${c?'Editar':'Nova'} conta de anúncio</h2>
+    <div class="field"><label for="t_cli">Cliente</label><select id="t_cli" onchange="trafCliToggle()">
+      <option value="">Digitar nome</option>${clientes.map(k=>`<option value="${esc(k.id)}" ${c&&c.clienteId===k.id?'selected':''}>${esc(k.nome)}</option>`).join('')}
+    </select></div>
+    <div class="field" id="t_nomeBox" ${c&&c.clienteId?'hidden':''}><label for="t_nome">Nome do cliente</label><input id="t_nome" maxlength="200" value="${c?esc(c.clienteNome):''}"></div>
+    ${c?'':`<div class="field"><label for="t_saldo">Saldo atual (R$)</label><input type="number" step="0.01" min="0" id="t_saldo" inputmode="decimal" placeholder="0,00"></div>`}
+    <div class="fieldrow">
+      <div class="field"><label for="t_gasto">Gasto por dia (R$)</label><input type="number" step="0.01" min="0" id="t_gasto" inputmode="decimal" value="${c?c.gastoDiario:''}" placeholder="0,00"></div>
+      <div class="field"><label for="t_alerta">Avisar com (dias)</label><input type="number" step="1" min="0" max="60" id="t_alerta" inputmode="numeric" value="${c?c.alertaDias:1}"></div>
+    </div>
+    ${temCamp?'<p class="tsec-vazio">Esta conta tem campanhas: o gasto por dia vem da soma delas, não deste campo.</p>':''}
+    <div class="modalbtns"><button class="btn btn-ghost" onclick="${c?`trafDetalhe('${id}')`:'closeModal()'}">Cancelar</button><button class="btn btn-primary" onclick="trafSalvar('${id||''}')">Salvar</button></div>`);
+}
+function trafCliToggle(){document.getElementById('t_nomeBox').hidden=!!gv('t_cli');}
+/* Número de formulário: vazio vale 0; negativo ou inválido devolve null. */
+function trafNum(campo){const t=gv(campo);if(!t)return 0;const n=parseFloat(t);return Number.isFinite(n)&&n>=0?n:null;}
+async function trafSalvar(id){
+  const cli=gv('t_cli');
+  const k=cli&&state.clientes.find(x=>x.id===cli);
+  const nome=k?k.nome:gv('t_nome');
+  if(!nome){alert('Preencha o nome do cliente.');return;}
+  const gasto=trafNum('t_gasto'),alerta=parseInt(gv('t_alerta'),10);
+  if(gasto===null){alert('Informe um gasto por dia válido.');return;}
+  if(!(alerta>=0&&alerta<=60)){alert('O aviso deve ser de 0 a 60 dias.');return;}
+  const campos={clienteId:k?k.id:'',clienteNome:nome,gastoDiario:gasto,alertaDias:alerta};
+  if(id){
+    if(await trafMudar(id,c=>({...c,...campos}))){trafDetalhe(id);render();}
+    return;
+  }
+  const saldo=trafNum('t_saldo');
+  if(saldo===null){alert('Informe um saldo válido.');return;}
+  const novo=uid(),agora=new Date().toISOString();
+  if(await trafMudar(novo,()=>({...campos,origem:'manual',saldo,saldoEm:agora}))){closeModal();render();}
+}
+function trafRecargaForm(id){
+  const c=trafAchar(id);if(!c)return;
+  const hoje=TC.dataBrasilia();
+  trafAbrir(`<h2>Registrar recarga</h2>
+    <p class="tsec-vazio">${esc(trafNome(c))} · saldo estimado de ${fmt(TC.saldoEstimado(c,hoje))}. O valor será somado a este saldo.</p>
+    <div class="fieldrow">
+      <div class="field"><label for="t_rval">Valor (R$)</label><input type="number" step="0.01" min="0" id="t_rval" inputmode="decimal" placeholder="0,00"></div>
+      <div class="field"><label for="t_rdata">Data</label><input type="date" id="t_rdata" value="${hoje}"></div>
+    </div>
+    <div class="field"><label for="t_robs">Observação</label><input id="t_robs" maxlength="500"></div>
+    <div class="modalbtns"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="trafRecargaSalvar('${id}')">Registrar</button></div>`);
+  document.getElementById('t_rval').focus();
+}
+async function trafRecargaSalvar(id){
+  const valor=trafNum('t_rval');
+  if(!valor){alert('Informe um valor maior que zero.');return;}
+  const rec={id:uid(),valor,data:gv('t_rdata'),obs:gv('t_robs')},agora=new Date();
+  if(await trafMudar(id,c=>TC.registrarRecarga(c,rec,agora))){closeModal();render();}
+}
+function trafSaldoForm(id){
+  const c=trafAchar(id);if(!c)return;
+  trafAbrir(`<h2>Atualizar saldo</h2>
+    <p class="tsec-vazio">${esc(trafNome(c))}. Informe o saldo real de agora: ele substitui o estimado e a contagem recomeça.</p>
+    <div class="field"><label for="t_sval">Saldo real (R$)</label><input type="number" step="0.01" min="0" id="t_sval" inputmode="decimal" placeholder="0,00"></div>
+    <div class="modalbtns"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="trafSaldoSalvar('${id}')">Atualizar</button></div>`);
+  document.getElementById('t_sval').focus();
+}
+async function trafSaldoSalvar(id){
+  if(!gv('t_sval')){alert('Informe o saldo.');return;}
+  const valor=trafNum('t_sval');
+  if(valor===null){alert('Informe um saldo válido.');return;}
+  const agora=new Date();
+  if(await trafMudar(id,c=>TC.atualizarSaldo(c,valor,agora))){closeModal();render();}
+}
+function trafCampForm(id,campId){
+  const c=trafAchar(id);if(!c)return;
+  const k=campId?c.campanhas.find(x=>x.id===campId):null;
+  trafAbrir(`<h2>${k?'Editar':'Nova'} campanha</h2>
+    <div class="field"><label for="t_knome">Nome</label><input id="t_knome" maxlength="200" value="${k?esc(k.nome):''}"></div>
+    <div class="fieldrow">
+      <div class="field"><label for="t_kval">Valor por dia (R$)</label><input type="number" step="0.01" min="0" id="t_kval" inputmode="decimal" value="${k?k.valorDia:''}" placeholder="0,00"></div>
+      <div class="field"><label for="t_kfim">Término (opcional)</label><input type="date" id="t_kfim" value="${k?k.fim:''}"></div>
+    </div>
+    <div class="modalbtns"><button class="btn btn-ghost" onclick="trafDetalhe('${id}')">Voltar</button><button class="btn btn-primary" onclick="trafCampSalvar('${id}','${k?esc(k.id):''}')">Salvar</button></div>`);
+  document.getElementById('t_knome').focus();
+}
+async function trafCampAlterar(id,fn){if(await trafMudar(id,c=>({...c,campanhas:fn(c.campanhas||[])}))){trafDetalhe(id);render();}}
+function trafCampSalvar(id,campId){
+  const nome=gv('t_knome'),valorDia=trafNum('t_kval'),fim=gv('t_kfim');
+  if(!nome){alert('Preencha o nome da campanha.');return;}
+  if(!valorDia){alert('Informe um valor por dia maior que zero.');return;}
+  const novoId=uid();
+  trafCampAlterar(id,l=>campId?l.map(x=>x.id===campId?{...x,nome,valorDia,fim}:x):[...l,{id:novoId,nome,valorDia,fim,status:'ativa'}]);
+}
+function trafCampPausar(id,campId){trafCampAlterar(id,l=>l.map(x=>x.id===campId?{...x,status:x.status==='pausada'?'ativa':'pausada'}:x));}
+function trafCampRemover(id,campId){
+  if(!confirm('Remover esta campanha?'))return;
+  trafCampAlterar(id,l=>l.filter(x=>x.id!==campId));
+}
+async function trafObsSalvar(id){
+  const obs=gv('t_obs');
+  if(await trafMudar(id,c=>({...c,obs}))){trafDetalhe(id);render();}
+}
+async function trafArquivar(id){
+  const c=trafAchar(id);if(!c)return;
+  const arquivar=c.status==='ativa';
+  if(arquivar&&!confirm('Arquivar esta conta? Ela sai da lista, mas nada é apagado.'))return;
+  if(await trafMudar(id,x=>({...x,status:arquivar?'arquivada':'ativa'}))){closeModal();render();}
+}
+
 function viewFornecedores(){
   const gasto={};state.saidas.filter(s=>s.fornecedorId).forEach(s=>{gasto[s.fornecedorId]=(gasto[s.fornecedorId]||0)+s.valor;});
   return `
