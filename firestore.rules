@@ -71,6 +71,17 @@ service cloud.firestore {
           && contaTrafegoValida(request.resource.data);
         allow delete: if false; // accounts are archived, never deleted
       }
+
+      // One document per device that receives the daily notice.
+      match /trafego_aparelhos/{aparelho} {
+        allow get, list, delete: if permitido() && request.auth.uid == uid;
+        allow create, update: if permitido() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['token', 'atualizadoEm'])
+          && request.resource.data.token is string
+          && request.resource.data.token.size() <= 4096
+          && request.resource.data.atualizadoEm is string;
+      }
+      // trafego_avisos is server-only: the catch-all below denies client access.
     }
 
     match /{document=**} {

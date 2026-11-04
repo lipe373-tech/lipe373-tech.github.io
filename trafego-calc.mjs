@@ -74,6 +74,25 @@ export function contasEmAlerta(contas, hoje = dataBrasilia()) {
     .sort((a, b) => a.previsao.diasRestantes - b.previsao.diasRestantes);
 }
 
+/* Contas em alerta que ainda não receberam aviso hoje. ultimos: { idDaConta: 'AAAA-MM-DD' }. */
+export const contasParaAvisar = (contas, ultimos, hoje = dataBrasilia()) => contasEmAlerta(contas, hoje).filter(({ conta }) => ultimos[conta.id] !== hoje);
+
+const juntarNomes = nomes => {
+  const visiveis = nomes.slice(0, 5);
+  if (nomes.length > 5) return visiveis.join(', ') + ' e mais ' + (nomes.length - 5);
+  return visiveis.length > 1 ? visiveis.slice(0, -1).join(', ') + ' e ' + visiveis.at(-1) : visiveis[0];
+};
+const quandoAcaba = d => (d === 0 ? 'hoje' : d === 1 ? 'amanhã' : 'em ' + d + ' dias');
+
+/* Texto da notificação. itens: [{ nome, diasRestantes }], com pelo menos um item. */
+export function textoAviso(itens) {
+  const titulo = 'Saldo de anúncios';
+  if (itens.length === 1) return { titulo, corpo: itens[0].nome + ' acaba ' + quandoAcaba(itens[0].diasRestantes) };
+  const nomes = juntarNomes(itens.map(i => i.nome));
+  const mesmoDia = itens.every(i => i.diasRestantes === itens[0].diasRestantes);
+  return { titulo, corpo: itens.length + ' contas ' + (mesmoDia ? 'acabam ' + quandoAcaba(itens[0].diasRestantes) : 'perto de acabar') + ': ' + nomes };
+}
+
 /* Calculadora: quanto tempo dura um valor, com o gasto atual e os términos já cadastrados. */
 export const diasComValor = (conta, valor, hoje = dataBrasilia()) => preverConta({ ...conta, saldo: valor, saldoEm: '' }, hoje);
 

@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/trafego-avisos", "schedule": "0 11 * * *" }]
+}

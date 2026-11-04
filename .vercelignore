@@ -1,0 +1,10 @@
+# A Vercel publica só a função; o site continua no GitHub Pages.
+index.html
+sw.js
+manifest.json
+CNAME
+*.png
+*.test.mjs
+firestore.rules
+firebase.json
+.github

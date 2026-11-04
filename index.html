@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://amandapinheiro-6d032.firebaseapp.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://fcmregistrations.googleapis.com https://firebaseinstallations.googleapis.com; frame-src https://amandapinheiro-6d032.firebaseapp.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw==" crossorigin="anonymous"></script>
 <style>
@@ -162,6 +162,7 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .tlinha small{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px}
 .tlinha>div:first-child{min-width:0;overflow-wrap:anywhere}
 .tlinha-acoes{display:flex;flex:none;align-items:center}
+.tpush{justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
 .tcard-foco{outline:2px solid var(--terra);outline-offset:2px}
 .talerta .tlinha{flex-wrap:wrap}
 .talerta .tlinha>div:first-child{flex:1 1 150px}
@@ -501,7 +502,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
+Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -640,7 +641,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261105;
+const APP_VERSAO=20261106;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -851,6 +852,7 @@ async function doReset(){
 }
 async function encerrarSessao(msg){
   await flushSave();
+  await trafPushAoSair();
   await signOut(auth);
   closeModal();
   if(msg)loginError(msg);
@@ -1643,7 +1645,7 @@ async function trafCarregar(){
 }
 /* Pop-up de alerta: aparece uma vez por abertura, sempre depois dos outros avisos. */
 const trafAlertas=()=>TC&&trafContas?TC.contasEmAlerta(trafContas,TC.dataBrasilia()):[];
-function trafIniciar(){trafAlertaPend=true;trafCarregar();}
+function trafIniciar(){trafAlertaPend=true;trafCarregar();trafPushRenovar();}
 function trafMostrarPendente(){
   if(!trafAlertaPend||!state||!trafContas||document.getElementById('overlay').classList.contains('open'))return;
   trafAlertaPend=false;
@@ -1717,6 +1719,7 @@ function viewTrafego(){
     <div class="card"><div class="lbl">Acabam hoje ou amanhã</div><div class="val ${urgentes?'neg':''}">${urgentes}</div></div>
     <div class="card"><div class="lbl">Soma dos saldos</div><div class="val">${fmt(soma)}</div></div>
   </div>
+  ${trafPushBarra()}
   ${ativas.length?`<div class="tgrid">${ativas.map(({c,p})=>`<article class="tcard" id="tcard-${c.id}">
     <button class="tcard-abrir" onclick="trafDetalhe('${c.id}')" aria-label="Ver detalhes de ${esc(trafNome(c))}">
       <span class="tcard-topo"><span class="tcard-nome">${esc(trafNome(c))}</span>${trafPill(p)}</span>
@@ -1734,6 +1737,73 @@ function viewTrafego(){
   </article>`).join('')}</div>`:`<div class="panel"><div class="empty">${arquivadas.length?'Nenhuma conta ativa.':'Nenhuma conta cadastrada. Toque em “+ Nova conta” para começar.'}</div></div>`}
   ${arquivadas.length?`<div class="filters"><button class="chip" aria-expanded="${trafVerArq}" onclick="trafAlternarArq()">${trafVerArq?'Esconder':'Ver'} arquivadas (${arquivadas.length})</button></div>
     ${trafVerArq?`<div class="panel">${arquivadas.map(c=>`<div class="tlinha"><div>${esc(trafNome(c))}</div><div class="tlinha-acoes"><button class="btn btn-ghost btn-sm" onclick="trafArquivar('${c.id}')">Reativar</button></div></div>`).join('')}</div>`:''}`:''}`;
+}
+/* Notificações: cada aparelho guarda seu token em trafego_aparelhos. O envio é feito pelo
+   cron (api/trafego-avisos.mjs); o sw.js mostra a notificação. A chave VAPID é pública. */
+const TRAF_VAPID='';
+const TRAF_FCM='https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+const trafPushChave=()=>'ap_push_'+currentUser.uid;
+function trafPushLido(){try{return localStorage.getItem(trafPushChave());}catch(e){return null;}}
+function trafPushMarcar(v){try{if(v)localStorage.setItem(trafPushChave(),v);else localStorage.removeItem(trafPushChave());}catch(e){}}
+const trafAparelhoRef=id=>doc(db,'financeiro',currentUser.uid,'trafego_aparelhos',id);
+function trafPushEstado(){
+  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window))
+    return /iPhone|iPad|iPod/.test(navigator.userAgent)?'iphone':'indisponivel';
+  if(Notification.permission==='denied')return 'negado';
+  return Notification.permission==='granted'&&trafPushLido()?'ativo':'desligado';
+}
+function trafPushBarra(){
+  if(!TRAF_VAPID)return '';
+  const e=trafPushEstado();
+  const txt={iphone:'No iPhone, adicione o app à Tela de Início para receber notificações.',indisponivel:'Este navegador não recebe notificações.',negado:'Notificações bloqueadas neste aparelho. Libere nas configurações do navegador.',ativo:'Notificações ativas neste aparelho.',desligado:'Receba um aviso por dia quando uma conta estiver perto de acabar.'}[e];
+  const btn=e==='ativo'?'<button class="chip" onclick="trafPushDesativar()">Desativar</button>':e==='desligado'?'<button class="btn btn-primary btn-sm" onclick="trafPushAtivar()">Ativar notificações</button>':'';
+  return `<div class="filters tpush"><span class="tsec-vazio" style="margin:0">${txt}</span>${btn}</div>`;
+}
+async function trafPushToken(){
+  const {getMessaging,getToken,isSupported}=await import(TRAF_FCM);
+  if(!await isSupported())throw new Error('sem suporte');
+  const serviceWorkerRegistration=await navigator.serviceWorker.ready;
+  const token=await getToken(getMessaging(fbApp),{vapidKey:TRAF_VAPID,serviceWorkerRegistration});
+  if(!token)throw new Error('sem token');
+  const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));
+  return {token,id:[...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,'0')).join('')};
+}
+async function trafPushGravar(){
+  const {token,id}=await trafPushToken(),antigo=trafPushLido();
+  await runTransaction(db,async tx=>{
+    if(antigo&&antigo!==id)tx.delete(trafAparelhoRef(antigo));
+    tx.set(trafAparelhoRef(id),{token,atualizadoEm:new Date().toISOString()});
+  });
+  trafPushMarcar(id);
+}
+async function trafPushAtivar(){
+  try{
+    if(await Notification.requestPermission()==='granted')await trafPushGravar();
+  }catch(e){
+    console.error(e);
+    alert('Não foi possível ativar as notificações. Verifique a internet e tente de novo.');
+  }
+  render();
+}
+async function trafPushDesligar(){
+  const id=trafPushLido();if(!id)return;
+  try{const {getMessaging,deleteToken}=await import(TRAF_FCM);await deleteToken(getMessaging(fbApp));}catch(e){console.error(e);}
+  await runTransaction(db,async tx=>{tx.delete(trafAparelhoRef(id));});
+  trafPushMarcar(null);
+}
+async function trafPushDesativar(){
+  try{await trafPushDesligar();}
+  catch(e){console.error(e);alert('Não foi possível desativar. Verifique a internet e tente de novo.');}
+  render();
+}
+/* Ao abrir: o token pode mudar com o tempo, e a permissão pode ter sido retirada. */
+function trafPushRenovar(){
+  if(!TRAF_VAPID||!trafPushLido()||!('Notification' in window))return;
+  (Notification.permission==='granted'?trafPushGravar():trafPushDesligar()).catch(e=>console.error(e));
+}
+/* Ao sair: este aparelho para de receber avisos desta conta. Nunca segura o logout. */
+function trafPushAoSair(){
+  return Promise.race([trafPushDesligar().catch(e=>console.error(e)),new Promise(r=>setTimeout(r,3000))]);
 }
 function trafAlternarArq(){trafVerArq=!trafVerArq;render();}
 function trafAbrir(html,largo){
