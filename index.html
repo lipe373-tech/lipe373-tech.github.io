@@ -162,6 +162,10 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .tlinha small{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:2px}
 .tlinha>div:first-child{min-width:0;overflow-wrap:anywhere}
 .tlinha-acoes{display:flex;flex:none;align-items:center}
+.tcard-foco{outline:2px solid var(--terra);outline-offset:2px}
+.talerta .tlinha{flex-wrap:wrap}
+.talerta .tlinha>div:first-child{flex:1 1 150px}
+.talerta .tlinha-acoes{gap:6px}
 .tcalc-res{font-size:14px;color:var(--terra-deep);font-weight:500;margin:-6px 0 14px;min-height:20px}
 @media(min-width:801px){
   .cards.traf-resumo{grid-template-columns:repeat(3,1fr)}
@@ -497,7 +501,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
+Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -636,7 +640,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261104;
+const APP_VERSAO=20261105;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -895,13 +899,14 @@ if(!configOk){
         showBoasVindas();
         if(versaoAntiga)mostrarVersaoAntiga();
         else if(pendenteConflito)mostrarPendente();
+        trafIniciar();
       }catch(e){
         console.error(e);
         setSync('⚠ erro ao carregar dados','err');
         document.getElementById('main').innerHTML='<div class="empty">Não foi possível carregar os dados.<br>Verifique a internet e as regras do Firestore, e recarregue a página.</div>';
       }
     }else{
-      currentUser=null;state=null;trafContas=null;
+      currentUser=null;state=null;trafContas=null;trafAlertaPend=false;trafVoltarAlerta=false;trafAlertaN=0;
       clearTimeout(saveTimer);saveTimer=null;
       Object.values(charts).forEach(c=>c.destroy());charts={};
       // não deixa dados financeiros no HTML da página depois de sair
@@ -1006,7 +1011,7 @@ function renderNav(){
   let grupoAnterior=null;
   document.getElementById('nav').innerHTML=PAGES.map(([k,l,sh,grupo])=>
     (grupo&&grupo!==grupoAnterior?(grupoAnterior=grupo,`<div class="nav-grupo" role="presentation">${GRUPOS_NAV[grupo]}</div>`):'')
-    +`<button class="${page===k?'active':''}" onclick="go('${k}')" aria-label="${l}">${ICONS[k]}<span class="lg">${l}</span><span class="sh">${sh||l}</span>${k==='contas'&&atras?`<span class="navbadge">${atras}</span>`:''}</button>`
+    +`<button class="${page===k?'active':''}" onclick="go('${k}')" aria-label="${l}${k==='trafego'&&trafAlertaN?', '+trafAlertaN+' em alerta':''}">${ICONS[k]}<span class="lg">${l}</span><span class="sh">${sh||l}</span>${k==='contas'&&atras?`<span class="navbadge">${atras}</span>`:''}${k==='trafego'&&trafAlertaN?`<span class="navbadge">${trafAlertaN}</span>`:''}</button>`
   ).join('')
   +`<button class="mobileonly" onclick="openConfig()"><span style="font-size:18px;line-height:1">⚙</span><span>Ajustes</span></button>`
   +`<button class="mobileonly" onclick="sair()"><span style="font-size:18px;line-height:1">⏻</span><span>Sair</span></button>`;
@@ -1616,7 +1621,7 @@ function pagarConta(id){
    Fica em financeiro/{uid}/trafego_contas, fora do documento principal: nada aqui mexe em
    state nem em _rev. O módulo de cálculo carrega só quando preciso, para uma falha nele
    nunca derrubar o resto do sistema. */
-let TC=null,trafContas=null,trafErro=false,trafCarregando=false,trafSalvando=false,trafVerArq=false;
+let TC=null,trafContas=null,trafErro=false,trafCarregando=false,trafSalvando=false,trafVerArq=false,trafAlertaPend=false,trafVoltarAlerta=false,trafAlertaN=0;
 const trafRef=id=>doc(db,'financeiro',currentUser.uid,'trafego_contas',id);
 const trafAchar=id=>(trafContas||[]).find(c=>c.id===id);
 async function trafLerTudo(){
@@ -1631,7 +1636,37 @@ async function trafCarregar(){
   try{const lista=await trafLerTudo();if(currentUser&&currentUser.uid===dono)trafContas=lista;}
   catch(e){console.error(e);trafErro=true;}
   trafCarregando=false;
-  if(page==='trafego'&&currentUser)render();
+  if(!currentUser)return;
+  trafAlertaN=trafAlertas().length;
+  if(page==='trafego')render();else if(state)renderNav();
+  trafMostrarPendente();
+}
+/* Pop-up de alerta: aparece uma vez por abertura, sempre depois dos outros avisos. */
+const trafAlertas=()=>TC&&trafContas?TC.contasEmAlerta(trafContas,TC.dataBrasilia()):[];
+function trafIniciar(){trafAlertaPend=true;trafCarregar();}
+function trafMostrarPendente(){
+  if(!trafAlertaPend||!state||!trafContas||document.getElementById('overlay').classList.contains('open'))return;
+  trafAlertaPend=false;
+  const lista=trafAlertas();
+  if(!lista.length)return;
+  trafAbrir(`<div class="talerta"><h2>Contas perto de acabar</h2>
+    ${lista.map(({conta:c,previsao:p})=>`<div class="tlinha"><div><b style="font-weight:500">${esc(trafNome(c))}</b> ${trafPill(p)}<small>Saldo estimado de ${fmt(p.saldoEstimado)}</small></div>
+      <div class="tlinha-acoes">
+        <button class="btn btn-ghost btn-sm" aria-label="Ver cartão de ${esc(trafNome(c))}" onclick="trafVerCartao('${c.id}')">Ver cartão</button>
+        <button class="btn btn-primary btn-sm" aria-label="Já recarreguei ${esc(trafNome(c))}" onclick="trafJaRecarreguei('${c.id}')">Já recarreguei</button>
+      </div></div>`).join('')}
+    <div class="modalbtns"><button class="btn btn-ghost" onclick="closeModal()">Lembrar mais tarde</button></div></div>`,true);
+}
+function trafJaRecarreguei(id){trafVoltarAlerta=true;trafRecargaForm(id);}
+function trafVerCartao(id){
+  closeModal();
+  // usa a lista já carregada: go() recarregaria e o cartão ainda não existiria para rolar até ele
+  page='trafego';busca='';movFilter.q='';render();
+  const el=document.getElementById('tcard-'+id);if(!el)return;
+  el.scrollIntoView({block:'center'});
+  el.classList.add('tcard-foco');
+  el.querySelector('button').focus({preventScroll:true});
+  setTimeout(()=>el.classList.remove('tcard-foco'),3000);
 }
 function trafTentarDeNovo(){trafErro=false;render();}
 /* Lê a versão mais nova da conta antes de alterar, para um aparelho desatualizado não
@@ -1648,6 +1683,7 @@ async function trafMudar(id,fn){
     });
     const c={...nova,id},i=trafContas.findIndex(x=>x.id===id);
     if(i>=0)trafContas[i]=c;else trafContas.push(c);
+    trafAlertaN=trafAlertas().length;
     return c;
   }catch(e){
     console.error(e);
@@ -1681,7 +1717,7 @@ function viewTrafego(){
     <div class="card"><div class="lbl">Acabam hoje ou amanhã</div><div class="val ${urgentes?'neg':''}">${urgentes}</div></div>
     <div class="card"><div class="lbl">Soma dos saldos</div><div class="val">${fmt(soma)}</div></div>
   </div>
-  ${ativas.length?`<div class="tgrid">${ativas.map(({c,p})=>`<article class="tcard">
+  ${ativas.length?`<div class="tgrid">${ativas.map(({c,p})=>`<article class="tcard" id="tcard-${c.id}">
     <button class="tcard-abrir" onclick="trafDetalhe('${c.id}')" aria-label="Ver detalhes de ${esc(trafNome(c))}">
       <span class="tcard-topo"><span class="tcard-nome">${esc(trafNome(c))}</span>${trafPill(p)}</span>
       <span class="tdados">
@@ -3277,7 +3313,12 @@ function openForm(type,id){
   md.innerHTML=html;ov.classList.add('open');
   const first=md.querySelector('input');if(first)first.focus();
 }
-function closeModal(){document.getElementById('overlay').classList.remove('open');document.getElementById('modal').style.width='';}
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');document.getElementById('modal').style.width='';
+  if(trafVoltarAlerta){trafVoltarAlerta=false;trafAlertaPend=true;}
+  // depois do clique terminar: o botão pode abrir outro aviso logo em seguida (ex.: contratos)
+  if(trafAlertaPend)setTimeout(trafMostrarPendente,0);
+}
 function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 function submitForm(type,id){
   const num=v=>parseFloat(v)||0;

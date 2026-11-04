@@ -65,6 +65,15 @@ export function faixaConta(p) {
   return p.diasRestantes <= 1 ? 'vermelho' : p.diasRestantes <= 3 ? 'amarelo' : 'verde';
 }
 
+/* Em alerta: conta ativa, com gasto, dentro do prazo de aviso dela. Mais urgentes primeiro. */
+export function contasEmAlerta(contas, hoje = dataBrasilia()) {
+  return contas
+    .filter(conta => conta.status !== 'arquivada')
+    .map(conta => ({ conta, previsao: preverConta(conta, hoje) }))
+    .filter(({ conta, previsao: p }) => !p.semConsumo && p.diasRestantes <= (conta.alertaDias ?? 1))
+    .sort((a, b) => a.previsao.diasRestantes - b.previsao.diasRestantes);
+}
+
 /* Calculadora: quanto tempo dura um valor, com o gasto atual e os términos já cadastrados. */
 export const diasComValor = (conta, valor, hoje = dataBrasilia()) => preverConta({ ...conta, saldo: valor, saldoEm: '' }, hoje);
 

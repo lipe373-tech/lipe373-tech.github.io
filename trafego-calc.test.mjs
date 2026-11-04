@@ -1,7 +1,7 @@
 // Rodar com: node --test
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { preverConta, saldoEstimado, gastoDiario, registrarRecarga, atualizarSaldo, sanitizarConta, dataBrasilia, faixaConta, diasComValor, quantoRecarregar } from './trafego-calc.mjs';
+import { preverConta, saldoEstimado, gastoDiario, registrarRecarga, atualizarSaldo, sanitizarConta, dataBrasilia, faixaConta, diasComValor, quantoRecarregar, contasEmAlerta } from './trafego-calc.mjs';
 
 const HOJE = '2026-11-04';
 const camp = (valorDia, extra = {}) => ({ id: String(valorDia), nome: 'c', valorDia, fim: '', status: 'ativa', ...extra });
@@ -129,4 +129,21 @@ test('calculadora: quanto recarregar para durar X dias', () => {
 test('calculadora: recarga respeita o término das campanhas', () => {
   const conta = { saldo: 0, campanhas: [camp(10, { fim: '2026-11-05' }), camp(20)] };
   assert.equal(quantoRecarregar(conta, 3, HOJE).recarregar, 30 + 30 + 20);
+});
+
+test('alerta respeita o prazo de cada conta e ordena pelos mais urgentes', () => {
+  const conta = (nome, saldo, extra = {}) => ({ nome, saldo, gastoDiario: 30, alertaDias: 1, status: 'ativa', ...extra });
+  const nomes = contasEmAlerta([
+    conta('amanhã', 40),
+    conta('hoje', 10),
+    conta('3 dias, avisa com 1', 90),
+    conta('3 dias, avisa com 3', 90, { alertaDias: 3 }),
+    conta('0 dias, avisa com 0', 10, { alertaDias: 0 }),
+    conta('1 dia, avisa com 0', 40, { alertaDias: 0 }),
+    conta('arquivada', 10, { status: 'arquivada' }),
+    conta('sem consumo', 0, { gastoDiario: 0 }),
+    conta('saldo sobra', 100, { campanhas: [camp(10, { fim: '2026-11-05' })] }),
+  ], HOJE).map(x => x.conta.nome);
+  assert.deepEqual(nomes.slice(0, 2).sort(), ['0 dias, avisa com 0', 'hoje']);
+  assert.deepEqual(nomes.slice(2), ['amanhã', '3 dias, avisa com 3']);
 });
