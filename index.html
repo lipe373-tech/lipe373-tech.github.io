@@ -641,7 +641,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261107;
+const APP_VERSAO=20261108;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -1740,7 +1740,7 @@ function viewTrafego(){
 }
 /* Notificações: cada aparelho guarda seu token em trafego_aparelhos. O envio é feito pelo
    cron (api/trafego-avisos.mjs); o sw.js mostra a notificação. A chave VAPID é pública. */
-const TRAF_VAPID='BJ8CVpw02lgCL7nH5lIfQt6J7Oob2LL_xT_y2R2hwqjeuij53L6Ex3awAL6wrMfXXkaD3xEek_VCMoNumZsimWY';
+const TRAF_VAPID='BJMeqD8Nq-jZt0gAq4-Ek6DwWP7z6Au5EK39aE6uhbyytkMmnqJLckn3C2bG0FZF6bHS_c36-eo0v9qgBTl080k';
 const TRAF_FCM='https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
 const trafPushChave=()=>'ap_push_'+currentUser.uid;
 function trafPushLido(){try{return localStorage.getItem(trafPushChave());}catch(e){return null;}}
