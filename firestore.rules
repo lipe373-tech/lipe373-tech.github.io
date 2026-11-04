@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only these Firebase Auth accounts may use the system (UIDs from
+    // Authentication > Users). Anyone else who manages to create an account
+    // through the public API gets nothing.
+    function permitido() {
+      return request.auth != null
+        && request.auth.uid in ['wdeRWG5B5DWD1LZn9YcNuuq5TDs2',   // Amanda
+                                'xClpqSRHIBgWRt62AOahVmbbHA83'];  // Felipe
+    }
+
+    function estadoValido(d) {
+      return d.keys().hasOnly(['entradas', 'saidas', 'contas', 'fornecedores',
+                               'clientes', 'contratos', 'propostas', 'config', '_rev'])
+        && d.keys().hasAll(['entradas', 'saidas', 'contas', 'fornecedores',
+                            'clientes', 'contratos', 'propostas', 'config', '_rev'])
+        && d.entradas is list && d.saidas is list && d.contas is list
+        && d.fornecedores is list && d.clientes is list && d.contratos is list
+        && d.propostas is list && d.config is map && d._rev is int;
+    }
+
+    match /financeiro/{uid} {
+      allow get: if permitido() && request.auth.uid == uid;
+
+      allow create: if permitido() && request.auth.uid == uid
+        && estadoValido(request.resource.data)
+        && request.resource.data._rev == 1;
+
+      // Optimistic lock: each write must be exactly the next version, so a
+      // stale tab or device can never overwrite newer data.
+      allow update: if permitido() && request.auth.uid == uid
+        && estadoValido(request.resource.data)
+        && request.resource.data._rev == resource.data.get('_rev', 0) + 1;
+
+      allow list, delete: if false;
+
+      // Daily snapshots written by the app on the first save of each day.
+      // Create-only: nobody (not even a stolen login) can alter or delete them.
+      match /copias/{dia} {
+        allow get, list: if permitido() && request.auth.uid == uid;
+        allow create: if permitido() && request.auth.uid == uid
+          && dia.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.keys().hasOnly(['feitaEm', 'rev', 'dados'])
+          && request.resource.data.dados is map;
+        allow update, delete: if false;
+      }
+
+      // Traffic tab: one document per ad account. Kept outside the main document
+      // so the daily job can write balances without touching its _rev lock.
+      // Limits match sanitizarConta() in trafego-calc.mjs.
+      function contaTrafegoValida(d) {
+        return d.keys().hasOnly(['clienteNome', 'clienteId', 'origem', 'metaId', 'saldo', 'saldoEm',
+                                 'gastoDiario', 'campanhas', 'recargas', 'alertaDias', 'obs', 'status'])
+          && d.keys().hasAll(['clienteNome', 'origem', 'saldo', 'gastoDiario', 'campanhas', 'recargas',
+                              'alertaDias', 'status'])
+          && d.clienteNome is string && d.clienteNome.size() <= 200
+          && d.origem in ['manual', 'meta']
+          && d.saldo is number && d.saldo >= 0
+          && d.gastoDiario is number && d.gastoDiario >= 0
+          && d.campanhas is list && d.campanhas.size() <= 100
+          && d.recargas is list && d.recargas.size() <= 1000
+          && d.alertaDias is number && d.alertaDias >= 0 && d.alertaDias <= 60
+          && d.status in ['ativa', 'arquivada'];
+      }
+
+      match /trafego_contas/{contaId} {
+        allow get, list: if permitido() && request.auth.uid == uid;
+        allow create, update: if permitido() && request.auth.uid == uid
+          && contaTrafegoValida(request.resource.data);
+        allow delete: if false; // accounts are archived, never deleted
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
