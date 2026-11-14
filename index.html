@@ -167,6 +167,13 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .tlinha-acoes{display:flex;flex:none;align-items:center}
 .tpush{justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
 .tcard-foco{outline:2px solid var(--terra);outline-offset:2px}
+/* um card por cliente, com uma seção por plataforma */
+.tgrupo-nome{padding:16px 16px 2px}
+.tconta{display:flex;flex-direction:column;border-radius:10px}
+.tconta+.tconta{border-top:1px solid var(--rose)}
+.tconta .tcard-abrir{padding:12px 16px 10px;border-radius:10px}
+.tconta .tcard-topo{align-items:center;margin-bottom:10px}
+.tadd{display:flex;gap:8px;flex-wrap:wrap;padding:2px 16px 14px}
 .talerta .tlinha{flex-wrap:wrap}
 .talerta .tlinha>div:first-child{flex:1 1 150px}
 .talerta .tlinha-acoes{gap:6px}
@@ -506,7 +513,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,trafFiltrar,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
+Object.assign(window,{go,togglePrivado,trafFiltrar,trafNovaPlat,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -645,7 +652,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261114;
+const APP_VERSAO=202611141;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -1709,6 +1716,18 @@ const trafQuando=iso=>{if(!iso)return'—';const d=new Date(iso);return isNaN(d)
 const trafOrigem=c=>(c.origem==='meta'?'Sincronizado com a Meta · ':'')+'Saldo informado em '+trafQuando(c.saldoEm);
 const trafPlatEtiqueta=c=>{const k=TC.plataformaDe(c);return `<span class="tplat tplat-${k}">${TC.NOME_PLATAFORMA[k]}</span>`;};
 function trafFiltrar(k){trafPlat=k;render();}
+/* Mesmo cliente = mesmo cadastro de cliente (ou, sem cadastro, o mesmo nome digitado). */
+const trafChaveCli=c=>c.clienteId?'id:'+c.clienteId:'nome:'+trafNome(c).trim().toLocaleLowerCase('pt-BR');
+/* Junta as contas por cliente (Meta antes de Google); o cliente mais urgente vem primeiro. */
+function trafGrupos(lista){
+  const m=new Map();
+  lista.forEach(x=>{const k=trafChaveCli(x.c);if(!m.has(k))m.set(k,[]);m.get(k).push(x);});
+  const grupos=[...m.values()].map(g=>g.sort((a,b)=>(TC.plataformaDe(a.c)==='meta'?0:1)-(TC.plataformaDe(b.c)==='meta'?0:1)));
+  const ordem=g=>Math.min(...g.map(x=>trafOrdem(x.p)));
+  return grupos.sort((a,b)=>(ordem(a)-ordem(b))||trafNome(a[0].c).localeCompare(trafNome(b[0].c),'pt-BR'));
+}
+/* "+ Google Ads" no card: abre a conta nova já com o cliente preenchido. */
+function trafNovaPlat(id,plat){const c=trafAchar(id);if(c)trafForm('',{clienteId:c.clienteId,clienteNome:trafNome(c),plataforma:plat});}
 function trafOrdem(p){return p.semConsumo?(p.saldoEstimado<=0?-1:Infinity):p.diasRestantes;}
 function viewTrafego(){
   const topo=sub=>`<div class="topbar"><div><h1>Tráfego</h1><div class="sub">${sub}</div></div>${trafContas?`<button class="btn btn-primary" onclick="trafForm()">+ Nova conta</button>`:''}</div>`;
@@ -1731,9 +1750,11 @@ function viewTrafego(){
   </div>
   <div class="filters" role="group" aria-label="Filtrar por plataforma">${[['todas','Todas',todasAtivas.length],['meta','Meta Ads',nPlat('meta')],['google','Google Ads',nPlat('google')]].map(([k,l,n])=>`<button class="chip ${trafPlat===k?'on':''}" aria-pressed="${trafPlat===k}" onclick="trafFiltrar('${k}')">${l} (${n})</button>`).join('')}</div>
   ${trafPushBarra()}
-  ${ativas.length?`<div class="tgrid">${ativas.map(({c,p})=>`<article class="tcard" id="tcard-${c.id}">
-    <button class="tcard-abrir" onclick="trafDetalhe('${c.id}')" aria-label="Ver detalhes de ${esc(trafNome(c))}">
-      <span class="tcard-topo"><span><span class="tcard-nome">${esc(trafNome(c))}</span><br>${trafPlatEtiqueta(c)}</span>${trafPill(p)}</span>
+  ${ativas.length?`<div class="tgrid">${trafGrupos(ativas).map(g=>`<article class="tcard">
+    <div class="tgrupo-nome"><span class="tcard-nome">${esc(trafNome(g[0].c))}</span></div>
+    ${g.map(({c,p})=>`<section class="tconta" id="tcard-${c.id}">
+    <button class="tcard-abrir" onclick="trafDetalhe('${c.id}')" aria-label="Ver detalhes de ${esc(trafNome(c))}, ${TC.NOME_PLATAFORMA[TC.plataformaDe(c)]}">
+      <span class="tcard-topo">${trafPlatEtiqueta(c)}${trafPill(p)}</span>
       <span class="tdados">
         <span><span>Saldo</span><b>${fmt(p.saldoEstimado)}</b></span>
         <span><span>Por dia</span><b>${fmt(p.gastoDiario)}</b></span>
@@ -1745,6 +1766,9 @@ function viewTrafego(){
       <button class="btn btn-primary btn-sm" onclick="trafRecargaForm('${c.id}')">Registrar recarga</button>
       <button class="btn btn-ghost btn-sm" onclick="trafSaldoForm('${c.id}')">Atualizar saldo</button>
     </div>
+    </section>`).join('')}
+    ${trafPlat==='todas'?(()=>{const tem=new Set(g.map(x=>TC.plataformaDe(x.c)));const falta=['meta','google'].filter(k=>!tem.has(k));
+      return falta.length?`<div class="tadd">${falta.map(k=>`<button class="chip" onclick="trafNovaPlat('${g[0].c.id}','${k}')">+ ${TC.NOME_PLATAFORMA[k]}</button>`).join('')}</div>`:'';})():''}
   </article>`).join('')}</div>`:`<div class="panel"><div class="empty">${arquivadas.length?'Nenhuma conta ativa.':trafPlat!=='todas'&&todasAtivas.length?'Nenhuma conta ativa nesta plataforma.':'Nenhuma conta cadastrada. Toque em “+ Nova conta” para começar.'}</div></div>`}
   ${arquivadas.length?`<div class="filters"><button class="chip" aria-expanded="${trafVerArq}" onclick="trafAlternarArq()">${trafVerArq?'Esconder':'Ver'} arquivadas (${arquivadas.length})</button></div>
     ${trafVerArq?`<div class="panel">${arquivadas.map(c=>`<div class="tlinha"><div>${esc(trafNome(c))}</div><div class="tlinha-acoes"><button class="btn btn-ghost btn-sm" onclick="trafArquivar('${c.id}')">Reativar</button></div></div>`).join('')}</div>`:''}`:''}`;
@@ -1881,16 +1905,17 @@ function trafCalc(id){
   if(d>0&&d<=3650){const q=TC.quantoRecarregar(c,d,hoje);r2=q.recarregar>0?'Recarregar '+fmt(q.recarregar)+' (gasto previsto de '+fmt(q.necessario)+').':'Não precisa recarregar: o saldo já cobre esse período.';}
   document.getElementById('t_cdiasRes').textContent=r2;
 }
-function trafForm(id){
+function trafForm(id,pre){
   const c=id?trafAchar(id):null;
+  const ini=c||pre||null; // conta em edição, ou cliente/plataforma já escolhidos no card
   const clientes=state.clientes.filter(k=>k.status!=='inativo'||(c&&k.id===c.clienteId));
   const temCamp=c&&c.campanhas.length;
   trafAbrir(`<h2>${c?'Editar':'Nova'} conta de anúncio</h2>
     <div class="field"><label for="t_cli">Cliente</label><select id="t_cli" onchange="trafCliToggle()">
-      <option value="">Digitar nome</option>${clientes.map(k=>`<option value="${esc(k.id)}" ${c&&c.clienteId===k.id?'selected':''}>${esc(k.nome)}</option>`).join('')}
+      <option value="">Digitar nome</option>${clientes.map(k=>`<option value="${esc(k.id)}" ${ini&&ini.clienteId===k.id?'selected':''}>${esc(k.nome)}</option>`).join('')}
     </select></div>
-    <div class="field" id="t_nomeBox" ${c&&c.clienteId?'hidden':''}><label for="t_nome">Nome do cliente</label><input id="t_nome" maxlength="200" value="${c?esc(c.clienteNome):''}"></div>
-    <div class="field"><label for="t_plat">Plataforma</label><select id="t_plat">${['meta','google'].map(k=>`<option value="${k}" ${(c?TC.plataformaDe(c):(trafPlat==='google'?'google':'meta'))===k?'selected':''}>${TC.NOME_PLATAFORMA[k]}</option>`).join('')}</select></div>
+    <div class="field" id="t_nomeBox" ${ini&&ini.clienteId?'hidden':''}><label for="t_nome">Nome do cliente</label><input id="t_nome" maxlength="200" value="${ini?esc(ini.clienteNome):''}"></div>
+    <div class="field"><label for="t_plat">Plataforma</label><select id="t_plat">${['meta','google'].map(k=>`<option value="${k}" ${(ini?TC.plataformaDe(ini):(trafPlat==='google'?'google':'meta'))===k?'selected':''}>${TC.NOME_PLATAFORMA[k]}</option>`).join('')}</select></div>
     ${c?'':`<div class="field"><label for="t_saldo">Saldo atual (R$)</label><input type="number" step="0.01" min="0" id="t_saldo" inputmode="decimal" placeholder="0,00"></div>`}
     <div class="fieldrow">
       <div class="field"><label for="t_gasto">Gasto por dia (R$)</label><input type="number" step="0.01" min="0" id="t_gasto" inputmode="decimal" value="${c?c.gastoDiario:''}" placeholder="0,00"></div>
@@ -1917,6 +1942,9 @@ async function trafSalvar(id){
   }
   const saldo=trafNum('t_saldo');
   if(saldo===null){alert('Informe um saldo válido.');return;}
+  const chave=trafChaveCli({clienteId:campos.clienteId,clienteNome:nome});
+  if(trafContas.some(x=>x.status==='ativa'&&trafChaveCli(x)===chave&&TC.plataformaDe(x)===campos.plataforma)
+    &&!confirm(nome+' já tem uma conta '+TC.NOME_PLATAFORMA[campos.plataforma]+'. Criar outra mesmo assim?'))return;
   const novo=uid(),agora=new Date().toISOString();
   if(await trafMudar(novo,()=>({...campos,origem:'manual',saldo,saldoEm:agora}))){closeModal();render();}
 }
