@@ -51,11 +51,12 @@ service cloud.firestore {
       // so the daily job can write balances without touching its _rev lock.
       // Limits match sanitizarConta() in trafego-calc.mjs.
       function contaTrafegoValida(d) {
-        return d.keys().hasOnly(['clienteNome', 'clienteId', 'origem', 'metaId', 'saldo', 'saldoEm',
+        return d.keys().hasOnly(['clienteNome', 'clienteId', 'plataforma', 'origem', 'metaId', 'saldo', 'saldoEm',
                                  'gastoDiario', 'campanhas', 'recargas', 'alertaDias', 'obs', 'status'])
           && d.keys().hasAll(['clienteNome', 'origem', 'saldo', 'gastoDiario', 'campanhas', 'recargas',
                               'alertaDias', 'status'])
           && d.clienteNome is string && d.clienteNome.size() <= 200
+          && (!('plataforma' in d) || d.plataforma in ['meta', 'google'])
           && d.origem in ['manual', 'meta']
           && d.saldo is number && d.saldo >= 0
           && d.gastoDiario is number && d.gastoDiario >= 0

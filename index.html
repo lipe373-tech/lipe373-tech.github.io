@@ -70,7 +70,7 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .monogram .p{margin-left:2px}
 .logoname{position:absolute;left:0;right:0;top:88px;font-size:11px;letter-spacing:4.5px;font-weight:400;color:var(--rose);text-shadow:0 0 6px var(--terra),0 0 10px var(--terra)}
 .logosub{margin-top:14px;font-size:11px;letter-spacing:3.5px;color:rgba(237,207,198,.6)}
-.nav{flex:1;padding:22px 14px;display:flex;flex-direction:column;gap:4px}
+.nav{flex:1;padding:22px 14px;display:flex;flex-direction:column;gap:4px;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(237,207,198,.3) transparent} /* tela baixa: a lista rola e o rodapé (olho, ajustes, sair) fica sempre visível */
 .nav button{display:flex;align-items:center;gap:12px;width:100%;padding:11px 16px;border:none;background:transparent;color:rgba(237,207,198,.78);font-size:14.5px;letter-spacing:.6px;border-radius:10px;transition:.18s;text-align:left}
 .nav button svg{width:18px;height:18px;flex:none}
 .nav button:hover{background:rgba(237,207,198,.1);color:var(--rose)}
@@ -148,6 +148,9 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .tcard-nome{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--terra-deep);overflow-wrap:anywhere}
 .tcard-topo .pill{flex:none;white-space:nowrap}
 .pill.neutro{background:var(--rose-soft);color:var(--ink-soft)}
+.tplat{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.4px;padding:2px 8px;border-radius:99px;margin-top:6px;white-space:nowrap}
+.tplat-meta{background:#e3ecfb;color:#1d4f9c}
+.tplat-google{background:#e5f3e8;color:#1f6b35}
 .tdados{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .tdados>span{display:block;min-width:0}
 .tdados>span>span{display:block;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:2px}
@@ -236,6 +239,7 @@ tr.conferido td.money{opacity:.65}
 .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
 .chip{border:1.5px dashed var(--terra);background:transparent;color:var(--terra);border-radius:99px;padding:5px 12px;font-size:12.5px}
 .chip:hover{background:var(--rose-soft)}
+.chip.on{background:var(--terra);border-style:solid;color:#fff}
 .chipchk{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--rose);border-radius:99px;padding:5px 12px;font-size:12.5px;background:#fff;cursor:pointer;color:var(--ink)}
 .chipchk input{width:auto!important;accent-color:var(--terra);margin:0}
 .field label.chipchk{display:inline-flex;text-transform:none;letter-spacing:0;font-size:12.5px;margin:0;color:var(--ink)}
@@ -298,7 +302,7 @@ tr.conferido td.money{opacity:.65}
 .nav .sh{display:none}
 .mtopbar{display:none}
 /* olho: esconde valores da tela (PDFs e relatórios gerados não mudam) */
-body.privado .val{filter:blur(6px);user-select:none}
+body.privado .pv{filter:blur(6px);user-select:none}
 body.privado #main canvas{filter:blur(10px)}
 .mt-eye{background:none;border:none;color:inherit;padding:4px;cursor:pointer;flex:none;display:flex;margin-left:auto}
 .mt-eye svg,.sairbtn svg{width:18px;height:18px;vertical-align:-4px}
@@ -502,7 +506,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
+Object.assign(window,{go,togglePrivado,trafFiltrar,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -641,7 +645,7 @@ let saving=false,dirty=false,conflito=false,versaoAntiga=false,falhou=false,retr
 /* Número da versão deste arquivo. Subir um arquivo mais antigo que o que já gravou
    na nuvem trava o salvamento (e avisa) em vez de gravar por cima com código velho.
    Toda alteração no sistema = aumentar este número (AAAAMMDD ou AAAAMMDDn). */
-const APP_VERSAO=20261109;
+const APP_VERSAO=20261114;
 /* Rede de segurança: cada alteração fica guardada também neste aparelho até a nuvem
    confirmar. Se a nuvem recusar ou a aba fechar antes, nada se perde: ao abrir de novo,
    o sistema recupera (ou oferece baixar, se a nuvem tiver mudado nesse meio-tempo). */
@@ -926,7 +930,7 @@ if(!configOk){
 const fmt=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
 /* ---------- OLHO: oculta os valores em R$ da tela ----------
-   Todo texto com "R$" que aparece na tela ou numa janela ganha a classe .val;
+   Todo texto com "R$" que aparece na tela ou numa janela ganha a classe .pv;
    com o olho fechado o CSS borra esses textos e os gráficos. A escolha fica
    lembrada neste aparelho. */
 const PRIV_KEY='ap_ocultarValores';
@@ -934,9 +938,9 @@ const OLHO_ABERTO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const OLHO_FECHADO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
 function marcarValores(root){
   const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>
-    n.nodeValue.includes('R$')&&!n.parentElement.closest('.val,script,style,textarea,select,option')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
+    n.nodeValue.includes('R$')&&!n.parentElement.closest('.pv,script,style,textarea,select,option')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
   const nos=[];while(w.nextNode())nos.push(w.currentNode);
-  nos.forEach(n=>{const sp=document.createElement('span');sp.className='val';n.parentNode.insertBefore(sp,n);sp.appendChild(n);});
+  nos.forEach(n=>{const sp=document.createElement('span');sp.className='pv';n.parentNode.insertBefore(sp,n);sp.appendChild(n);});
 }
 function aplicarPrivado(on){
   document.body.classList.toggle('privado',on);
@@ -1623,6 +1627,7 @@ function pagarConta(id){
    Fica em financeiro/{uid}/trafego_contas, fora do documento principal: nada aqui mexe em
    state nem em _rev. O módulo de cálculo carrega só quando preciso, para uma falha nele
    nunca derrubar o resto do sistema. */
+let trafPlat='todas';
 let TC=null,trafContas=null,trafErro=false,trafCarregando=false,trafSalvando=false,trafVerArq=false,trafAlertaPend=false,trafVoltarAlerta=false,trafAlertaN=0;
 const trafRef=id=>doc(db,'financeiro',currentUser.uid,'trafego_contas',id);
 const trafAchar=id=>(trafContas||[]).find(c=>c.id===id);
@@ -1652,7 +1657,7 @@ function trafMostrarPendente(){
   const lista=trafAlertas();
   if(!lista.length)return;
   trafAbrir(`<div class="talerta"><h2>Contas perto de acabar</h2>
-    ${lista.map(({conta:c,previsao:p})=>`<div class="tlinha"><div><b style="font-weight:500">${esc(trafNome(c))}</b> ${trafPill(p)}<small>Saldo estimado de ${fmt(p.saldoEstimado)}</small></div>
+    ${lista.map(({conta:c,previsao:p})=>`<div class="tlinha"><div><b style="font-weight:500">${esc(trafNome(c))}</b> ${trafPlatEtiqueta(c)} ${trafPill(p)}<small>Saldo estimado de ${fmt(p.saldoEstimado)}</small></div>
       <div class="tlinha-acoes">
         <button class="btn btn-ghost btn-sm" aria-label="Ver cartão de ${esc(trafNome(c))}" onclick="trafVerCartao('${c.id}')">Ver cartão</button>
         <button class="btn btn-primary btn-sm" aria-label="Já recarreguei ${esc(trafNome(c))}" onclick="trafJaRecarreguei('${c.id}')">Já recarreguei</button>
@@ -1701,14 +1706,19 @@ const trafPill=p=>{
 };
 const trafPrevisao=p=>p.semConsumo?(p.gastoDiario>0?'Não acaba':'Sem consumo'):p.dataPrevista?fdate(p.dataPrevista):'—';
 const trafQuando=iso=>{if(!iso)return'—';const d=new Date(iso);return isNaN(d)?'—':d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});};
-const trafOrigem=c=>(c.origem==='meta'?'Meta':'Manual')+' · saldo informado em '+trafQuando(c.saldoEm);
+const trafOrigem=c=>(c.origem==='meta'?'Sincronizado com a Meta · ':'')+'Saldo informado em '+trafQuando(c.saldoEm);
+const trafPlatEtiqueta=c=>{const k=TC.plataformaDe(c);return `<span class="tplat tplat-${k}">${TC.NOME_PLATAFORMA[k]}</span>`;};
+function trafFiltrar(k){trafPlat=k;render();}
 function trafOrdem(p){return p.semConsumo?(p.saldoEstimado<=0?-1:Infinity):p.diasRestantes;}
 function viewTrafego(){
   const topo=sub=>`<div class="topbar"><div><h1>Tráfego</h1><div class="sub">${sub}</div></div>${trafContas?`<button class="btn btn-primary" onclick="trafForm()">+ Nova conta</button>`:''}</div>`;
   if(trafErro)return topo('Saldo das contas de anúncio')+`<div class="panel"><div class="empty" role="alert">Não foi possível carregar as contas de anúncio. O resto do sistema continua funcionando.<br><br><button class="btn btn-ghost btn-sm" onclick="trafTentarDeNovo()">Tentar de novo</button></div></div>`;
   if(!trafContas){trafCarregar();return topo('Saldo das contas de anúncio')+'<div class="panel"><div class="empty" role="status">Carregando contas…</div></div>';}
   const hoje=TC.dataBrasilia();
-  const ativas=trafContas.filter(c=>c.status==='ativa').map(c=>({c,p:TC.preverConta(c,hoje)}));
+  const todasAtivas=trafContas.filter(c=>c.status==='ativa').map(c=>({c,p:TC.preverConta(c,hoje)}));
+  const somaPlat=k=>todasAtivas.filter(x=>TC.plataformaDe(x.c)===k).reduce((t,x)=>t+x.p.saldoEstimado,0);
+  const nPlat=k=>todasAtivas.filter(x=>TC.plataformaDe(x.c)===k).length;
+  const ativas=trafPlat==='todas'?todasAtivas:todasAtivas.filter(x=>TC.plataformaDe(x.c)===trafPlat);
   ativas.sort((a,b)=>(trafOrdem(a.p)-trafOrdem(b.p))||trafNome(a.c).localeCompare(trafNome(b.c),'pt-BR'));
   const arquivadas=trafContas.filter(c=>c.status==='arquivada');
   const urgentes=ativas.filter(x=>!x.p.semConsumo&&x.p.diasRestantes<=1).length;
@@ -1717,12 +1727,13 @@ function viewTrafego(){
   <div class="cards traf-resumo">
     <div class="card"><div class="lbl">Contas ativas</div><div class="val">${ativas.length}</div></div>
     <div class="card"><div class="lbl">Acabam hoje ou amanhã</div><div class="val ${urgentes?'neg':''}">${urgentes}</div></div>
-    <div class="card"><div class="lbl">Soma dos saldos</div><div class="val">${fmt(soma)}</div></div>
+    <div class="card"><div class="lbl">Soma dos saldos</div><div class="val">${fmt(soma)}</div><div class="note">Meta ${fmt(somaPlat('meta'))} · Google ${fmt(somaPlat('google'))}</div></div>
   </div>
+  <div class="filters" role="group" aria-label="Filtrar por plataforma">${[['todas','Todas',todasAtivas.length],['meta','Meta Ads',nPlat('meta')],['google','Google Ads',nPlat('google')]].map(([k,l,n])=>`<button class="chip ${trafPlat===k?'on':''}" aria-pressed="${trafPlat===k}" onclick="trafFiltrar('${k}')">${l} (${n})</button>`).join('')}</div>
   ${trafPushBarra()}
   ${ativas.length?`<div class="tgrid">${ativas.map(({c,p})=>`<article class="tcard" id="tcard-${c.id}">
     <button class="tcard-abrir" onclick="trafDetalhe('${c.id}')" aria-label="Ver detalhes de ${esc(trafNome(c))}">
-      <span class="tcard-topo"><span class="tcard-nome">${esc(trafNome(c))}</span>${trafPill(p)}</span>
+      <span class="tcard-topo"><span><span class="tcard-nome">${esc(trafNome(c))}</span><br>${trafPlatEtiqueta(c)}</span>${trafPill(p)}</span>
       <span class="tdados">
         <span><span>Saldo</span><b>${fmt(p.saldoEstimado)}</b></span>
         <span><span>Por dia</span><b>${fmt(p.gastoDiario)}</b></span>
@@ -1734,7 +1745,7 @@ function viewTrafego(){
       <button class="btn btn-primary btn-sm" onclick="trafRecargaForm('${c.id}')">Registrar recarga</button>
       <button class="btn btn-ghost btn-sm" onclick="trafSaldoForm('${c.id}')">Atualizar saldo</button>
     </div>
-  </article>`).join('')}</div>`:`<div class="panel"><div class="empty">${arquivadas.length?'Nenhuma conta ativa.':'Nenhuma conta cadastrada. Toque em “+ Nova conta” para começar.'}</div></div>`}
+  </article>`).join('')}</div>`:`<div class="panel"><div class="empty">${arquivadas.length?'Nenhuma conta ativa.':trafPlat!=='todas'&&todasAtivas.length?'Nenhuma conta ativa nesta plataforma.':'Nenhuma conta cadastrada. Toque em “+ Nova conta” para começar.'}</div></div>`}
   ${arquivadas.length?`<div class="filters"><button class="chip" aria-expanded="${trafVerArq}" onclick="trafAlternarArq()">${trafVerArq?'Esconder':'Ver'} arquivadas (${arquivadas.length})</button></div>
     ${trafVerArq?`<div class="panel">${arquivadas.map(c=>`<div class="tlinha"><div>${esc(trafNome(c))}</div><div class="tlinha-acoes"><button class="btn btn-ghost btn-sm" onclick="trafArquivar('${c.id}')">Reativar</button></div></div>`).join('')}</div>`:''}`:''}`;
 }
@@ -1827,7 +1838,7 @@ function trafDetalhe(id){
   }).join('');
   const recargas=c.recargas.slice().reverse().map(r=>`<div class="tlinha"><div>${fdate(r.data)}${r.obs?`<small>${esc(r.obs)}</small>`:''}</div><b style="font-weight:500">${fmt(r.valor)}</b></div>`).join('');
   trafAbrir(`<h2>${esc(trafNome(c))}</h2>
-    <div class="tcard-topo" style="margin-bottom:12px">${trafPill(p)}</div>
+    <div class="tcard-topo" style="margin-bottom:12px;justify-content:flex-start">${trafPlatEtiqueta(c)}${trafPill(p)}</div>
     <div class="tdados">
       <span><span>Saldo</span><b>${fmt(p.saldoEstimado)}</b></span>
       <span><span>Por dia</span><b>${fmt(p.gastoDiario)}</b></span>
@@ -1879,6 +1890,7 @@ function trafForm(id){
       <option value="">Digitar nome</option>${clientes.map(k=>`<option value="${esc(k.id)}" ${c&&c.clienteId===k.id?'selected':''}>${esc(k.nome)}</option>`).join('')}
     </select></div>
     <div class="field" id="t_nomeBox" ${c&&c.clienteId?'hidden':''}><label for="t_nome">Nome do cliente</label><input id="t_nome" maxlength="200" value="${c?esc(c.clienteNome):''}"></div>
+    <div class="field"><label for="t_plat">Plataforma</label><select id="t_plat">${['meta','google'].map(k=>`<option value="${k}" ${(c?TC.plataformaDe(c):(trafPlat==='google'?'google':'meta'))===k?'selected':''}>${TC.NOME_PLATAFORMA[k]}</option>`).join('')}</select></div>
     ${c?'':`<div class="field"><label for="t_saldo">Saldo atual (R$)</label><input type="number" step="0.01" min="0" id="t_saldo" inputmode="decimal" placeholder="0,00"></div>`}
     <div class="fieldrow">
       <div class="field"><label for="t_gasto">Gasto por dia (R$)</label><input type="number" step="0.01" min="0" id="t_gasto" inputmode="decimal" value="${c?c.gastoDiario:''}" placeholder="0,00"></div>
@@ -1898,7 +1910,7 @@ async function trafSalvar(id){
   const gasto=trafNum('t_gasto'),alerta=parseInt(gv('t_alerta'),10);
   if(gasto===null){alert('Informe um gasto por dia válido.');return;}
   if(!(alerta>=0&&alerta<=60)){alert('O aviso deve ser de 0 a 60 dias.');return;}
-  const campos={clienteId:k?k.id:'',clienteNome:nome,gastoDiario:gasto,alertaDias:alerta};
+  const campos={clienteId:k?k.id:'',clienteNome:nome,plataforma:gv('t_plat')==='google'?'google':'meta',gastoDiario:gasto,alertaDias:alerta};
   if(id){
     if(await trafMudar(id,c=>({...c,...campos}))){trafDetalhe(id);render();}
     return;
@@ -1912,7 +1924,7 @@ function trafRecargaForm(id){
   const c=trafAchar(id);if(!c)return;
   const hoje=TC.dataBrasilia();
   trafAbrir(`<h2>Registrar recarga</h2>
-    <p class="tsec-vazio">${esc(trafNome(c))} · saldo estimado de ${fmt(TC.saldoEstimado(c,hoje))}. O valor será somado a este saldo.</p>
+    <p class="tsec-vazio">${esc(trafNome(c))} · ${TC.NOME_PLATAFORMA[TC.plataformaDe(c)]} · saldo estimado de ${fmt(TC.saldoEstimado(c,hoje))}. O valor será somado a este saldo.</p>
     <div class="fieldrow">
       <div class="field"><label for="t_rval">Valor (R$)</label><input type="number" step="0.01" min="0" id="t_rval" inputmode="decimal" placeholder="0,00"></div>
       <div class="field"><label for="t_rdata">Data</label><input type="date" id="t_rdata" value="${hoje}"></div>

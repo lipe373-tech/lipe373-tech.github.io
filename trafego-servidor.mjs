@@ -13,7 +13,7 @@ async function avisarUsuario(db, messaging, uid, aparelhos, hoje) {
   const pendentes = contasParaAvisar(contas, ultimos, hoje);
   if (!pendentes.length) return { contas: 0, enviados: 0, removidos: 0 };
 
-  const { titulo, corpo } = textoAviso(pendentes.map(({ conta, previsao }) => ({ nome: conta.clienteNome, diasRestantes: previsao.diasRestantes })));
+  const { titulo, corpo } = textoAviso(pendentes.map(({ conta, previsao }) => ({ nome: conta.clienteNome, plataforma: conta.plataforma, diasRestantes: previsao.diasRestantes })));
   const resposta = await messaging.sendEach(aparelhos.map(a => ({
     token: a.token,
     data: { titulo, corpo },

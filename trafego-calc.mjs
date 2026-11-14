@@ -82,13 +82,19 @@ const juntarNomes = nomes => {
   if (nomes.length > 5) return visiveis.join(', ') + ' e mais ' + (nomes.length - 5);
   return visiveis.length > 1 ? visiveis.slice(0, -1).join(', ') + ' e ' + visiveis.at(-1) : visiveis[0];
 };
+/* Plataforma da conta. Conta sem o campo é Meta (todas as contas antigas eram Meta). */
+export const plataformaDe = conta => (conta && conta.plataforma === 'google' ? 'google' : 'meta');
+export const NOME_PLATAFORMA = { meta: 'Meta Ads', google: 'Google Ads' };
+const CURTO_PLATAFORMA = { meta: 'Meta', google: 'Google' };
+
 const quandoAcaba = d => (d === 0 ? 'hoje' : d === 1 ? 'amanhã' : 'em ' + d + ' dias');
 
-/* Texto da notificação. itens: [{ nome, diasRestantes }], com pelo menos um item. */
+/* Texto da notificação. itens: [{ nome, plataforma, diasRestantes }], com pelo menos um item.
+   Sempre diz a plataforma: o mesmo cliente pode ter conta na Meta e no Google. */
 export function textoAviso(itens) {
   const titulo = 'Saldo de anúncios';
-  if (itens.length === 1) return { titulo, corpo: itens[0].nome + ' acaba ' + quandoAcaba(itens[0].diasRestantes) };
-  const nomes = juntarNomes(itens.map(i => i.nome));
+  if (itens.length === 1) return { titulo, corpo: itens[0].nome + ' · ' + NOME_PLATAFORMA[plataformaDe(itens[0])] + ' acaba ' + quandoAcaba(itens[0].diasRestantes) };
+  const nomes = juntarNomes(itens.map(i => i.nome + ' (' + CURTO_PLATAFORMA[plataformaDe(i)] + ')'));
   const mesmoDia = itens.every(i => i.diasRestantes === itens[0].diasRestantes);
   return { titulo, corpo: itens.length + ' contas ' + (mesmoDia ? 'acabam ' + quandoAcaba(itens[0].diasRestantes) : 'perto de acabar') + ': ' + nomes };
 }
@@ -128,6 +134,8 @@ export function sanitizarConta(x = {}) {
   return {
     clienteNome: texto(x.clienteNome, 200),
     clienteId: texto(x.clienteId, 60),
+    // gravada só quando é Google: assim as contas Meta continuam válidas nas regras antigas
+    ...(x.plataforma === 'google' ? { plataforma: 'google' } : {}),
     origem: x.origem === 'meta' ? 'meta' : 'manual',
     metaId: texto(x.metaId, 60),
     saldo: numero(x.saldo),

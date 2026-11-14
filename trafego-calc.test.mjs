@@ -1,7 +1,7 @@
 // Rodar com: node --test
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { preverConta, saldoEstimado, gastoDiario, registrarRecarga, atualizarSaldo, sanitizarConta, dataBrasilia, faixaConta, diasComValor, quantoRecarregar, contasEmAlerta, contasParaAvisar, textoAviso } from './trafego-calc.mjs';
+import { preverConta, saldoEstimado, gastoDiario, registrarRecarga, atualizarSaldo, sanitizarConta, dataBrasilia, faixaConta, diasComValor, quantoRecarregar, contasEmAlerta, contasParaAvisar, textoAviso, plataformaDe } from './trafego-calc.mjs';
 import { enviarAvisos } from './trafego-servidor.mjs';
 
 const HOJE = '2026-11-04';
@@ -151,12 +151,27 @@ test('alerta respeita o prazo de cada conta e ordena pelos mais urgentes', () =>
 
 test('texto do aviso', () => {
   const t = (...d) => textoAviso(d.map((diasRestantes, i) => ({ nome: 'Cliente ' + 'ABCDEFG'[i], diasRestantes }))).corpo;
-  assert.equal(t(1), 'Cliente A acaba amanhã');
-  assert.equal(t(0), 'Cliente A acaba hoje');
-  assert.equal(t(1, 1, 1), '3 contas acabam amanhã: Cliente A, Cliente B e Cliente C');
-  assert.equal(t(0, 1), '2 contas perto de acabar: Cliente A e Cliente B');
-  assert.equal(t(3, 3), '2 contas acabam em 3 dias: Cliente A e Cliente B');
-  assert.equal(t(1, 1, 1, 1, 1, 1, 1), '7 contas acabam amanhã: Cliente A, Cliente B, Cliente C, Cliente D, Cliente E e mais 2');
+  assert.equal(t(1), 'Cliente A · Meta Ads acaba amanhã');
+  assert.equal(t(0), 'Cliente A · Meta Ads acaba hoje');
+  assert.equal(t(1, 1, 1), '3 contas acabam amanhã: Cliente A (Meta), Cliente B (Meta) e Cliente C (Meta)');
+  assert.equal(t(0, 1), '2 contas perto de acabar: Cliente A (Meta) e Cliente B (Meta)');
+  assert.equal(t(3, 3), '2 contas acabam em 3 dias: Cliente A (Meta) e Cliente B (Meta)');
+  assert.equal(t(1, 1, 1, 1, 1, 1, 1), '7 contas acabam amanhã: Cliente A (Meta), Cliente B (Meta), Cliente C (Meta), Cliente D (Meta), Cliente E (Meta) e mais 2');
+});
+
+test('aviso diz a plataforma: o mesmo cliente pode ter Meta e Google', () => {
+  assert.equal(textoAviso([{ nome: 'Loja', plataforma: 'google', diasRestantes: 1 }]).corpo, 'Loja · Google Ads acaba amanhã');
+  assert.equal(textoAviso([{ nome: 'Loja', plataforma: 'meta', diasRestantes: 0 }, { nome: 'Loja', plataforma: 'google', diasRestantes: 0 }]).corpo,
+    '2 contas acabam hoje: Loja (Meta) e Loja (Google)');
+});
+
+test('plataforma: conta antiga é Meta; Google só é gravado quando é Google', () => {
+  assert.equal(plataformaDe({}), 'meta');
+  assert.equal(plataformaDe({ plataforma: 'outra' }), 'meta');
+  assert.equal(plataformaDe({ plataforma: 'google' }), 'google');
+  assert.equal('plataforma' in sanitizarConta({ clienteNome: 'A', plataforma: 'meta' }), false);
+  assert.equal(sanitizarConta({ clienteNome: 'A', plataforma: 'google' }).plataforma, 'google');
+  assert.equal('plataforma' in sanitizarConta({ clienteNome: 'A', plataforma: 'tiktok' }), false);
 });
 
 test('não repete o aviso da mesma conta no mesmo dia', () => {
@@ -215,7 +230,7 @@ test('servidor: avisa todos os aparelhos e não repete no mesmo dia', async () =
   const fcm = fcmFalso();
   const r = await enviarAvisos({ db, messaging: fcm, hoje: HOJE });
   assert.deepEqual(r, { usuarios: 1, contas: 1, enviados: 2, removidos: 0, falhas: 0 });
-  assert.equal(fcm.enviadas[0].data.corpo, 'Cliente A acaba amanhã');
+  assert.equal(fcm.enviadas[0].data.corpo, 'Cliente A · Meta Ads acaba amanhã');
   assert.deepEqual(db.banco.get('financeiro/u1/trafego_avisos/c1'), { dia: HOJE });
   await enviarAvisos({ db, messaging: fcm, hoje: HOJE });
   assert.equal(fcm.enviadas.length, 2);
@@ -232,7 +247,7 @@ test('servidor: cada usuário recebe só as próprias contas', async () => {
   });
   const fcm = fcmFalso();
   await enviarAvisos({ db, messaging: fcm, hoje: HOJE });
-  assert.deepEqual(fcm.enviadas.map(m => [m.token, m.data.corpo]), [['t1', 'Cliente A acaba amanhã'], ['t2', 'Cliente B acaba amanhã']]);
+  assert.deepEqual(fcm.enviadas.map(m => [m.token, m.data.corpo]), [['t1', 'Cliente A · Meta Ads acaba amanhã'], ['t2', 'Cliente B · Meta Ads acaba amanhã']]);
 });
 
 test('servidor: remove só token morto', async () => {
