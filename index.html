@@ -87,9 +87,25 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .sidefoot .sync.err{color:#FFB4A0}
 .sairbtn{background:none;border:1px solid rgba(237,207,198,.35);color:rgba(237,207,198,.75);border-radius:99px;padding:5px 16px;font-size:12px;letter-spacing:1px;margin-bottom:10px}
 .sairbtn:hover{border-color:var(--rose);color:var(--rose)}
+.stcell{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.stcell .rowbtn{padding:2px 6px}
 
 /* ---------- grupos do menu lateral ---------- */
 .nav-grupo{padding:14px 16px 4px;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:rgba(237,207,198,.42)}
+/* notebook (tela baixa): compacta a barra para o menu inteiro caber sem rolar */
+@media (min-width:801px) and (max-height:900px){
+  .logo{padding:18px 0 10px}
+  .monogram{font-size:56px;letter-spacing:-10px}
+  .logoname{top:62px;font-size:9.5px;letter-spacing:4px}
+  .logosub{margin-top:10px;font-size:9.5px}
+  .sidesearch{padding:0 12px 6px}
+  .sidesearch input{padding:7px 12px}
+  .nav{padding:6px 14px;gap:1px}
+  .nav button{padding:7px 14px;font-size:14px}
+  .nav-grupo{padding:9px 16px 2px}
+  .sidefoot{padding:8px 18px 10px}
+  .sidefoot .sync{margin-bottom:5px}
+}
 .nav-grupo:first-child{padding-top:4px}
 
 /* ---------- rodapé da barra: olho + ajustes + sair ---------- */
@@ -513,7 +529,7 @@ let fbApp,auth,db,currentUser=null;
 
 /* Expõe já no início (declarações de função são içadas) para os onclick/onchange do HTML
    funcionarem mesmo que algo mais abaixo falhe */
-Object.assign(window,{go,togglePrivado,trafFiltrar,trafNovaPlat,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar});
+Object.assign(window,{go,togglePrivado,trafFiltrar,trafNovaPlat,clearSample,openForm,closeModal,submitForm,del,receber,conferir,pagarConta,setTax,gerarRelatorio,setMovMes,setMovCat,setMovConf,setMovBusca,setContaFilter,setRelMes,doLogin,doReset,sair,openConfig,salvarEmpresa,exportExcel,exportJSON,restoreBackup,calcPrec,addListItem,removeListItem,resetLista,marcarNF,openGerarContrato,gcRecarregar,gcRespDoRep,gcVencToggle,gcPessoaToggle,fmtDoc,gcSalvar,gerarContratoPDF,toggleRel,openProposta,addPropItem,salvarProposta,gerarPropostaPDF,setPropStatus,regenDet,checkContratos,showBoasVindas,setMetaAno,setCliFiltro,setAnualAno,gerarFechamentoPDF,doSearch,toggleMSearch,listarCopias,baixarCopia,restaurarCopia,baixarPendente,descartarPendente,addPropSug,editServ,salvarServ,fecharServ,restaurarServAuto,irAbaAjustes,enviarRedefinicao,trafPushAtivar,trafPushDesativar,trafVerCartao,trafJaRecarreguei,trafTentarDeNovo,trafAlternarArq,trafDetalhe,trafCalc,trafForm,trafCliToggle,trafSalvar,trafRecargaForm,trafRecargaSalvar,trafSaldoForm,trafSaldoSalvar,trafCampForm,trafCampSalvar,trafCampPausar,trafCampRemover,trafObsSalvar,trafArquivar,setPropFiltro});
 const _loginForm=document.getElementById('loginForm');
 if(_loginForm)_loginForm.addEventListener('submit',e=>{e.preventDefault();doLogin();});
 /* Se a sessão for perdida algum dia, o e-mail já vem preenchido: só a senha. */
@@ -617,13 +633,14 @@ const S={
   empresa:v=>{if(!v||typeof v!=='object')return null;const o={};EMP_CAMPOS.forEach(([k])=>{o[k]=S.str(v[k],300);});return o;},
   modelos:v=>Array.isArray(v)?v.slice(0,100).filter(m=>m&&typeof m==='object'&&String(m.nome??'').trim()).map(m=>({nome:S.str(m.nome,120),detalhes:S.str(m.detalhes,4000)})):null,
 };
+const MOTIVOS_SAIDA=['Preço / orçamento apertado','Resultado abaixo do esperado','Pausou ou fechou a empresa','Levou para equipe própria','Foi para outra agência','Fim do projeto combinado','Inadimplência','Outro'];
 const SCHEMA={
   entradas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),status:S.pick(x.status,['recebido','a_receber'],'recebido'),semNota:S.bool(x.semNota),nfEmitida:S.tri(x.nfEmitida),conferido:S.bool(x.conferido),prevista:S.date(x.prevista),formaPgto:S.str(x.formaPgto,40)}),
   saidas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),descricao:S.str(x.descricao),fornecedorId:S.id(x.fornecedorId),clienteId:S.id(x.clienteId),categoria:S.str(x.categoria,120),valor:S.num(x.valor),semContab:S.bool(x.semContab),conferido:S.bool(x.conferido)}),
   contas:x=>({id:S.id(x.id)||uid(),fornecedorId:S.id(x.fornecedorId),descricao:S.str(x.descricao),valor:S.num(x.valor),vencimento:S.date(x.vencimento)||today(),status:S.pick(x.status,['pendente','pago'],'pendente'),pagoEm:S.date(x.pagoEm),recorrente:S.bool(x.recorrente)}),
   fornecedores:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servico:S.str(x.servico),contato:S.str(x.contato,200)}),
   clientes:x=>({id:S.id(x.id)||uid(),nome:S.str(x.nome,200),servicos:Array.isArray(x.servicos)?x.servicos.slice(0,30).map(s=>S.str(s,120)):null,servico:S.str(x.servico),valorMensal:S.num(x.valorMensal),diaCobranca:S.int(x.diaCobranca,1,28,5),categoria:S.str(x.categoria,120),semNota:S.bool(x.semNota),
-    status:S.pick(x.status,['ativo','inativo'],'ativo'),desde:S.date(x.desde),saidaEm:S.date(x.saidaEm),relSemanaEm:S.re(x.relSemanaEm,/^\d{4}-W\d{2}$/),relMesEm:S.re(x.relMesEm,/^\d{4}-\d{2}$/)}),
+    status:S.pick(x.status,['ativo','inativo'],'ativo'),desde:S.date(x.desde),saidaEm:S.date(x.saidaEm),motivoSaida:S.str(x.motivoSaida,120),relSemanaEm:S.re(x.relSemanaEm,/^\d{4}-W\d{2}$/),relMesEm:S.re(x.relMesEm,/^\d{4}-\d{2}$/)}),
   contratos:x=>({id:S.id(x.id)||uid(),clienteId:S.id(x.clienteId),titulo:S.str(x.titulo,200),valor:S.num(x.valor),periodicidade:S.pick(x.periodicidade,['mensal','projeto'],'mensal'),inicio:S.date(x.inicio),fim:S.date(x.fim),status:S.pick(x.status,['rascunho','ativo','pausado','encerrado'],'ativo'),obs:S.str(x.obs),doc:S.docContrato(x.doc)}),
   propostas:x=>({id:S.id(x.id)||uid(),data:S.date(x.data)||today(),nome:S.str(x.nome,200),contato:S.str(x.contato,200),status:S.pick(x.status,['rascunho','enviada','aceita','recusada'],'rascunho'),validade:S.date(x.validade),desconto:S.num(x.desconto),duracao:S.int(x.duracao,0,99,0),duracaoUn:S.pick(x.duracaoUn,['semanas','meses','anos'],'meses'),obs:S.str(x.obs,4000),
     itens:(Array.isArray(x.itens)?x.itens:[]).slice(0,50).filter(i=>i&&typeof i==='object').map(i=>({nome:S.str(i.nome,200),valor:S.num(i.valor),tipo:S.pick(i.tipo,['mensal','unico'],'mensal'),detalhes:S.str(i.detalhes,4000)}))}),
@@ -1388,7 +1405,7 @@ async function exportExcel(){
   add('Saídas',state.saidas.map(s=>({Data:fdate(s.data),'Descrição':s.descricao,Fornecedor:fornName(s.fornecedorId),Categoria:s.categoria,'Valor (R$)':s.valor,'Contabilidade':s.semContab?'Não':'Sim','Conferido no extrato':s.conferido?'Sim':'Não'})));
   add('Contas a pagar',state.contas.map(c=>({Vencimento:fdate(c.vencimento),Fornecedor:fornName(c.fornecedorId),'Descrição':c.descricao,'Valor (R$)':c.valor,Status:contaStatus(c)==='pago'?'Paga':contaStatus(c)==='atrasado'?'Atrasada':'Pendente','Paga em':c.pagoEm?fdate(c.pagoEm):''})));
   add('Fornecedores',state.fornecedores.map(f=>({Nome:f.nome,'Serviço':f.servico,Contato:f.contato})));
-  add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Situação':c.status==='inativo'?'Inativo':'Ativo','Cliente desde':c.desde?fdate(c.desde):'','Saiu em':c.saidaEm?fdate(c.saidaEm):'','Nota fiscal':c.semNota?'Não':'Sim'})));
+  add('Clientes',state.clientes.map(c=>({Nome:c.nome,'Serviços':c.servico,'Valor mensal (R$)':c.valorMensal||'','Dia de cobrança':c.valorMensal?(c.diaCobranca||5):'','Situação':c.status==='inativo'?'Inativo':'Ativo','Cliente desde':c.desde?fdate(c.desde):'','Saiu em':c.saidaEm?fdate(c.saidaEm):'','Motivo da saída':c.motivoSaida||'','Nota fiscal':c.semNota?'Não':'Sim'})));
   add('Contratos',state.contratos.map(c=>({Cliente:cliName(c.clienteId),'Contrato':c.titulo,'Valor (R$)':c.valor,Tipo:c.periodicidade==='projeto'?'Projeto único':'Mensal','Início':fdate(c.inicio),'Término':c.fim?fdate(c.fim):'','Status':c.status,'Obs':c.obs||''})));
   add('Propostas',state.propostas.map(p=>{const t=propTotais(p);return {Data:fdate(p.data),Cliente:p.nome,'Serviços':p.itens.map(i=>i.nome).join(', '),'Mensal (R$)':t.mensal||'','Único (R$)':t.unico||'','Desconto (R$)':p.desconto||'','Válida até':p.validade?fdate(p.validade):'',Status:p.status};}));
   XLSX.writeFile(wb,'backup-financeiro-'+today()+'.xlsx');
@@ -1429,13 +1446,19 @@ function viewDashboard(){
   state.entradas.filter(e=>e.status==='recebido'&&e.clienteId).forEach(e=>{rec[e.clienteId]=(rec[e.clienteId]||0)+e.valor;});
   const top=Object.entries(rec).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const max=top.length?top[0][1]:1;
+  const _h=today(),_em7=(()=>{const d=new Date(_h+'T12:00:00');d.setDate(d.getDate()+7);return d.toISOString().slice(0,10);})();
+  const prox7=state.entradas.filter(e=>e.status==='a_receber'&&e.prevista&&e.prevista>=_h&&e.prevista<=_em7).sort((a,b)=>a.prevista.localeCompare(b.prevista));
+  const prox7Tot=prox7.reduce((a,b)=>a+b.valor,0);
+  const relPend=state.clientes.filter(c=>c.status!=='inativo'&&c.relSemanaEm!==semKey()).sort((a,b)=>(b.valorMensal||0)-(a.valorMensal||0));
   const atrasRec=state.entradas.filter(e=>e.status==='a_receber'&&e.prevista&&e.prevista<today()).sort((a,b)=>a.prevista.localeCompare(b.prevista)).slice(0,6);
 
   // comparativo com o mês anterior
   const ymAnt=(function(){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);return d.toISOString().slice(0,7);})();
-  const entAnt=state.entradas.filter(e=>ym(e.data)===ymAnt&&e.status==='recebido').reduce((a,b)=>a+b.valor,0);
-  const varPct=entAnt>0?((ent-entAnt)/entAnt*100):null;
-  const setaTxt=varPct==null?'':(varPct>=0?'▲ ':'▼ ')+Math.abs(varPct).toFixed(0)+'% vs '+monthName(ymAnt).split(' de ')[0];
+  const entAnt=state.entradas.filter(e=>ym(e.data)===ymAnt).reduce((a,b)=>a+b.valor,0);
+  // compara o previsto do mês atual (recebido + a receber) com o total do mês anterior:
+  // comparar só o já recebido punia o mês em andamento
+  const varPct=entAnt>0?(((ent+aRec)-entAnt)/entAnt*100):null;
+  const setaTxt=varPct==null?'':'previsto '+(varPct>=0?'▲ ':'▼ ')+Math.abs(varPct).toFixed(0)+'% vs '+monthName(ymAnt).split(' de ')[0];
   const setaCor=varPct==null?'var(--ink-soft)':varPct>=0?'var(--green)':'var(--red)';
   // ticket médio (clientes ativos com receita no mês)
   const clientesMes=new Set(state.entradas.filter(e=>ym(e.data)===y&&e.status==='recebido'&&e.clienteId).map(e=>e.clienteId));
@@ -1461,14 +1484,16 @@ function viewDashboard(){
     <div class="panel"><h3>Saídas por categoria (mês)</h3><div class="chartbox"><canvas id="chCat"></canvas></div></div>
   </div>
   <div class="panelrow">
-    <div class="panel"><h3>Próximos vencimentos</h3>
+    <div class="panel"><h3>${prox.length?'Próximos vencimentos':'Relatório semanal pendente'}</h3>
       ${prox.length?`<div class="duelist">${prox.map(c=>{
         const st=contaStatus(c);
         return `<div class="dueitem"><span class="dot" style="background:${st==='atrasado'?'var(--red)':'var(--amber)'}"></span>
         <div class="who"><div class="n">${esc(c.fornecedorId?fornName(c.fornecedorId):c.descricao)}</div><div class="d">${esc(c.descricao)} · vence ${fdate(c.vencimento)}${st==='atrasado'?' · <b style="color:var(--red)">atrasada</b>':''}</div></div>
         <span class="amt">${fmt(c.valor)}</span>
         <button class="btn btn-ghost btn-sm" onclick="pagarConta('${c.id}')">Pagar</button></div>`;
-      }).join('')}</div>`:`<div class="empty">Nenhuma conta pendente 🎉</div>`}
+      }).join('')}</div>`:(relPend.length?`<div class="duelist">${relPend.slice(0,6).map(c=>`<div class="dueitem"><span class="dot" style="background:var(--amber)"></span>
+        <div class="who"><div class="n">${esc(c.nome)}</div><div class="d">${esc(c.servico||'')}</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleRel('${c.id}','sem')">Enviei ✓</button></div>`).join('')}</div>${relPend.length>6?`<div class="desc-sub" style="margin-top:10px">e mais ${relPend.length-6} — veja em Clientes</div>`:''}`:`<div class="empty">Todos os relatórios da semana enviados 🎉</div>`)}
     </div>
     <div class="panel"><h3>Top clientes (receita total)</h3>
       ${top.length?`<div class="ranklist">${top.map(([id,v])=>
@@ -1483,7 +1508,12 @@ function viewDashboard(){
         <span class="amt">${fmt(e.valor)}</span>
         <button class="btn btn-ghost btn-sm" onclick="receber('${e.id}')">Recebi ✓</button></div>`).join('')}</div>`:`<div class="empty">Nenhum recebimento em atraso 🎉</div>`}
     </div>
-    <div class="panel"><h3>Formas de recebimento (mês)</h3><div class="chartbox" style="height:220px"><canvas id="chFormas"></canvas></div></div>
+    <div class="panel"><h3>Entra nos próximos 7 dias${prox7.length?` · <span style="color:var(--green)">${fmt(prox7Tot)}</span>`:''}</h3>
+      ${prox7.length?`<div class="duelist">${prox7.slice(0,6).map(e=>`<div class="dueitem"><span class="dot" style="background:var(--green)"></span>
+        <div class="who"><div class="n">${esc(e.clienteId?cliName(e.clienteId):e.descricao)}</div><div class="d">${esc(e.descricao)} · ${e.prevista===_h?'hoje':fdate(e.prevista)}</div></div>
+        <span class="amt">${fmt(e.valor)}</span>
+        <button class="btn btn-ghost btn-sm" onclick="receber('${e.id}')">Recebi ✓</button></div>`).join('')}</div>${prox7.length>6?`<div class="desc-sub" style="margin-top:10px">e mais ${prox7.length-6} em Entradas</div>`:''}`:`<div class="empty">Nada previsto para os próximos 7 dias</div>`}
+    </div>
   </div>`;
 }
 
@@ -1560,15 +1590,17 @@ function movListaHTML(kind){
       <td>${isIn?esc(cliName(x.clienteId)):esc(fornName(x.fornecedorId))}</td>
       <td>${esc(x.categoria)}</td>
       <td class="money" style="color:${isIn?'var(--green)':'var(--red)'}">${isIn?'+':'−'} ${fmt(x.valor)}</td>
-      ${isIn?`<td>${esc(x.formaPgto||'—')}</td><td>${x.status==='recebido'?'<span class="pill ok">Recebido</span>':`${x.prevista&&x.prevista<today()?'<span class="pill bad">Atrasada</span>':'<span class="pill warn">A receber</span>'} <button class="rowbtn" title="Marcar como recebido" onclick="receber('${x.id}')">✓</button>${x.prevista?`<div class="desc-sub">prev. ${fdate(x.prevista)}</div>`:''}`}</td>`:''}
-      <td><button class="rowbtn" onclick="openForm('${isIn?'entrada':'saida'}','${x.id}')">✎</button><button class="rowbtn" onclick="del('${kind}','${x.id}')">🗑</button></td>
+      ${isIn?`<td>${esc(x.formaPgto||'—')}</td><td><span class="stcell">${x.status==='recebido'?'<span class="pill ok">Recebido</span>':`${x.prevista&&x.prevista<today()?`<span class="pill bad" title="previsto para ${fdate(x.prevista)}">Atrasada · ${fdate(x.prevista).slice(0,5)}</span>`:`<span class="pill warn" title="${x.prevista?'previsto para '+fdate(x.prevista):''}">A receber</span>`}<button class="rowbtn" title="Marcar como recebido" onclick="receber('${x.id}')">✓</button>`}</span></td>`:''}
+      <td style="white-space:nowrap"><button class="rowbtn" onclick="openForm('${isIn?'entrada':'saida'}','${x.id}')">✎</button><button class="rowbtn" onclick="del('${kind}','${x.id}')">🗑</button></td>
     </tr>`).join('')}</tbody></table>`:`<div class="empty">${movFilter.q?'Nenhum lançamento encontrado para "'+esc(movFilter.q)+'".':movFilter.conf?'Nenhum lançamento com esse filtro.':'Nenhum lançamento ainda. Clique em “+ Nova '+(isIn?'entrada':'saída')+'”.'}</div>`;
 }
+let movMesIni=false;
 function viewMov(kind){
   const isIn=kind==='entradas';
+  if(!movMesIni){movMesIni=true;if(!movFilter.mes)movFilter.mes=thisYM();}
   const list=movComputeList(kind);
   const total=list.reduce((a,b)=>a+b.valor,0);
-  const months=[...new Set((isIn?state.entradas:state.saidas).map(x=>ym(x.data)))].sort().reverse();
+  const months=[...new Set([thisYM(),...(isIn?state.entradas:state.saidas).map(x=>ym(x.data))])].sort().reverse();
   const cats=isIn?CAT_IN:CAT_OUT;
   const base=(isIn?state.entradas:state.saidas).filter(x=>(!movFilter.mes||ym(x.data)===movFilter.mes)&&(!movFilter.cat||x.categoria===movFilter.cat));
   const nConf=base.filter(x=>x.conferido).length;
@@ -2042,7 +2074,7 @@ function toggleRel(id,tipo){
 function viewClientes(){
   const ano=new Date().getFullYear()+'';
   const y=thisYM();
-  const mrr=state.clientes.reduce((a,b)=>a+(b.valorMensal||0),0);
+  const mrr=state.clientes.filter(c=>c.status!=='inativo').reduce((a,b)=>a+(b.valorMensal||0),0);
   const noAno={},desde={};
   state.entradas.filter(e=>e.clienteId).forEach(e=>{
     if(e.status==='recebido'&&e.data.slice(0,4)===ano)noAno[e.clienteId]=(noAno[e.clienteId]||0)+e.valor;
@@ -2064,6 +2096,16 @@ function viewClientes(){
   ).length;
   const entraram=state.clientes.filter(c=>c.desde&&c.desde.slice(0,4)===ano).length;
   const sairam=state.clientes.filter(c=>c.saidaEm&&c.saidaEm.slice(0,4)===ano).length;
+  // por que saem e quanto tempo ficam
+  const saidosAno=state.clientes.filter(c=>c.saidaEm&&c.saidaEm.slice(0,4)===ano);
+  const motivos={};saidosAno.forEach(c=>{const m=c.motivoSaida||'Sem motivo informado';motivos[m]=(motivos[m]||0)+1;});
+  const motivosOrd=Object.entries(motivos).sort((a,b)=>b[1]-a[1]);
+  const inicioDe=c=>c.desde||desde[c.id]||null;
+  const meses=(a,b)=>Math.max(0,(new Date(b)-new Date(a))/2629800000);
+  const perm=state.clientes.filter(c=>c.saidaEm&&inicioDe(c)).map(c=>meses(inicioDe(c),c.saidaEm));
+  const permMedia=perm.length?perm.reduce((a,b)=>a+b,0)/perm.length:null;
+  const fmtMeses=m=>m==null?'—':m<1?'menos de 1 mês':(m<12?Math.round(m)+' '+(Math.round(m)===1?'mês':'meses'):(m/12).toFixed(1).replace('.',',')+' anos');
+  const semMotivo=motivos['Sem motivo informado']||0;
   let lista=state.clientes.slice();
   if(cliFiltro==='ativos')lista=lista.filter(ativo);
   if(cliFiltro==='inativos')lista=lista.filter(c=>!ativo(c));
@@ -2075,8 +2117,12 @@ function viewClientes(){
     <div class="card"><div class="lbl">Clientes ativos</div><div class="val pos">${ativos.length}</div></div>
     <div class="card"><div class="lbl">Atendidos em ${ano}</div><div class="val">${noAnoAtendidos}</div><div class="note">no ano todo</div></div>
     <div class="card"><div class="lbl">Entraram em ${ano}</div><div class="val" style="color:var(--terra)">${entraram}</div></div>
-    <div class="card"><div class="lbl">Sairam em ${ano}</div><div class="val ${sairam?'neg':''}">${sairam}</div></div>
+    <div class="card"><div class="lbl">Saíram em ${ano}</div><div class="val ${sairam?'neg':''}">${sairam}</div><div class="note">ficam em média ${fmtMeses(permMedia)}</div></div>
   </div>
+  ${sairam?`<div class="panel" style="margin-bottom:20px"><h3>Por que os clientes saíram em ${ano}</h3>
+    <div class="ranklist">${motivosOrd.map(([m,n])=>`<div class="rk"><span class="nm" style="width:220px">${esc(m)}</span><span class="bar" style="width:${Math.max(10,Math.round(n/motivosOrd[0][1]*160))}px;${m==='Sem motivo informado'?'opacity:.35':''}"></span><span class="vl">${n} cliente(s)</span></div>`).join('')}</div>
+    ${semMotivo?`<p style="font-size:13px;color:var(--ink-soft);margin-top:12px">${semMotivo} saída(s) sem motivo. Abra o cliente inativo (✎) e escolha o motivo — com isso dá pra ver o que mais faz cliente sair.</p>`:''}
+  </div>`:''}
   <div class="filters">
     <select onchange="setCliFiltro(this.value)">
       <option value="ativos" ${cliFiltro==='ativos'?'selected':''}>Somente ativos (${ativos.length})</option>
@@ -2102,6 +2148,7 @@ function viewClientes(){
         <div><span>Recebido em ${ano}</span><b>${fmt(noAno[c.id]||0)}</b></div>
         <div><span>${ativo(c)?'Cliente desde':'Período'}</span><b>${c.desde?fdate(c.desde):(desde[c.id]?fdate(desde[c.id]):'—')}${ativo(c)?'':(c.saidaEm?' → '+fdate(c.saidaEm):'')}</b></div>
       </div>
+      ${!ativo(c)&&c.motivoSaida?`<div style="font-size:12.5px;color:var(--ink-soft);margin-top:10px">Motivo: ${esc(c.motivoSaida)}</div>`:''}
     </div>`;}).join('')}</div>`:`<div class="panel"><div class="empty">Nenhum cliente cadastrado. Clique em "+ Novo cliente".</div></div>`}`;
 }
 
@@ -2807,13 +2854,39 @@ function propTotais(p){
   const unico=p.itens.filter(i=>i.tipo!=='mensal').reduce((a,b)=>a+b.valor,0);
   return {mensal,unico};
 }
+let propFiltro='todas';
+function setPropFiltro(v){propFiltro=v;render();}
 function viewPropostas(){
-  const list=state.propostas.slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
-  const abertas=list.filter(p=>p.status==='enviada').length;
+  const todas=state.propostas.slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
   const hoje=today();
+  const expirada=p=>p.status==='enviada'&&p.validade&&p.validade<hoje;
+  const aguardando=todas.filter(p=>p.status==='enviada'&&!expirada(p));
+  const expiradas=todas.filter(expirada);
+  const ano=hoje.slice(0,4);
+  const doAno=todas.filter(p=>(p.data||'').slice(0,4)===ano);
+  const aceitas=doAno.filter(p=>p.status==='aceita').length,recusadas=doAno.filter(p=>p.status==='recusada').length;
+  const decididas=aceitas+recusadas;
+  const conv=decididas?Math.round(aceitas/decididas*100):null;
+  const emJogo=aguardando.reduce((a,p)=>a+(propTotais(p).mensal||0),0);
+  const diasDesde=d=>d?Math.floor((new Date(hoje)-new Date(d))/86400000):0;
+  const list=propFiltro==='aguardando'?aguardando:propFiltro==='expiradas'?expiradas:propFiltro==='aceitas'?todas.filter(p=>p.status==='aceita'):propFiltro==='recusadas'?todas.filter(p=>p.status==='recusada'):todas;
+  const abertas=aguardando.length;
   return `
-  <div class="topbar"><div><h1>Propostas</h1><div class="sub">${list.length} proposta(s) · ${abertas} aguardando resposta</div></div>
+  <div class="topbar"><div><h1>Propostas</h1><div class="sub">${todas.length} proposta(s) · ${abertas} aguardando resposta</div></div>
     <button class="btn btn-primary" onclick="openProposta()">+ Nova proposta</button></div>
+  <div class="cards" style="margin-bottom:18px">
+    <div class="card"><div class="lbl">Taxa de fechamento ${ano}</div><div class="val ${conv==null?'':conv>=50?'pos':''}">${conv==null?'—':conv+'%'}</div><div class="note">${aceitas} aceita(s) de ${decididas} respondida(s)</div></div>
+    <div class="card"><div class="lbl">Aguardando resposta</div><div class="val">${abertas}</div><div class="note">dentro da validade</div></div>
+    <div class="card"><div class="lbl">Em negociação</div><div class="val" style="color:var(--amber)">${fmt(emJogo)}</div><div class="note">por mês, se todas fecharem</div></div>
+    <div class="card"><div class="lbl">Expiradas sem resposta</div><div class="val ${expiradas.length?'neg':''}">${expiradas.length}</div><div class="note">${expiradas.length?'vale um último contato':'nenhuma'}</div></div>
+  </div>
+  <div class="filters"><select onchange="setPropFiltro(this.value)">
+    <option value="todas" ${propFiltro==='todas'?'selected':''}>Todas (${todas.length})</option>
+    <option value="aguardando" ${propFiltro==='aguardando'?'selected':''}>Aguardando resposta (${abertas})</option>
+    <option value="expiradas" ${propFiltro==='expiradas'?'selected':''}>Expiradas sem resposta (${expiradas.length})</option>
+    <option value="aceitas" ${propFiltro==='aceitas'?'selected':''}>Aceitas</option>
+    <option value="recusadas" ${propFiltro==='recusadas'?'selected':''}>Recusadas</option>
+  </select></div>
   <div class="panel">${list.length?`<table><thead><tr>
     <th>Data</th><th>Cliente</th><th>Serviços</th><th>Valor</th><th>Válida até</th><th>Status</th><th></th></tr></thead>
     <tbody>${list.map(p=>{const t=propTotais(p);const venceu=p.validade&&p.validade<hoje&&p.status==='enviada';
@@ -2822,7 +2895,7 @@ function viewPropostas(){
       <td><b>${esc(p.nome)}</b>${p.contato?`<div class="desc-sub">${esc(p.contato)}</div>`:''}</td>
       <td>${p.itens.map(i=>esc(i.nome)).join(', ')}${durTxt(p)?`<div class="desc-sub">contrato de ${durTxt(p)}</div>`:''}</td>
       <td class="money">${t.mensal?fmt(t.mensal)+'/mês':''}${t.mensal&&t.unico?'<div class="desc-sub">+ '+fmt(t.unico)+' único</div>':t.unico?fmt(t.unico):''}</td>
-      <td>${p.validade?fdate(p.validade):'—'}${venceu?' <span class="pill bad" style="font-size:11px">expirada</span>':''}</td>
+      <td>${p.validade?fdate(p.validade):'—'}${venceu?' <span class="pill bad" style="font-size:11px">expirada</span>':(p.status==='enviada'&&diasDesde(p.data)>=5?` <div class="desc-sub" style="color:var(--amber)">sem resposta há ${diasDesde(p.data)} dias</div>`:'')}</td>
       <td><select style="padding:5px 8px;border:1.5px solid var(--rose);border-radius:8px;background:var(--cream);font-size:12.5px;outline:none" onchange="setPropStatus('${p.id}',this.value)">
         <option value="rascunho" ${p.status==='rascunho'?'selected':''}>Rascunho</option>
         <option value="enviada" ${p.status==='enviada'?'selected':''}>Enviada</option>
@@ -2830,7 +2903,7 @@ function viewPropostas(){
         <option value="recusada" ${p.status==='recusada'?'selected':''}>Recusada</option>
       </select></td>
       <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="gerarPropostaPDF('${p.id}')">⤓ PDF</button> <button class="btn btn-ghost btn-sm" title="Gerar contrato a partir desta proposta" onclick="openGerarContrato(null,{propostaId:'${p.id}'})">Contrato</button> <button class="rowbtn" onclick="openProposta('${p.id}')">✎</button><button class="rowbtn" onclick="del('propostas','${p.id}')">🗑</button></td>
-    </tr>`;}).join('')}</tbody></table>`:`<div class="empty">Nenhuma proposta ainda. Clique em "+ Nova proposta" para montar a primeira.</div>`}</div>`;
+    </tr>`;}).join('')}</tbody></table>`:`<div class="empty">${todas.length?'Nenhuma proposta neste filtro.':'Nenhuma proposta ainda. Clique em "+ Nova proposta" para montar a primeira.'}</div>`}</div>`;
 }
 function setPropStatus(id,v){const p=state.propostas.find(x=>x.id===id);if(p){p.status=v;save();render();}}
 function propRowHTML(i){
@@ -3024,7 +3097,8 @@ function viewMeta(){
   const pct=meta>0?Math.min(total/meta*100,100):0;
   const mesesPassados=new Date().getMonth()+1;
   const mediaAtual=total/mesesPassados;
-  const mesesRestantes=12-mesesPassados;
+  // inclui o mês corrente, que ainda está aberto
+  const mesesRestantes=12-new Date().getMonth();
   const ritmo=mesesRestantes>0?falta/mesesRestantes:0;
   const batida=total>=meta&&meta>0;
   return `
@@ -3093,11 +3167,16 @@ function viewAnual(){
   const totalSai=d.sai.reduce((a,b)=>a+b,0);
   const totalImp=d.imp.reduce((a,b)=>a+b,0);
   const lucro=totalEnt-totalSai;
-  const mesesComDados=d.ent.filter(v=>v>0).length||1;
-  const media=totalEnt/mesesComDados;
+  // no ano corrente, só os meses já encerrados entram em média, melhor e menor mês
+  const _hj=new Date(),_anoAt=_hj.getFullYear(),_mesAt=_hj.getMonth();
+  const fechado=i=>anualAno<_anoAt||(anualAno===_anoAt&&i<_mesAt);
+  const idxFech=d.ent.map((v,i)=>i).filter(i=>fechado(i)&&d.ent[i]>0);
+  const mesesComDados=idxFech.length||d.ent.filter(v=>v>0).length||1;
+  const media=(idxFech.length?idxFech.reduce((a,i)=>a+d.ent[i],0):totalEnt)/mesesComDados;
   const nomes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   let melhor={v:-1,m:0},pior={v:Infinity,m:0};
-  d.ent.forEach((v,i)=>{if(v>0){if(v>melhor.v)melhor={v,m:i};if(v<pior.v)pior={v,m:i};}});
+  d.ent.forEach((v,i)=>{if(v>0&&fechado(i)){if(v>melhor.v)melhor={v,m:i};if(v<pior.v)pior={v,m:i};}});
+  const parcial=anualAno===_anoAt;
   // crescimento: compara com ano anterior
   const dAnt=dadosAnuais(anualAno-1);
   const totalAnt=dAnt.ent.reduce((a,b)=>a+b,0);
@@ -3114,14 +3193,14 @@ function viewAnual(){
       <button class="btn btn-primary" onclick="gerarFechamentoPDF(${anualAno})">⤓ PDF do ano</button>
     </div></div>
   <div class="cards">
-    <div class="card"><div class="lbl">Faturamento do ano</div><div class="val pos">${fmt(totalEnt)}</div><div class="note">média de ${fmt(media)}/mês</div></div>
+    <div class="card"><div class="lbl">Faturamento do ano</div><div class="val pos">${fmt(totalEnt)}</div><div class="note">média de ${fmt(media)}/mês${parcial?' (meses fechados)':''}</div></div>
     <div class="card"><div class="lbl">Despesas do ano</div><div class="val neg">${fmt(totalSai)}</div></div>
     <div class="card"><div class="lbl">Lucro do ano</div><div class="val ${lucro>=0?'pos':'neg'}">${fmt(lucro)}</div><div class="note">${totalEnt>0?(lucro/totalEnt*100).toFixed(0):0}% de margem</div></div>
     <div class="card"><div class="lbl">vs ${anualAno-1}</div><div class="val" style="color:${cresc==null?'var(--ink-soft)':cresc>=0?'var(--green)':'var(--red)'}">${cresc==null?'—':(cresc>=0?'+':'')+cresc.toFixed(0)+'%'}</div><div class="note">${cresc==null?'sem ano anterior':'crescimento'}</div></div>
   </div>
   <div class="cards" style="margin-bottom:24px">
-    <div class="card"><div class="lbl">Melhor mês</div><div class="val" style="font-size:22px">${melhor.v>0?nomes[melhor.m]:'—'}</div><div class="note">${melhor.v>0?fmt(melhor.v):''}</div></div>
-    <div class="card"><div class="lbl">Menor mês</div><div class="val" style="font-size:22px">${pior.v<Infinity?nomes[pior.m]:'—'}</div><div class="note">${pior.v<Infinity?fmt(pior.v):''}</div></div>
+    <div class="card"><div class="lbl">Melhor mês${parcial?' fechado':''}</div><div class="val" style="font-size:22px">${melhor.v>0?nomes[melhor.m]:'—'}</div><div class="note">${melhor.v>0?fmt(melhor.v):''}</div></div>
+    <div class="card"><div class="lbl">Menor mês${parcial?' fechado':''}</div><div class="val" style="font-size:22px">${pior.v<Infinity?nomes[pior.m]:'—'}</div><div class="note">${pior.v<Infinity?fmt(pior.v):''}</div></div>
     <div class="card"><div class="lbl">Impostos no ano</div><div class="val" style="color:var(--amber)">${fmt(totalImp)}</div><div class="note">${totalEnt>0?(totalImp/totalEnt*100).toFixed(1):0}% do faturamento</div></div>
     <div class="card"><div class="lbl">Pró-labore no ano</div><div class="val">${fmt(d.prolabore)}</div></div>
   </div>
@@ -3134,11 +3213,13 @@ function drawAnualChart(){
   const d=dadosAnuais(anualAno);
   const el=document.getElementById('chAnual');if(!el)return;
   Chart.defaults.font.family='Jost';Chart.defaults.color='#7A5F58';
-  const lucro=d.ent.map((v,i)=>v-d.sai[i]);
+  const _hj=new Date(),_fut=i=>anualAno>_hj.getFullYear()||(anualAno===_hj.getFullYear()&&i>_hj.getMonth());
+  const lucro=d.ent.map((v,i)=>_fut(i)?null:v-d.sai[i]);
+  const entG=d.ent.map((v,i)=>_fut(i)?null:v),saiG=d.sai.map((v,i)=>_fut(i)?null:v);
   charts.anual=new Chart(el,{
     data:{labels:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],datasets:[
-      {type:'bar',label:'Faturamento',data:d.ent,backgroundColor:'#8A4B41',borderRadius:6,barPercentage:.7,categoryPercentage:.7},
-      {type:'bar',label:'Despesas',data:d.sai,backgroundColor:'#EDCFC6',borderRadius:6,barPercentage:.7,categoryPercentage:.7},
+      {type:'bar',label:'Faturamento',data:entG,backgroundColor:'#8A4B41',borderRadius:6,barPercentage:.7,categoryPercentage:.7},
+      {type:'bar',label:'Despesas',data:saiG,backgroundColor:'#EDCFC6',borderRadius:6,barPercentage:.7,categoryPercentage:.7},
       {type:'line',label:'Lucro',data:lucro,borderColor:'#6F8F6B',backgroundColor:'#6F8F6B',pointRadius:3,borderWidth:2,tension:.3}
     ]},
     options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle'}}},scales:{y:{grid:{color:'rgba(138,75,65,.08)'},ticks:{callback:v=>'R$ '+(v/1000)+'k'}},x:{grid:{display:false}}}}});
@@ -3508,7 +3589,10 @@ function openForm(type,id){
       </select></div>
       <div class="field"><label>Cliente desde</label><input type="date" id="f_cini" value="${c&&c.desde?c.desde:''}"></div>
     </div>
-    <div class="field" id="boxSaida" style="display:${c&&c.status==='inativo'?'block':'none'}"><label>Data de saída</label><input type="date" id="f_cfim" value="${c&&c.saidaEm?c.saidaEm:''}"></div>
+    <div id="boxSaida" style="display:${c&&c.status==='inativo'?'block':'none'}"><div class="fieldrow">
+      <div class="field"><label>Data de saída</label><input type="date" id="f_cfim" value="${c&&c.saidaEm?c.saidaEm:''}"></div>
+      <div class="field"><label>Motivo da saída</label><select id="f_cmot"><option value="">— escolha —</option>${MOTIVOS_SAIDA.map(m=>`<option ${c&&c.motivoSaida===m?'selected':''}>${m}</option>`).join('')}</select></div>
+    </div></div>
     <div class="field"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><input type="checkbox" id="f_csn" style="width:auto" ${c&&c.semNota?'checked':''}> Não emito nota fiscal para este cliente</label></div>
     <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px">Com o valor mensal preenchido, a mensalidade é lançada automaticamente todo mês como "a receber" — é só marcar ✓ quando cair o pagamento.</p>`;
   }
@@ -3556,7 +3640,7 @@ function submitForm(type,id){
     const extras=gv('f_servx').split(',').map(s=>s.trim()).filter(Boolean);
     const servicos=[...marcados,...extras];
     const st=gv('f_cst')||'ativo';
-    const obj={nome:gv('f_nome'),servicos,servico:servicos.join(', '),valorMensal:num(gv('f_vm')),diaCobranca:Math.min(Math.max(parseInt(gv('f_dia'))||5,1),28),categoria:gv('f_ccat')||'Gestão de redes',semNota:document.getElementById('f_csn').checked,status:st,desde:gv('f_cini')||null,saidaEm:st==='inativo'?(gv('f_cfim')||today()):null};
+    const obj={nome:gv('f_nome'),servicos,servico:servicos.join(', '),valorMensal:num(gv('f_vm')),diaCobranca:Math.min(Math.max(parseInt(gv('f_dia'))||5,1),28),categoria:gv('f_ccat')||'Gestão de redes',semNota:document.getElementById('f_csn').checked,status:st,desde:gv('f_cini')||null,saidaEm:st==='inativo'?(gv('f_cfim')||today()):null,motivoSaida:st==='inativo'?(gv('f_cmot')||null):null};
     if(id){Object.assign(state.clientes.find(x=>x.id===id),obj);}else{state.clientes.push({id:uid(),...obj});}
   }
   save();closeModal();render();
